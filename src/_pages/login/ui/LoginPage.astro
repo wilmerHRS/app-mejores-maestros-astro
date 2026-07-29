@@ -1,0 +1,61 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { LoginForm } from './LoginForm';
+---
+
+<Layout>
+  <div class="min-h-screen w-full flex flex-col md:flex-row bg-slate-50 font-sans">
+    <!-- Left Pane (Form) -->
+    <div class="flex-1 flex items-center justify-center p-6 sm:p-12 md:p-16 bg-gradient-to-tr from-slate-50 via-indigo-50/20 to-blue-50/40 relative overflow-hidden">
+      <!-- Decorative background blobs -->
+      <div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-500/5 blur-[120px] pointer-events-none"></div>
+      <div class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-violet-600/5 blur-[120px] pointer-events-none"></div>
+
+      <div class="w-full max-w-md relative z-10 animate-fade-in">
+        <!-- Logo or Brand Header -->
+        <div class="text-center mb-8">
+          <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl overflow-hidden shadow-lg shadow-slate-200/80 mb-4 bg-[#4a6da7]">
+            <img src="/jw-logo.svg" alt="JW Logo" class="w-full h-full object-cover" />
+          </div>
+          <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">
+            Mejores Maestros
+          </h1>
+          <p class="text-slate-500 text-sm mt-2">
+            Inicia sesión para continuar a tu panel
+          </p>
+        </div>
+
+        <!-- React Login Form Island -->
+        <LoginForm client:load />
+      </div>
+    </div>
+
+    <!-- Right Pane (Image) -->
+    <div class="hidden md:block md:w-1/2 lg:w-3/5 relative overflow-hidden bg-slate-100">
+      <img
+        src="/vida-ministerio-bglogin.jpg"
+        alt="Vida y Ministerio"
+        class="absolute inset-0 w-full h-full object-cover"
+      />
+      <!-- Soft gradient overlay matching the logo theme -->
+      <div class="absolute inset-0 bg-gradient-to-tr from-[#4a6da7]/20 to-indigo-600/10 mix-blend-multiply"></div>
+    </div>
+  </div>
+
+  <style>
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .animate-slide-in {
+      animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+  </style>
+</Layout>

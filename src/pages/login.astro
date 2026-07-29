@@ -1,0 +1,16 @@
+---
+import { LoginPage } from '@/_pages/login';
+import { verifyFirebaseSessionCookie } from '@/shared/api';
+
+const session = Astro.cookies.get('session')?.value;
+if (session) {
+  try {
+    await verifyFirebaseSessionCookie(session);
+    return Astro.redirect('/dashboard');
+  } catch (e) {
+    // Session cookie is invalid or expired
+    Astro.cookies.delete('session', { path: '/' });
+  }
+}
+---
+<LoginPage />
