@@ -1,85 +1,38 @@
 import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { loginSchema, type LoginFields } from '../model/login';
 
 export function LoginForm() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [generalError, setGeneralError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Validation States
-  const [emailError, setEmailError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  const [generalError, setGeneralError] = useState('');
+  const { register, handleSubmit, formState: { errors } } = useForm<LoginFields>({
+    resolver: zodResolver(loginSchema)
+  });
 
-  const validateEmail = (value: string): boolean => {
-    if (!value) {
-      setEmailError('El correo electrónico es requerido');
-      return false;
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(value)) {
-      setEmailError('El formato del correo electrónico no es válido');
-      return false;
-    }
-    setEmailError('');
-    return true;
-  };
-
-  const validatePassword = (value: string): boolean => {
-    if (!value) {
-      setPasswordError('La contraseña es requerida');
-      return false;
-    }
-    if (value.length < 6) {
-      setPasswordError('La contraseña debe tener al menos 6 caracteres');
-      return false;
-    }
-    setPasswordError('');
-    return true;
-  };
-
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setEmail(value);
-    if (emailError) validateEmail(value);
-  };
-
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setPassword(value);
-    if (passwordError) validatePassword(value);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: LoginFields) => {
     setGeneralError('');
-
-    const isEmailValid = validateEmail(email);
-    const isPasswordValid = validatePassword(password);
-
-    if (!isEmailValid || !isPasswordValid) {
-      return;
-    }
-
     setIsLoading(true);
 
     try {
       const res = await fetch('/api/auth/signin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify(data)
       });
 
-      const data = await res.json() as { success?: boolean; error?: string };
+      const result = await res.json() as { success?: boolean; error?: string; redirectTo?: string };
 
       if (!res.ok) {
-        setGeneralError(data.error || 'Error al iniciar sesión');
+        setGeneralError(result.error || 'Error al iniciar sesión');
         setIsLoading(false);
         return;
       }
 
-      // Redirect to dashboard on success
-      window.location.href = '/dashboard';
+      // Redirect to correct setup/dashboard path on success
+      window.location.href = result.redirectTo || '/dashboard';
     } catch (err) {
       setGeneralError('Error de conexión con el servidor');
       setIsLoading(false);
@@ -103,7 +56,7 @@ export function LoginForm() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
         <div>
           <label htmlFor="email" className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-2">
             Correo Electrónico
@@ -117,18 +70,15 @@ export function LoginForm() {
             <input
               type="email"
               id="email"
-              name="email"
-              value={email}
-              onChange={handleEmailChange}
-              onBlur={() => validateEmail(email)}
+              {...register('email')}
               placeholder="correo@ejemplo.com"
               className={`w-full pl-10 pr-4 py-3 bg-slate-50 border rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300 text-sm ${
-                emailError ? 'border-red-300 focus:border-red-500' : 'border-slate-200 focus:border-indigo-500'
+                errors.email ? 'border-red-300 focus:border-red-500' : 'border-slate-200 focus:border-indigo-500'
               }`}
             />
           </div>
-          {emailError && (
-            <p className="mt-1.5 text-xs text-red-600 animate-slide-in">{emailError}</p>
+          {errors.email && (
+            <p className="mt-1.5 text-xs text-red-600 animate-slide-in">{errors.email.message}</p>
           )}
         </div>
 
@@ -147,13 +97,10 @@ export function LoginForm() {
             <input
               type={showPassword ? 'text' : 'password'}
               id="password"
-              name="password"
-              value={password}
-              onChange={handlePasswordChange}
-              onBlur={() => validatePassword(password)}
+              {...register('password')}
               placeholder="••••••••"
               className={`w-full pl-10 pr-10 py-3 bg-slate-50 border rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300 text-sm ${
-                passwordError ? 'border-red-300 focus:border-red-500' : 'border-slate-200 focus:border-indigo-500'
+                errors.password ? 'border-red-300 focus:border-red-500' : 'border-slate-200 focus:border-indigo-500'
               }`}
             />
             <button
@@ -173,8 +120,8 @@ export function LoginForm() {
               )}
             </button>
           </div>
-          {passwordError && (
-            <p className="mt-1.5 text-xs text-red-600 animate-slide-in">{passwordError}</p>
+          {errors.password && (
+            <p className="mt-1.5 text-xs text-red-600 animate-slide-in">{errors.password.message}</p>
           )}
         </div>
 

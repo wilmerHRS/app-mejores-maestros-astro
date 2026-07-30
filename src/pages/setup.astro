@@ -1,5 +1,5 @@
 ---
-import { DashboardPage } from '@/_pages/dashboard';
+import { SetupPage } from '@/_pages/setup';
 import { verifyFirebaseSessionCookie, checkUserExists } from '@/shared/api';
 
 const session = Astro.cookies.get('session')?.value;
@@ -10,13 +10,12 @@ if (!session) {
 try {
   const decoded = await verifyFirebaseSessionCookie(session);
   const hasProfile = await checkUserExists(decoded.uid);
-  if (!hasProfile) {
-    return Astro.redirect('/setup');
+  if (hasProfile) {
+    return Astro.redirect('/dashboard');
   }
 } catch (e) {
-  // Session cookie is invalid or expired
   Astro.cookies.delete('session', { path: '/' });
   return Astro.redirect('/login');
 }
 ---
-<DashboardPage />
+<SetupPage />

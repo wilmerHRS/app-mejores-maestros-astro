@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { getFirebaseApiKey, createFirebaseSessionCookie, type SignInRequest, type SignInResponse } from '@/shared/api';
+import { getFirebaseApiKey, createFirebaseSessionCookie, checkUserExists, type SignInRequest, type SignInResponse } from '@/shared/api';
 import { setSessionCookie } from '@/shared/auth/cookie';
 
 export const signinHandler: APIRoute = async ({ request, cookies }) => {
@@ -41,12 +41,16 @@ export const signinHandler: APIRoute = async ({ request, cookies }) => {
     }
 
     const idToken = data.idToken;
+    const uid = data.localId;
     const expiresInSeconds = 60 * 60 * 24 * 5; // 5 days
     const sessionCookie = await createFirebaseSessionCookie(idToken, expiresInSeconds);
 
     setSessionCookie(cookies, sessionCookie, expiresInSeconds);
 
-    return new Response(JSON.stringify({ success: true } as SignInResponse), {
+    const hasProfile = await checkUserExists(uid);
+    const redirectTo = hasProfile ? '/dashboard' : '/setup';
+
+    return new Response(JSON.stringify({ success: true, redirectTo } as SignInResponse), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });

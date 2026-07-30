@@ -1,12 +1,17 @@
 ---
 import { LoginPage } from '@/_pages/login';
-import { verifyFirebaseSessionCookie } from '@/shared/api';
+import { verifyFirebaseSessionCookie, checkUserExists } from '@/shared/api';
 
 const session = Astro.cookies.get('session')?.value;
 if (session) {
   try {
-    await verifyFirebaseSessionCookie(session);
-    return Astro.redirect('/dashboard');
+    const decoded = await verifyFirebaseSessionCookie(session);
+    const hasProfile = await checkUserExists(decoded.uid);
+    if (hasProfile) {
+      return Astro.redirect('/dashboard');
+    } else {
+      return Astro.redirect('/setup');
+    }
   } catch (e) {
     // Session cookie is invalid or expired
     Astro.cookies.delete('session', { path: '/' });

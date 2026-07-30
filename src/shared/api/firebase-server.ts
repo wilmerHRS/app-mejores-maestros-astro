@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import { base64url, base64urlToBase64 } from '@/shared/lib';
 import type { FirebaseDecodedToken } from './auth';
+import type { Congregation } from './congregation';
 
 
 
@@ -198,4 +199,139 @@ function verifySignature(dataToVerify: string, signatureBase64: string, publicKe
   if (!isValid) {
     throw new Error('JWT signature verification failed');
   }
+}
+
+export async function checkUserExists(uid: string): Promise<boolean> {
+  const serviceAccount = getServiceAccount();
+  const accessToken = await getAccessToken(serviceAccount);
+  const url = `https://firestore.googleapis.com/v1/projects/${serviceAccount.project_id}/databases/(default)/documents/user/${uid}`;
+
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`
+    }
+  });
+
+  if (res.status === 200) {
+    return true;
+  }
+  if (res.status === 404) {
+    return false;
+  }
+
+  const errData = await res.json() as any;
+  throw new Error(`Failed to check user existence in Firestore: ${JSON.stringify(errData)}`);
+}
+
+export async function createUserProfile(uid: string, data: { name: string; lastname: string; congregationId: string }): Promise<void> {
+  const serviceAccount = getServiceAccount();
+  const accessToken = await getAccessToken(serviceAccount);
+  const projectId = serviceAccount.project_id;
+  const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/user/${uid}`;
+
+  const body = {
+    fields: {
+      name: { stringValue: data.name },
+      lastname: { stringValue: data.lastname },
+      uuid: { stringValue: uid },
+      congregationId: { referenceValue: `projects/${projectId}/databases/(default)/documents/congregation/${data.congregationId}` },
+      createdAt: { timestampValue: new Date().toISOString() },
+      updatedAt: { timestampValue: new Date().toISOString() }
+    }
+  };
+
+  const res = await fetch(url, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+
+  if (!res.ok) {
+    const errData = await res.json() as any;
+    throw new Error(`Failed to create user profile in Firestore: ${JSON.stringify(errData)}`);
+  }
+}
+
+export async function getCongregations(): Promise<Congregation[]> {
+  const serviceAccount = getServiceAccount();
+  const accessToken = await getAccessToken(serviceAccount);
+  const projectId = serviceAccount.project_id;
+  const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/congregation`;
+
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`
+    }
+  });
+
+  if (!res.ok) {
+    const errData = await res.json() as any;
+    throw new Error(`Failed to get congregations: ${JSON.stringify(errData)}`);
+  }
+
+  const data = await res.json() as { documents?: any[] };
+  if (!data.documents) {
+    return [];
+  }
+
+  return data.documents.map((doc: any) => {
+    const parts = doc.name.split('/');
+    const id = parts[parts.length - 1];
+    return {
+      id,
+      name: doc.fields?.name?.stringValue || '',
+      address: doc.fields?.address?.stringValue || '',
+      department: doc.fields?.department?.stringValue || '',
+      district: doc.fields?.district?.stringValue || '',
+      zipCode: doc.fields?.zipCode?.stringValue || ''
+    };
+  });
+}
+
+export async function createCongregation(data: {
+  name: string;
+  address: string;
+  department: string;
+  district: string;
+  zipCode: string;
+}): Promise<string> {
+  const serviceAccount = getServiceAccount();
+  const accessToken = await getAccessToken(serviceAccount);
+  const projectId = serviceAccount.project_id;
+  const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/congregation`;
+
+  const body = {
+    fields: {
+      name: { stringValue: data.name },
+      address: { stringValue: data.address },
+      department: { stringValue: data.department },
+      district: { stringValue: data.district },
+      zipCode: { stringValue: data.zipCode },
+      createdAt: { timestampValue: new Date().toISOString() },
+      updatedAt: { timestampValue: new Date().toISOString() }
+    }
+  };
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+
+  if (!res.ok) {
+    const errData = await res.json() as any;
+    throw new Error(`Failed to create congregation: ${JSON.stringify(errData)}`);
+  }
+
+  const doc = await res.json() as { name: string };
+  const parts = doc.name.split('/');
+  return parts[parts.length - 1];
 }

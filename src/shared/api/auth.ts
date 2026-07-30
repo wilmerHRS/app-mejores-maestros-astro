@@ -6,6 +6,7 @@ export interface SignInRequest {
 export interface SignInResponse {
   success?: boolean;
   error?: string;
+  redirectTo?: string;
 }
 
 export interface SignUpRequest {
