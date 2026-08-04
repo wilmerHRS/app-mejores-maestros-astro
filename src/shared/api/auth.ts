@@ -28,3 +28,16 @@ export interface FirebaseDecodedToken {
   email?: string;
   [key: string]: any;
 }
+
+export async function loginClient(data: SignInRequest): Promise<SignInResponse> {
+  const res = await fetch('/api/auth/signin', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  const result = await res.json() as SignInResponse;
+  if (!res.ok) {
+    throw new Error(result.error || 'Error al iniciar sesión');
+  }
+  return result;
+}

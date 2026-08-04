@@ -12,4 +12,6 @@ export function setSessionCookie(cookies: AstroCookies, value: string, maxAgeInS
 
 export function deleteSessionCookie(cookies: AstroCookies): void {
   cookies.delete('session', { path: '/' });
+  cookies.delete('user_profile', { path: '/' });
+  cookies.delete('user_congregation', { path: '/' });
 }

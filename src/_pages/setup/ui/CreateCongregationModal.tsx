@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import type { Congregation } from '@/shared/api';
+import { createCongregationClient, type Congregation } from '@/shared/api';
 import { congregationSchema, type CongregationFields } from '../model/setup';
 
 interface CreateCongregationModalProps {
@@ -38,30 +38,11 @@ export function CreateCongregationModal({ isOpen, onClose, onSuccess }: CreateCo
     setModalError('');
     setIsModalLoading(true);
     try {
-      const res = await fetch('/api/congregation/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-
-      const result = await res.json() as { success?: boolean; id?: string; error?: string };
-
-      if (!res.ok) {
-        setModalError(result.error || 'Error al crear la congregación');
-        setIsModalLoading(false);
-        return;
-      }
-
-      const createdId = result.id!;
-      const newCong: Congregation = {
-        id: createdId,
-        ...data
-      };
-
+      const newCong = await createCongregationClient(data);
       onSuccess(newCong);
       reset(); // Reset form states
-    } catch (err) {
-      setModalError('Error de conexión con el servidor');
+    } catch (err: any) {
+      setModalError(err.message || 'Error de conexión con el servidor');
     } finally {
       setIsModalLoading(false);
     }

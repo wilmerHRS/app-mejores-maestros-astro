@@ -1,3 +1,3 @@
-import { createCongregationHandler } from '@/app/api-routes/congregation/create';
+import { createCongregationHandler } from '@/app/api-routes';
 
 export const POST = createCongregationHandler;

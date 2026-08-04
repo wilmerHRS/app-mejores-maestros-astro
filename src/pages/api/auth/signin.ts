@@ -1,3 +1,3 @@
-import { signinHandler } from '@/app/api-routes/auth/signin';
+import { signinHandler } from '@/app/api-routes';
 
 export const POST = signinHandler;

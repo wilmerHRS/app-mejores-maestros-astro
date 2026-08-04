@@ -1,3 +1,3 @@
-import { userSetupHandler } from '@/app/api-routes/user/setup';
+import { userSetupHandler } from '@/app/api-routes';
 
 export const POST = userSetupHandler;

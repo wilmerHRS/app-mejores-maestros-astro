@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { loginClient } from '@/shared/api';
 import { loginSchema, type LoginFields } from '../model/login';
 
 export function LoginForm() {
@@ -17,24 +18,10 @@ export function LoginForm() {
     setIsLoading(true);
 
     try {
-      const res = await fetch('/api/auth/signin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-
-      const result = await res.json() as { success?: boolean; error?: string; redirectTo?: string };
-
-      if (!res.ok) {
-        setGeneralError(result.error || 'Error al iniciar sesión');
-        setIsLoading(false);
-        return;
-      }
-
-      // Redirect to correct setup/dashboard path on success
+      const result = await loginClient(data);
       window.location.href = result.redirectTo || '/dashboard';
-    } catch (err) {
-      setGeneralError('Error de conexión con el servidor');
+    } catch (err: any) {
+      setGeneralError(err.message || 'Error de conexión con el servidor');
       setIsLoading(false);
     }
   };
@@ -72,8 +59,8 @@ export function LoginForm() {
               id="email"
               {...register('email')}
               placeholder="correo@ejemplo.com"
-              className={`w-full pl-10 pr-4 py-3 bg-slate-50 border rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300 text-sm ${
-                errors.email ? 'border-red-300 focus:border-red-500' : 'border-slate-200 focus:border-indigo-500'
+              className={`w-full pl-10 pr-4 py-3 bg-slate-50 border rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#4a6da7]/20 transition-all duration-300 text-sm ${
+                errors.email ? 'border-red-300 focus:border-red-500' : 'border-slate-200 focus:border-[#4a6da7]'
               }`}
             />
           </div>
@@ -99,8 +86,8 @@ export function LoginForm() {
               id="password"
               {...register('password')}
               placeholder="••••••••"
-              className={`w-full pl-10 pr-10 py-3 bg-slate-50 border rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300 text-sm ${
-                errors.password ? 'border-red-300 focus:border-red-500' : 'border-slate-200 focus:border-indigo-500'
+              className={`w-full pl-10 pr-10 py-3 bg-slate-50 border rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#4a6da7]/20 transition-all duration-300 text-sm ${
+                errors.password ? 'border-red-300 focus:border-red-500' : 'border-slate-200 focus:border-[#4a6da7]'
               }`}
             />
             <button

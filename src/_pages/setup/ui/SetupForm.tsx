@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import type { Congregation } from '@/shared/api';
+import { fetchCongregationsClient, setupUserProfileClient, type Congregation } from '@/shared/api';
 import { setupSchema, type SetupFields } from '../model/setup';
 import { CreateCongregationModal } from './CreateCongregationModal';
 
@@ -29,11 +29,7 @@ export function SetupForm() {
   const fetchCongregations = async () => {
     try {
       setIsFetchingCongregations(true);
-      const res = await fetch('/api/congregation/list');
-      if (!res.ok) {
-        throw new Error('Error al obtener la lista de congregaciones');
-      }
-      const data = await res.json() as Congregation[];
+      const data = await fetchCongregationsClient();
       setCongregations(data);
     } catch (err: any) {
       setGeneralError(err.message || 'Error de conexión');
@@ -46,23 +42,10 @@ export function SetupForm() {
     setGeneralError('');
     setIsLoading(true);
     try {
-      const res = await fetch('/api/user/setup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-
-      const result = await res.json() as { success?: boolean; error?: string };
-
-      if (!res.ok) {
-        setGeneralError(result.error || 'Error al completar el perfil');
-        setIsLoading(false);
-        return;
-      }
-
+      await setupUserProfileClient(data);
       window.location.href = '/dashboard';
-    } catch (err) {
-      setGeneralError('Error de conexión con el servidor');
+    } catch (err: any) {
+      setGeneralError(err.message || 'Error de conexión con el servidor');
       setIsLoading(false);
     }
   };
@@ -94,8 +77,8 @@ export function SetupForm() {
               id="name"
               {...register('name')}
               placeholder="Juan"
-              className={`w-full px-4 py-3 bg-slate-50 border rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300 text-sm ${
-                errors.name ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-indigo-500'
+              className={`w-full px-4 py-3 bg-slate-50 border rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#4a6da7]/20 transition-all duration-300 text-sm ${
+                errors.name ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-[#4a6da7]'
               }`}
             />
             {errors.name && <p className="text-red-500 text-xs mt-1 animate-slide-in">{errors.name.message}</p>}
@@ -110,8 +93,8 @@ export function SetupForm() {
               id="lastname"
               {...register('lastname')}
               placeholder="Pérez"
-              className={`w-full px-4 py-3 bg-slate-50 border rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300 text-sm ${
-                errors.lastname ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-indigo-500'
+              className={`w-full px-4 py-3 bg-slate-50 border rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#4a6da7]/20 transition-all duration-300 text-sm ${
+                errors.lastname ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-[#4a6da7]'
               }`}
             />
             {errors.lastname && <p className="text-red-500 text-xs mt-1 animate-slide-in">{errors.lastname.message}</p>}
@@ -135,8 +118,8 @@ export function SetupForm() {
               id="congregation"
               {...register('congregationId')}
               disabled={isFetchingCongregations}
-              className={`w-full px-4 py-3 bg-slate-50 border rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all duration-300 text-sm ${
-                errors.congregationId ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-indigo-500'
+              className={`w-full px-4 py-3 bg-slate-50 border rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#4a6da7]/20 transition-all duration-300 text-sm ${
+                errors.congregationId ? 'border-red-400 focus:border-red-500' : 'border-slate-200 focus:border-[#4a6da7]'
               }`}
             >
               <option value="">
@@ -154,12 +137,12 @@ export function SetupForm() {
           <button
             type="submit"
             disabled={isLoading || isFetchingCongregations}
-            className="w-full py-3 bg-[#4a6da7] hover:bg-[#354f7a] text-white font-semibold rounded-xl transition-all duration-300 transform active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-indigo-500/50 shadow-lg shadow-indigo-500/10 text-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            className="w-full py-3 bg-[#4a6da7] hover:bg-[#354f7a] text-white font-semibold rounded-xl transition-all duration-300 transform active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-[#4a6da7]/50 shadow-lg shadow-[#4a6da7]/10 text-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
           >
             <span>Guardar Perfil y Continuar</span>
             {isLoading && (
               <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
             )}

@@ -1,3 +1,3 @@
-import { listCongregationsHandler } from '@/app/api-routes/congregation/list';
+import { listCongregationsHandler } from '@/app/api-routes';
 
 export const GET = listCongregationsHandler;

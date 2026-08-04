@@ -1,4 +1,4 @@
-import { signoutHandlerGET, signoutHandlerPOST } from '@/app/api-routes/auth/signout';
+import { signoutHandlerGET, signoutHandlerPOST } from '@/app/api-routes';
 
 export const GET = signoutHandlerGET;
 export const POST = signoutHandlerPOST;

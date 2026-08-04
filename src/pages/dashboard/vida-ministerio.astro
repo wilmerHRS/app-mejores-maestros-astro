@@ -1,0 +1,10 @@
+---
+import DashboardLayout from '@/layouts/DashboardLayout.astro';
+import { VidaMinisterioTab } from '@/_pages/dashboard';
+import { getDashboardData } from '@/_pages/dashboard/index.server';
+
+const { profile, congregation, userEmail } = await getDashboardData(Astro.cookies, Astro.redirect);
+---
+<DashboardLayout activeTab="vida-ministerio" profile={profile} congregation={congregation} userEmail={userEmail}>
+  <VidaMinisterioTab client:load />
+</DashboardLayout>

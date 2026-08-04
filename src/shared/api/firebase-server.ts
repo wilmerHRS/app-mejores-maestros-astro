@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import { base64url, base64urlToBase64 } from '@/shared/lib';
 import type { FirebaseDecodedToken } from './auth';
 import type { Congregation } from './congregation';
+import type { UserProfile } from './user';
 
 
 
@@ -334,4 +335,153 @@ export async function createCongregation(data: {
   const doc = await res.json() as { name: string };
   const parts = doc.name.split('/');
   return parts[parts.length - 1];
+}
+
+export async function getUserProfile(uid: string): Promise<UserProfile | null> {
+  const serviceAccount = getServiceAccount();
+  const accessToken = await getAccessToken(serviceAccount);
+  const projectId = serviceAccount.project_id;
+  const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/user/${uid}`;
+
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`
+    }
+  });
+
+  if (res.status === 404) {
+    return null;
+  }
+
+  if (!res.ok) {
+    const errData = await res.json() as any;
+    throw new Error(`Failed to get user profile from Firestore: ${JSON.stringify(errData)}`);
+  }
+
+  const doc = await res.json() as any;
+  const fields = doc.fields || {};
+  
+  let congregationId = '';
+  const congRef = fields.congregationId?.referenceValue || '';
+  if (congRef) {
+    const parts = congRef.split('/');
+    congregationId = parts[parts.length - 1];
+  } else {
+    congregationId = fields.congregationId?.stringValue || '';
+  }
+
+  return {
+    uid,
+    name: fields.name?.stringValue || '',
+    lastname: fields.lastname?.stringValue || '',
+    congregationId
+  };
+}
+
+export async function updateUserProfile(uid: string, data: { name: string; lastname: string; congregationId: string }): Promise<void> {
+  const serviceAccount = getServiceAccount();
+  const accessToken = await getAccessToken(serviceAccount);
+  const projectId = serviceAccount.project_id;
+  const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/user/${uid}`;
+
+  const body = {
+    fields: {
+      name: { stringValue: data.name },
+      lastname: { stringValue: data.lastname },
+      uuid: { stringValue: uid },
+      congregationId: { referenceValue: `projects/${projectId}/databases/(default)/documents/congregation/${data.congregationId}` },
+      updatedAt: { timestampValue: new Date().toISOString() }
+    }
+  };
+
+  const urlWithParams = `${url}?updateMask.fieldPaths=name&updateMask.fieldPaths=lastname&updateMask.fieldPaths=congregationId&updateMask.fieldPaths=updatedAt`;
+
+  const res = await fetch(urlWithParams, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+
+  if (!res.ok) {
+    const errData = await res.json() as any;
+    throw new Error(`Failed to update user profile: ${JSON.stringify(errData)}`);
+  }
+}
+
+export async function getCongregationById(id: string): Promise<Congregation | null> {
+  const serviceAccount = getServiceAccount();
+  const accessToken = await getAccessToken(serviceAccount);
+  const projectId = serviceAccount.project_id;
+  const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/congregation/${id}`;
+
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`
+    }
+  });
+
+  if (res.status === 404) {
+    return null;
+  }
+
+  if (!res.ok) {
+    const errData = await res.json() as any;
+    throw new Error(`Failed to get congregation: ${JSON.stringify(errData)}`);
+  }
+
+  const doc = await res.json() as any;
+  const fields = doc.fields || {};
+  return {
+    id,
+    name: fields.name?.stringValue || '',
+    address: fields.address?.stringValue || '',
+    department: fields.department?.stringValue || '',
+    district: fields.district?.stringValue || '',
+    zipCode: fields.zipCode?.stringValue || ''
+  };
+}
+
+export async function updateCongregation(id: string, data: {
+  name: string;
+  address: string;
+  department: string;
+  district: string;
+  zipCode: string;
+}): Promise<void> {
+  const serviceAccount = getServiceAccount();
+  const accessToken = await getAccessToken(serviceAccount);
+  const projectId = serviceAccount.project_id;
+  const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/congregation/${id}`;
+
+  const body = {
+    fields: {
+      name: { stringValue: data.name },
+      address: { stringValue: data.address },
+      department: { stringValue: data.department },
+      district: { stringValue: data.district },
+      zipCode: { stringValue: data.zipCode },
+      updatedAt: { timestampValue: new Date().toISOString() }
+    }
+  };
+
+  const urlWithParams = `${url}?updateMask.fieldPaths=name&updateMask.fieldPaths=address&updateMask.fieldPaths=department&updateMask.fieldPaths=district&updateMask.fieldPaths=zipCode&updateMask.fieldPaths=updatedAt`;
+
+  const res = await fetch(urlWithParams, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+
+  if (!res.ok) {
+    const errData = await res.json() as any;
+    throw new Error(`Failed to update congregation: ${JSON.stringify(errData)}`);
+  }
 }
