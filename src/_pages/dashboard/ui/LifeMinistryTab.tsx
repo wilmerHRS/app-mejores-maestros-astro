@@ -16,7 +16,7 @@ interface WeekProgram {
   christianLife: Assignment[];
 }
 
-export function VidaMinisterioTab() {
+export function LifeMinistryTab() {
   const [activeWeekIndex, setActiveWeekIndex] = useState(0);
 
   const programs: WeekProgram[] = [
@@ -73,6 +73,7 @@ export function VidaMinisterioTab() {
         <div className="flex bg-slate-100 p-1 rounded-xl self-start sm:self-auto select-none border border-slate-200/50">
           {programs.map((prog, idx) => (
             <button
+              type="button"
               key={idx}
               onClick={() => setActiveWeekIndex(idx)}
               className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${

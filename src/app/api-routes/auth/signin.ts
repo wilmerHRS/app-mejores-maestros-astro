@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
-import { getFirebaseApiKey, createFirebaseSessionCookie, checkUserExists, type SignInRequest, type SignInResponse } from '@/shared/api';
+import { getFirebaseApiKey, createFirebaseSessionCookie, checkUserExists } from '@/shared/api/index.server';
+import type { SignInRequest, SignInResponse } from '@/shared/api';
 import { setSessionCookie } from '@/shared/auth/cookie';
 
 export const signinHandler: APIRoute = async ({ request, cookies }) => {

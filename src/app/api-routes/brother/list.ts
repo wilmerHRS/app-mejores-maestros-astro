@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
-import { createCongregation, verifyFirebaseSessionCookie } from '@/shared/api/index.server';
+import { getBrothersByCongregation, verifyFirebaseSessionCookie } from '@/shared/api/index.server';
 
-export const createCongregationHandler: APIRoute = async ({ request, cookies }) => {
+export const listBrothersHandler: APIRoute = async ({ url, cookies }) => {
   try {
     const session = cookies.get('session')?.value;
     if (!session) {
@@ -14,18 +14,17 @@ export const createCongregationHandler: APIRoute = async ({ request, cookies }) 
     // Verify session
     await verifyFirebaseSessionCookie(session);
 
-    const { name, address, department, district, zipCode } = await request.json() as any;
-
-    if (!name || !address || !department || !district || !zipCode) {
-      return new Response(JSON.stringify({ error: 'Todos los campos son requeridos' }), {
+    const congregationId = url.searchParams.get('congregationId');
+    if (!congregationId) {
+      return new Response(JSON.stringify({ error: 'congregationId es requerido' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    const id = await createCongregation({ name, address, department, district, zipCode });
+    const list = await getBrothersByCongregation(congregationId);
 
-    return new Response(JSON.stringify({ success: true, id }), {
+    return new Response(JSON.stringify(list), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });

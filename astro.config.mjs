@@ -12,7 +12,13 @@ export default defineConfig({
   output: 'server',
 
   vite: {
-    plugins: [tailwindcss()]
+    plugins: [tailwindcss()],
+    resolve: {
+      dedupe: ['react', 'react-dom']
+    },
+    ssr: {
+      noExternal: ['react-hook-form', '@hookform/resolvers']
+    }
   },
 
   integrations: [react()]

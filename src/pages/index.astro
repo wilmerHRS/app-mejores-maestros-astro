@@ -1,5 +1,5 @@
 ---
-import { verifyFirebaseSessionCookie, checkUserExists } from '@/shared/api';
+import { verifyFirebaseSessionCookie, checkUserExists } from '@/shared/api/index.server';
 
 const session = Astro.cookies.get('session')?.value;
 

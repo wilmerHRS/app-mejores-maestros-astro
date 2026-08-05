@@ -1,10 +1,10 @@
 ---
 import DashboardLayout from '@/layouts/DashboardLayout.astro';
-import { HermanosTab } from '@/_pages/dashboard';
+import { LifeMinistryTab } from '@/_pages/dashboard';
 import { getDashboardData } from '@/_pages/dashboard/index.server';
 
 const { profile, congregation, userEmail } = await getDashboardData(Astro.cookies, Astro.redirect);
 ---
-<DashboardLayout activeTab="hermanos" profile={profile} congregation={congregation} userEmail={userEmail}>
-  <HermanosTab client:load />
+<DashboardLayout activeTab="life-ministry" profile={profile} congregation={congregation} userEmail={userEmail}>
+  <LifeMinistryTab client:load />
 </DashboardLayout>

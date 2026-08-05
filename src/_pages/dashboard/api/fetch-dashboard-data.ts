@@ -1,5 +1,5 @@
 import type { AstroCookies } from 'astro';
-import { verifyFirebaseSessionCookie, getUserProfile, getCongregationById } from '@/shared/api';
+import { verifyFirebaseSessionCookie, getUserProfile, getCongregationById } from '@/shared/api/index.server';
 import type { UserProfile, Congregation } from '@/shared/api';
 
 export interface DashboardData {

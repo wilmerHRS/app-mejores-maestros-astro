@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { getCongregations, verifyFirebaseSessionCookie } from '@/shared/api';
+import { getCongregations, verifyFirebaseSessionCookie } from '@/shared/api/index.server';
 
 export const listCongregationsHandler: APIRoute = async ({ cookies }) => {
   try {

@@ -1,6 +1,6 @@
 ---
 import Layout from '@/layouts/Layout.astro';
-import { verifyFirebaseSessionCookie } from '@/shared/api';
+import { verifyFirebaseSessionCookie } from '@/shared/api/index.server';
 
 const session = Astro.cookies.get('session')?.value;
 let user: { email?: string; uid: string } | null = null;

@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { getUserProfile, updateUserProfile, getCongregationById, verifyFirebaseSessionCookie } from '@/shared/api';
+import { getUserProfile, updateUserProfile, getCongregationById, verifyFirebaseSessionCookie } from '@/shared/api/index.server';
 
 export const userProfileHandler: APIRoute = async ({ request, cookies }) => {
   try {
