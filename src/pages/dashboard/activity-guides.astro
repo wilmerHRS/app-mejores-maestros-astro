@@ -1,0 +1,10 @@
+---
+import DashboardLayout from '@/layouts/DashboardLayout.astro';
+import { ActivityGuidesTab } from '@/_pages/dashboard';
+import { getDashboardData } from '@/_pages/dashboard/index.server';
+
+const { profile, congregation, userEmail } = await getDashboardData(Astro.cookies, Astro.redirect);
+---
+<DashboardLayout activeTab="activity-guides" profile={profile} congregation={congregation} userEmail={userEmail}>
+  <ActivityGuidesTab client:load congregationId={profile.congregationId} currentUserUid={profile.uid} />
+</DashboardLayout>

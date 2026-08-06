@@ -5,7 +5,7 @@ import { Sidebar } from "@/_pages/dashboard/ui/Sidebar";
 import type { UserProfile, Congregation } from "@/shared/api";
 
 interface Props {
-  activeTab: "inicio" | "brothers" | "life-ministry" | "groups";
+  activeTab: "inicio" | "brothers" | "life-ministry" | "groups" | "activity-guides";
   profile: UserProfile;
   congregation: Congregation | null;
   userEmail: string | undefined;
@@ -58,9 +58,12 @@ const { activeTab, profile, congregation, userEmail } = Astro.props;
                       ? "Congregación > Hermanos"
                       : activeTab === "groups"
                         ? "Congregación > Grupos"
-                        : "Reunión > Vida y Ministerio"
+                        : activeTab === "activity-guides"
+                          ? "Congregación > Guías de Actividades"
+                          : "Reunión > Vida y Ministerio"
                 }
               </span>
+
               <span class="w-1 h-1 rounded-full bg-[#4a6da7]/60"></span>
               <span
                 >{congregation ? congregation.name : "Sin Congregación"}</span

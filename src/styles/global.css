@@ -3,3 +3,14 @@
 @theme {
   --font-sans: "Plus Jakarta Sans", sans-serif;
 }
+
+@media (min-width: 1024px) {
+  .lm-left-col {
+    width: 20% !important;
+    flex: 0 0 20% !important;
+  }
+  .lm-right-col {
+    width: 80% !important;
+    flex: 0 0 80% !important;
+  }
+}

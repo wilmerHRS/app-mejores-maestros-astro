@@ -1,0 +1,26 @@
+---
+import DashboardLayout from '@/layouts/DashboardLayout.astro';
+import { ActivityGuideWeekPage } from '@/_pages/dashboard';
+import { getDashboardData } from '@/_pages/dashboard/index.server';
+import { getActivityGuideWeek, getActivityGuideById } from '@/shared/api/index.server';
+
+const { profile, congregation, userEmail } = await getDashboardData(Astro.cookies, Astro.redirect);
+const { id } = Astro.params;
+if (!id) {
+  return Astro.redirect('/dashboard/activity-guides');
+}
+
+let week = null;
+let parentGuide = null;
+try {
+  week = await getActivityGuideWeek(id);
+  if (week) {
+    parentGuide = await getActivityGuideById(week.guideId);
+  }
+} catch (err) {
+  return Astro.redirect('/dashboard/activity-guides');
+}
+---
+<DashboardLayout activeTab="activity-guides" profile={profile} congregation={congregation} userEmail={userEmail}>
+  <ActivityGuideWeekPage client:load week={week} congregationId={profile.congregationId} currentUserUid={profile.uid} parentGuide={parentGuide} />
+</DashboardLayout>

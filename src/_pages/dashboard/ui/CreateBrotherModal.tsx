@@ -132,7 +132,7 @@ export function CreateBrotherModal({
           <div className="space-y-1.5">
             <label
               htmlFor="names"
-              className="text-xs font-bold text-slate-500 uppercase tracking-wider"
+              className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider"
             >
               Nombres
             </label>
@@ -142,7 +142,7 @@ export function CreateBrotherModal({
               {...register("names")}
               disabled={isLoading}
               placeholder="Ej. Juan Pedro"
-              className={`w-full px-4 py-2.5 text-sm bg-slate-50 border ${
+              className={`w-full px-4 py-2.5 text-xs font-semibold bg-slate-50 border ${
                 errors.names
                   ? "border-red-300 focus:ring-red-100 focus:border-red-500"
                   : "border-slate-200 focus:ring-indigo-100 focus:border-[#4a6da7]"
@@ -160,7 +160,7 @@ export function CreateBrotherModal({
             <div className="space-y-1.5">
               <label
                 htmlFor="paternalLastname"
-                className="text-xs font-bold text-slate-500 uppercase tracking-wider"
+                className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider"
               >
                 Apellido Paterno
               </label>
@@ -170,7 +170,7 @@ export function CreateBrotherModal({
                 {...register("paternalLastname")}
                 disabled={isLoading}
                 placeholder="Ej. Pérez"
-                className={`w-full px-4 py-2.5 text-sm bg-slate-50 border ${
+                className={`w-full px-4 py-2.5 text-xs font-semibold bg-slate-50 border ${
                   errors.paternalLastname
                     ? "border-red-300 focus:ring-red-100 focus:border-red-500"
                     : "border-slate-200 focus:ring-indigo-100 focus:border-[#4a6da7]"
@@ -186,7 +186,7 @@ export function CreateBrotherModal({
             <div className="space-y-1.5">
               <label
                 htmlFor="maternalLastname"
-                className="text-xs font-bold text-slate-500 uppercase tracking-wider"
+                className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider"
               >
                 Apellido Materno (Opcional)
               </label>
@@ -196,7 +196,7 @@ export function CreateBrotherModal({
                 {...register("maternalLastname")}
                 disabled={isLoading}
                 placeholder="Ej. Gómez (Opcional)"
-                className={`w-full px-4 py-2.5 text-sm bg-slate-50 border ${
+                className={`w-full px-4 py-2.5 text-xs font-semibold bg-slate-50 border ${
                   errors.maternalLastname
                     ? "border-red-300 focus:ring-red-100 focus:border-red-500"
                     : "border-slate-200 focus:ring-indigo-100 focus:border-[#4a6da7]"
@@ -215,7 +215,7 @@ export function CreateBrotherModal({
             <div className="space-y-1.5">
               <label
                 htmlFor="phone"
-                className="text-xs font-bold text-slate-500 uppercase tracking-wider"
+                className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider"
               >
                 Celular
               </label>
@@ -225,12 +225,12 @@ export function CreateBrotherModal({
                 {...register("phone")}
                 disabled={isLoading}
                 placeholder="Ej. 987654321"
-                className="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-100 focus:border-[#4a6da7] transition-all duration-300"
+                className="w-full px-4 py-2.5 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-100 focus:border-[#4a6da7] transition-all duration-300"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">
                 Género
               </label>
               <div className="flex gap-4 py-2">
@@ -262,7 +262,7 @@ export function CreateBrotherModal({
           <div className="space-y-1.5">
             <label
               htmlFor="ageGroup"
-              className="text-xs font-bold text-slate-500 uppercase tracking-wider"
+              className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider"
             >
               Grupo de Edad
             </label>
@@ -270,7 +270,7 @@ export function CreateBrotherModal({
               id="ageGroup"
               {...register("ageGroup")}
               disabled={isLoading}
-              className={`w-full px-4 py-2.5 text-sm bg-slate-50 border ${
+              className={`w-full px-4 py-2.5 text-xs font-semibold bg-slate-50 border ${
                 errors.ageGroup
                   ? "border-red-300 focus:ring-red-100 focus:border-red-500"
                   : "border-slate-200 focus:ring-indigo-100 focus:border-[#4a6da7]"
@@ -291,7 +291,7 @@ export function CreateBrotherModal({
           <div className="space-y-1.5">
             <label
               htmlFor="groupId"
-              className="text-xs font-bold text-slate-500 uppercase tracking-wider"
+              className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider"
             >
               Grupo de Servicio
             </label>
@@ -299,7 +299,7 @@ export function CreateBrotherModal({
               id="groupId"
               {...register("groupId")}
               disabled={isLoading}
-              className="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-200 focus:ring-indigo-100 focus:border-[#4a6da7] rounded-xl focus:outline-none focus:ring-4 transition-all duration-300"
+              className="w-full px-4 py-2.5 text-xs font-semibold bg-slate-50 border border-slate-200 focus:ring-indigo-100 focus:border-[#4a6da7] rounded-xl focus:outline-none focus:ring-4 transition-all duration-300"
             >
               <option value="">Ninguno (Sin grupo asignado)</option>
               {groups.map((g) => (

@@ -140,12 +140,12 @@ export function EditSpiritualModal({
           {/* Privilege and Pioneer */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label htmlFor="privilege" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Privilegio</label>
+              <label htmlFor="privilege" className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Privilegio</label>
               <select
                 id="privilege"
                 {...register('privilege')}
                 disabled={isLoading}
-                className="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-100 focus:border-[#4a6da7] transition-all duration-300"
+                className="w-full px-4 py-2.5 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-100 focus:border-[#4a6da7] transition-all duration-300"
               >
                 <option value="publicador">Publicador</option>
                 <option value="anciano">Anciano</option>
@@ -156,12 +156,12 @@ export function EditSpiritualModal({
             </div>
 
             <div className="space-y-1.5">
-              <label htmlFor="pioneerStatus" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Precursor</label>
+              <label htmlFor="pioneerStatus" className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Precursor</label>
               <select
                 id="pioneerStatus"
                 {...register('pioneerStatus')}
                 disabled={isLoading}
-                className="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-100 focus:border-[#4a6da7] transition-all duration-300"
+                className="w-full px-4 py-2.5 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-100 focus:border-[#4a6da7] transition-all duration-300"
               >
                 <option value="ninguno">Ninguno</option>
                 <option value="precursor_regular">Precursor Regular</option>
@@ -174,12 +174,12 @@ export function EditSpiritualModal({
 
           {/* Grupo de Servicio */}
           <div className="space-y-1.5 border-t border-slate-100 pt-4">
-            <label htmlFor="groupId" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Grupo de Servicio</label>
+            <label htmlFor="groupId" className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Grupo de Servicio</label>
             <select
               id="groupId"
               {...register('groupId')}
               disabled={isLoading}
-              className="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-100 focus:border-[#4a6da7] transition-all duration-300"
+              className="w-full px-4 py-2.5 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-100 focus:border-[#4a6da7] transition-all duration-300"
             >
               <option value="">Ninguno</option>
               {groups.map(g => (
@@ -235,13 +235,13 @@ export function EditSpiritualModal({
 
               {isRemovedValue && (
                 <div className="space-y-1.5 animate-fade-in pl-7">
-                  <label htmlFor="removalDate" className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Fecha de Sacado</label>
+                  <label htmlFor="removalDate" className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Fecha de Sacado</label>
                   <input
                     type="date"
                     id="removalDate"
                     {...register('removalDate')}
                     disabled={isLoading}
-                    className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-[#4a6da7] transition-all"
+                    className="w-full px-3 py-2 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-[#4a6da7] transition-all"
                   />
                 </div>
               )}
@@ -263,13 +263,13 @@ export function EditSpiritualModal({
 
               {isReinstatedValue && (
                 <div className="space-y-1.5 animate-fade-in pl-7">
-                  <label htmlFor="reinstatementDate" className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Fecha de Readmisión</label>
+                  <label htmlFor="reinstatementDate" className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Fecha de Readmisión</label>
                   <input
                     type="date"
                     id="reinstatementDate"
                     {...register('reinstatementDate')}
                     disabled={isLoading}
-                    className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-[#4a6da7] transition-all"
+                    className="w-full px-3 py-2 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-[#4a6da7] transition-all"
                   />
                 </div>
               )}

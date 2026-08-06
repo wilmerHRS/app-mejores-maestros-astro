@@ -1,197 +1,200 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useLifeMinistryData } from './hooks/useLifeMinistryData';
+import { GuideListPanel } from './life-ministry/GuideListPanel';
+import { WeekCarousel } from './life-ministry/WeekCarousel';
+import { WeekBannerHero } from './life-ministry/WeekBannerHero';
+import { AssignmentSection } from './life-ministry/AssignmentSection';
+import { HallTabSelector } from './life-ministry/HallTabSelector';
+import { AssignmentActionBar } from './life-ministry/AssignmentActionBar';
 
-interface Assignment {
-  part: string;
-  duration: string;
-  assignedTo: string;
-  assistant?: string;
-  status: 'Confirmado' | 'Pendiente' | 'Sustitución';
+interface LifeMinistryTabProps {
+  congregationId: string;
+  currentUserUid?: string;
 }
 
-interface WeekProgram {
-  week: string;
-  bibleReading: string;
-  treasures: Assignment[];
-  fieldMinistry: Assignment[];
-  christianLife: Assignment[];
-}
+export function LifeMinistryTab({ congregationId }: LifeMinistryTabProps) {
+  const {
+    isLoadingGuides,
+    isLoadingWeeks,
+    isSaving,
+    guides,
+    selectedGuide,
+    weeks,
+    brothers,
+    activeAssignment,
+    activeWeekIndex,
+    activeHall,
+    isEditingAssignments,
+    successMsg,
+    errorMsg,
+    selectGuide,
+    selectWeek,
+    setActiveHall,
+    startEditing,
+    cancelEditing,
+    saveAssignments,
+    updateAssignmentField
+  } = useLifeMinistryData({ congregationId });
 
-export function LifeMinistryTab() {
-  const [activeWeekIndex, setActiveWeekIndex] = useState(0);
+  if (isLoadingGuides) {
+    return (
+      <div className="py-16 flex flex-col items-center justify-center gap-3">
+        <svg className="animate-spin h-8 w-8 text-[#4a6da7]" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+        </svg>
+        <span className="text-slate-500 font-medium text-sm">Cargando guías mensuales...</span>
+      </div>
+    );
+  }
 
-  const programs: WeekProgram[] = [
-    {
-      week: 'Semana de 3 de Ago de 2026',
-      bibleReading: 'Salmos 109-112',
-      treasures: [
-        { part: '¿Qué le pagaremos a Jehová?', duration: '10 min', assignedTo: 'Hermano Pedro Gómez Rivas', status: 'Confirmado' },
-        { part: 'Busquemos perlas espirituales', duration: '10 min', assignedTo: 'Hermano Carlos Soto Vaca', status: 'Confirmado' },
-        { part: 'Lectura de la Biblia', duration: '4 min', assignedTo: 'Hermano Mateo Silva Peña', status: 'Confirmado' }
-      ],
-      fieldMinistry: [
-        { part: 'Primera conversación (Discurso)', duration: '2 min', assignedTo: 'Hermana Sofía Ruiz', assistant: 'Hermana Laura Peña', status: 'Confirmado' },
-        { part: 'Revisita (Conversación)', duration: '3 min', assignedTo: 'Hermano Luis Martínez Soto', assistant: 'Hermano Daniel Rivas Castro', status: 'Pendiente' },
-        { part: 'Curso bíblico (Demostración)', duration: '5 min', assignedTo: 'Hermano Marcos Peña Ortiz', status: 'Confirmado' }
-      ],
-      christianLife: [
-        { part: 'Necesidades locales', duration: '15 min', assignedTo: 'Hermano Juan Alberto Pérez Rojas', status: 'Confirmado' },
-        { part: 'Estudio bíblico de la congregación', duration: '30 min', assignedTo: 'Hermano Esteban Rivas', assistant: 'Hermano Javier Ortiz (Lector)', status: 'Confirmado' }
-      ]
-    },
-    {
-      week: 'Semana de 10 de Ago de 2026',
-      bibleReading: 'Salmos 113-118',
-      treasures: [
-        { part: 'Jehová ama al dador alegre', duration: '10 min', assignedTo: 'Hermano Carlos Soto Vaca', status: 'Confirmado' },
-        { part: 'Busquemos perlas espirituales', duration: '10 min', assignedTo: 'Hermano Pedro Gómez Rivas', status: 'Confirmado' },
-        { part: 'Lectura de la Biblia', duration: '4 min', assignedTo: 'Hermano Daniel Rivas Castro', status: 'Pendiente' }
-      ],
-      fieldMinistry: [
-        { part: 'Primera conversación', duration: '2 min', assignedTo: 'Hermana Laura Peña', assistant: 'Hermana Sofía Ruiz', status: 'Confirmado' },
-        { part: 'Revisita', duration: '3 min', assignedTo: 'Hermano Mateo Silva Peña', assistant: 'Hermano Marcos Peña Ortiz', status: 'Confirmado' },
-        { part: 'Curso bíblico', duration: '5 min', assignedTo: 'Hermano Luis Martínez Soto', status: 'Sustitución' }
-      ],
-      christianLife: [
-        { part: 'El valor de la perseverancia', duration: '10 min', assignedTo: 'Hermano Pedro Gómez Rivas', status: 'Confirmado' },
-        { part: 'Estudio bíblico de la congregación', duration: '30 min', assignedTo: 'Hermano Juan Alberto Pérez Rojas', assistant: 'Hermano Mateo Silva Peña (Lector)', status: 'Confirmado' }
-      ]
-    }
-  ];
-
-  const currentProgram = programs[activeWeekIndex];
+  const activeWeek = weeks[activeWeekIndex];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h3 className="text-xl font-bold text-slate-900">Reunión Vida y Ministerio</h3>
-          <p className="text-xs text-slate-500 font-medium">Cronograma de asignaciones y partes correspondientes para las reuniones de entre semana.</p>
-        </div>
-        
-        {/* Week Selector Tabs */}
-        <div className="flex bg-slate-100 p-1 rounded-xl self-start sm:self-auto select-none border border-slate-200/50">
-          {programs.map((prog, idx) => (
-            <button
-              type="button"
-              key={idx}
-              onClick={() => setActiveWeekIndex(idx)}
-              className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
-                activeWeekIndex === idx
-                  ? 'bg-white text-slate-800 shadow-sm border border-slate-200/30'
-                  : 'text-slate-500 hover:text-slate-800'
-              }`}
-            >
-              Semana {idx + 1}
-            </button>
-          ))}
-        </div>
+      <div>
+        <h3 className="text-xl font-bold text-slate-900">Reunión Vida y Ministerio</h3>
+        <p className="text-xs text-slate-500 font-medium">
+          Asigna y gestiona los participantes para cada parte de las reuniones de entre semana.
+        </p>
       </div>
 
-      {/* Week Info Banner */}
-      <div className="bg-gradient-to-r from-[#4a6da7] to-[#354f7a] rounded-2xl p-6 text-white shadow-md relative overflow-hidden">
-        <div className="absolute right-0 top-0 bottom-0 opacity-10 flex items-center justify-center pr-6 pointer-events-none">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1" stroke="currentColor" className="w-48 h-48">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
-          </svg>
+      {successMsg && (
+        <div className="bg-emerald-50 text-emerald-600 px-4 py-2.5 rounded-xl text-xs font-bold border border-emerald-100 animate-fade-in-down animate-duration-300">
+          {successMsg}
         </div>
-        <span className="text-[10px] uppercase font-extrabold tracking-widest bg-white/20 px-2 py-0.5 rounded-full select-none">Reunión de entre semana</span>
-        <h4 className="text-2xl font-black mt-2 tracking-tight">{currentProgram.week}</h4>
-        <p className="text-blue-100 text-xs font-semibold mt-1">Lectura de la semana: {currentProgram.bibleReading}</p>
-      </div>
+      )}
 
-      {/* Program Sections */}
-      <div className="grid grid-cols-1 gap-6">
-        
-        {/* Section 1: Treasures */}
-        <div className="bg-white/90 border border-slate-200/80 rounded-2xl p-6 shadow-sm">
-          <div className="flex items-center gap-2 mb-4 border-b border-slate-100 pb-3">
-            <div className="w-1.5 h-6 rounded bg-[#4a6da7]"></div>
-            <h5 className="font-bold text-slate-800 text-md">Tesoros de la Biblia</h5>
-          </div>
-          <div className="space-y-4">
-            {currentProgram.treasures.map((part, idx) => (
-              <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 last:border-0 pb-3 sm:pb-0 sm:h-14 gap-2">
-                <div>
-                  <h6 className="font-bold text-slate-800 text-sm">{part.part}</h6>
-                  <p className="text-slate-400 text-xs font-medium">Asignación | {part.duration}</p>
+      {errorMsg && (
+        <div className="bg-red-50 text-red-600 px-4 py-2.5 rounded-xl text-xs font-bold border border-red-100">
+          {errorMsg}
+        </div>
+      )}
+
+      {/* Main Flex Layout */}
+      <div className="flex flex-col lg:flex-row gap-6 items-start w-full">
+        {/* Left Column: Activity Guides List */}
+        <GuideListPanel
+          guides={guides}
+          selectedGuide={selectedGuide}
+          onSelectGuide={selectGuide}
+        />
+
+        {/* Right Column: Weeks Carousel + Assignments Details */}
+        <div className="w-full lg:w-4/5 lg:flex-grow min-w-0 space-y-6 lm-right-col">
+          {!selectedGuide ? (
+            <div className="bg-white/80 border border-slate-200/60 rounded-2xl p-16 text-center text-slate-500 shadow-sm">
+              <h4 className="font-bold text-slate-700 text-base">Selecciona una guía mensual</h4>
+              <p className="text-sm text-slate-400 mt-1.5 max-w-sm mx-auto">
+                Elige una guía en el panel izquierdo para ver sus semanas y programar las asignaciones.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-6 w-full">
+              {/* Weeks Horizontal Carousel & Action Button container */}
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 w-full">
+                {/* Left side: Weeks Carousel */}
+                <div className="flex-1 min-w-0 space-y-3">
+                  <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
+                    Semanas disponibles
+                  </h4>
+                  <WeekCarousel
+                    isLoadingWeeks={isLoadingWeeks}
+                    weeks={weeks}
+                    activeWeekIndex={activeWeekIndex}
+                    onSelectWeek={selectWeek}
+                  />
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-right">
-                    <p className="font-bold text-slate-700 text-xs">{part.assignedTo}</p>
+
+                {/* Right side: Action buttons */}
+                {weeks.length > 0 && activeWeekItemHasContent(weeks, activeWeekIndex) && (
+                  <div className="flex-shrink-0 pb-2">
+                    <AssignmentActionBar
+                      isEditingAssignments={isEditingAssignments}
+                      isSaving={isSaving}
+                      onStartEdit={startEditing}
+                      onSave={async () => {
+                        await saveAssignments();
+                        cancelEditing();
+                      }}
+                      onCancel={cancelEditing}
+                    />
                   </div>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
-                    part.status === 'Confirmado' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-amber-50 text-amber-700 border-amber-100'
-                  }`}>
-                    {part.status}
-                  </span>
-                </div>
+                )}
               </div>
-            ))}
-          </div>
-        </div>
 
-        {/* Section 2: Field Ministry */}
-        <div className="bg-white/90 border border-slate-200/80 rounded-2xl p-6 shadow-sm">
-          <div className="flex items-center gap-2 mb-4 border-b border-slate-100 pb-3">
-            <div className="w-1.5 h-6 rounded bg-[#4a6da7]"></div>
-            <h5 className="font-bold text-slate-800 text-md">Seamos Mejores Lectores y Maestros</h5>
-          </div>
-          <div className="space-y-4">
-            {currentProgram.fieldMinistry.map((part, idx) => (
-              <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 last:border-0 pb-3 sm:pb-0 sm:h-14 gap-2">
-                <div>
-                  <h6 className="font-bold text-slate-800 text-sm">{part.part}</h6>
-                  <p className="text-slate-400 text-xs font-medium">Parte estudiantil | {part.duration}</p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-right">
-                    <p className="font-bold text-slate-700 text-xs">{part.assignedTo}</p>
-                    {part.assistant && <p className="text-[10px] text-slate-400 font-medium">Ayudante: {part.assistant}</p>}
+              {/* Assignments Editor Section (Under carousel) */}
+              {weeks.length > 0 && activeWeek && (
+                <div className="space-y-6 w-full">
+                  {/* Week Info Banner (Cabecera premium) */}
+                  <WeekBannerHero week={activeWeek} />
+
+                  {/* Program sections */}
+                  <div className="space-y-6 w-full">
+                    {/* Section 1: Treasures */}
+                    {activeWeek.treasures && activeWeek.treasures.length > 0 && (
+                      <AssignmentSection
+                        section="treasures"
+                        title="Tesoros de la Biblia"
+                        colorClass="bg-[#3c7f8b]"
+                        parts={activeWeek.treasures}
+                        assignments={activeAssignment?.treasures}
+                        isEditing={isEditingAssignments}
+                        brothers={brothers}
+                        onUpdateField={updateAssignmentField}
+                      />
+                    )}
+
+                    {/* Section 2: Field Ministry */}
+                    {activeWeek.fieldMinistry && activeWeek.fieldMinistry.length > 0 && (
+                      <AssignmentSection
+                        section={activeHall === 'main' ? 'fieldMinistry' : 'fieldMinistryAux'}
+                        title="Seamos Mejores Lectores y Maestros"
+                        colorClass="bg-[#be8900]"
+                        parts={activeWeek.fieldMinistry}
+                        assignments={
+                          activeHall === 'main'
+                            ? activeAssignment?.fieldMinistry
+                            : activeAssignment?.fieldMinistryAux
+                        }
+                        isEditing={isEditingAssignments}
+                        brothers={brothers}
+                        onUpdateField={updateAssignmentField}
+                        activeHall={activeHall}
+                        headerRight={
+                          <HallTabSelector
+                            activeHall={activeHall}
+                            onChangeHall={setActiveHall}
+                          />
+                        }
+                      />
+                    )}
+
+                    {/* Section 3: Christian Life */}
+                    {activeWeek.christianLife && activeWeek.christianLife.length > 0 && (
+                      <AssignmentSection
+                        section="christianLife"
+                        title="Nuestra Vida Cristiana"
+                        colorClass="bg-[#bf2f13]"
+                        parts={activeWeek.christianLife}
+                        assignments={activeAssignment?.christianLife}
+                        isEditing={isEditingAssignments}
+                        brothers={brothers}
+                        onUpdateField={updateAssignmentField}
+                      />
+                    )}
                   </div>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
-                    part.status === 'Confirmado' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
-                    part.status === 'Sustitución' ? 'bg-indigo-50 text-indigo-700 border-indigo-100' :
-                    'bg-amber-50 text-amber-700 border-amber-100'
-                  }`}>
-                    {part.status}
-                  </span>
                 </div>
-              </div>
-            ))}
-          </div>
+              )}
+            </div>
+          )}
         </div>
-
-        {/* Section 3: Christian Life */}
-        <div className="bg-white/90 border border-slate-200/80 rounded-2xl p-6 shadow-sm">
-          <div className="flex items-center gap-2 mb-4 border-b border-slate-100 pb-3">
-            <div className="w-1.5 h-6 rounded bg-[#4a6da7]"></div>
-            <h5 className="font-bold text-slate-800 text-md">Nuestra Vida Cristiana</h5>
-          </div>
-          <div className="space-y-4">
-            {currentProgram.christianLife.map((part, idx) => (
-              <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 last:border-0 pb-3 sm:pb-0 sm:h-14 gap-2">
-                <div>
-                  <h6 className="font-bold text-slate-800 text-sm">{part.part}</h6>
-                  <p className="text-slate-400 text-xs font-medium">Parte | {part.duration}</p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-right">
-                    <p className="font-bold text-slate-700 text-xs">{part.assignedTo}</p>
-                    {part.assistant && <p className="text-[10px] text-slate-400 font-medium">{part.assistant}</p>}
-                  </div>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
-                    part.status === 'Confirmado' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-amber-50 text-amber-700 border-amber-100'
-                  }`}>
-                    {part.status}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
       </div>
     </div>
   );
+}
+
+function activeWeekItemHasContent(weeks: any[], activeWeekIndex: number): boolean {
+  return !!weeks[activeWeekIndex];
 }

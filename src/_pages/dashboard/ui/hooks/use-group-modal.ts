@@ -1,9 +1,11 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import {
   createGroupClient,
   updateGroupClient,
   type Group,
 } from "@/shared/api";
+import { groupFormSchema } from "../../model/group";
+
 
 interface UseGroupModalOptions {
   congregationId: string;
@@ -66,10 +68,12 @@ export function useGroupModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!groupNameInput.trim()) {
-      setModalError("El nombre del grupo es obligatorio");
+    const validation = groupFormSchema.safeParse({ name: groupNameInput });
+    if (!validation.success) {
+      setModalError(validation.error.issues[0].message);
       return;
     }
+
 
     setIsSubmitting(true);
     setModalError("");

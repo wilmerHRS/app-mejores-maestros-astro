@@ -115,14 +115,14 @@ export function EditBrotherModal({
 
           {/* Names */}
           <div className="space-y-1.5">
-            <label htmlFor="names" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Nombres</label>
+            <label htmlFor="names" className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Nombres</label>
             <input
               type="text"
               id="names"
               {...register('names')}
               disabled={isLoading}
               placeholder="Ej. Juan Pedro"
-              className={`w-full px-4 py-2.5 text-sm bg-slate-50 border ${
+              className={`w-full px-4 py-2.5 text-xs font-semibold bg-slate-50 border ${
                 errors.names ? 'border-red-300 focus:ring-red-100 focus:border-red-500' : 'border-slate-200 focus:ring-indigo-100 focus:border-[#4a6da7]'
               } rounded-xl focus:outline-none focus:ring-4 transition-all duration-300`}
             />
@@ -132,14 +132,14 @@ export function EditBrotherModal({
           {/* Surnames */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label htmlFor="paternalLastname" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Apellido Paterno</label>
+              <label htmlFor="paternalLastname" className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Apellido Paterno</label>
               <input
                 type="text"
                 id="paternalLastname"
                 {...register('paternalLastname')}
                 disabled={isLoading}
                 placeholder="Ej. Pérez"
-                className={`w-full px-4 py-2.5 text-sm bg-slate-50 border ${
+                className={`w-full px-4 py-2.5 text-xs font-semibold bg-slate-50 border ${
                   errors.paternalLastname ? 'border-red-300 focus:ring-red-100 focus:border-red-500' : 'border-slate-200 focus:ring-indigo-100 focus:border-[#4a6da7]'
                 } rounded-xl focus:outline-none focus:ring-4 transition-all duration-300`}
               />
@@ -147,14 +147,14 @@ export function EditBrotherModal({
             </div>
 
             <div className="space-y-1.5">
-              <label htmlFor="maternalLastname" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Apellido Materno (Opcional)</label>
+              <label htmlFor="maternalLastname" className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Apellido Materno (Opcional)</label>
               <input
                 type="text"
                 id="maternalLastname"
                 {...register('maternalLastname')}
                 disabled={isLoading}
                 placeholder="Ej. Gómez (Opcional)"
-                className={`w-full px-4 py-2.5 text-sm bg-slate-50 border ${
+                className={`w-full px-4 py-2.5 text-xs font-semibold bg-slate-50 border ${
                   errors.maternalLastname ? 'border-red-300 focus:ring-red-100 focus:border-red-500' : 'border-slate-200 focus:ring-indigo-100 focus:border-[#4a6da7]'
                 } rounded-xl focus:outline-none focus:ring-4 transition-all duration-300`}
               />
@@ -165,19 +165,19 @@ export function EditBrotherModal({
           {/* Phone and Gender */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label htmlFor="phone" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Celular</label>
+              <label htmlFor="phone" className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Celular</label>
               <input
                 type="tel"
                 id="phone"
                 {...register('phone')}
                 disabled={isLoading}
                 placeholder="Ej. 987654321"
-                className="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-100 focus:border-[#4a6da7] transition-all duration-300"
+                className="w-full px-4 py-2.5 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-100 focus:border-[#4a6da7] transition-all duration-300"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Género</label>
+              <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Género</label>
               <div className="flex gap-4 py-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-slate-700 cursor-pointer">
                   <input
@@ -205,12 +205,12 @@ export function EditBrotherModal({
 
           {/* Age Group */}
           <div className="space-y-1.5">
-            <label htmlFor="ageGroup" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Grupo de Edad</label>
+            <label htmlFor="ageGroup" className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Grupo de Edad</label>
             <select
               id="ageGroup"
               {...register('ageGroup')}
               disabled={isLoading}
-              className={`w-full px-4 py-2.5 text-sm bg-slate-50 border ${
+              className={`w-full px-4 py-2.5 text-xs font-semibold bg-slate-50 border ${
                 errors.ageGroup ? 'border-red-300 focus:ring-red-100 focus:border-red-500' : 'border-slate-200 focus:ring-indigo-100 focus:border-[#4a6da7]'
               } rounded-xl focus:outline-none focus:ring-4 transition-all duration-300`}
             >
@@ -223,12 +223,12 @@ export function EditBrotherModal({
 
           {/* Group assignment */}
           <div className="space-y-1.5">
-            <label htmlFor="groupId" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Grupo de Servicio</label>
+            <label htmlFor="groupId" className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Grupo de Servicio</label>
             <select
               id="groupId"
               {...register('groupId')}
               disabled={isLoading}
-              className="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-200 focus:ring-indigo-100 focus:border-[#4a6da7] rounded-xl focus:outline-none focus:ring-4 transition-all duration-300"
+              className="w-full px-4 py-2.5 text-xs font-semibold bg-slate-50 border border-slate-200 focus:ring-indigo-100 focus:border-[#4a6da7] rounded-xl focus:outline-none focus:ring-4 transition-all duration-300"
             >
               <option value="">Ninguno (Sin grupo asignado)</option>
               {groups.map((g) => (
