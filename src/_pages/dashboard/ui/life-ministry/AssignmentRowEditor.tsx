@@ -39,11 +39,18 @@ export function AssignmentRowEditor({
           }`}
         >
           <option value="">-- Sin asignar --</option>
-          {brothers.map(b => (
-            <option key={b.id} value={b.id}>
-              {b.names} {b.paternalLastname}
-            </option>
-          ))}
+          {brothers
+            .filter(b => {
+              if (section === 'fieldMinistry' || section === 'fieldMinistryAux') {
+                return b.participatesInSchool !== false || b.id === singleAssignment?.assignedTo;
+              }
+              return true;
+            })
+            .map(b => (
+              <option key={b.id} value={b.id}>
+                {b.names} {b.paternalLastname}
+              </option>
+            ))}
         </select>
       </div>
 
@@ -59,11 +66,18 @@ export function AssignmentRowEditor({
             className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-700 focus:outline-none focus:bg-white focus:border-[#4a6da7] cursor-pointer"
           >
             <option value="">-- Ninguno --</option>
-            {brothers.map(b => (
-              <option key={b.id} value={b.id}>
-                {b.names} {b.paternalLastname}
-              </option>
-            ))}
+            {brothers
+              .filter(b => {
+                if (section === 'fieldMinistry' || section === 'fieldMinistryAux') {
+                  return b.participatesInSchool !== false || b.id === singleAssignment?.assistant;
+                }
+                return true;
+              })
+              .map(b => (
+                <option key={b.id} value={b.id}>
+                  {b.names} {b.paternalLastname}
+                </option>
+              ))}
           </select>
         </div>
       )}

@@ -69,6 +69,7 @@ export function CreateBrotherModal({
         removalDate: null,
         isReinstated: false,
         reinstatementDate: null,
+        participatesInSchool: true
       });
       onSuccess(newBrother);
       reset();

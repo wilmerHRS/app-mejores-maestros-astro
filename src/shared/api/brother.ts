@@ -17,6 +17,7 @@ export interface Brother {
   isReinstated: boolean;
   reinstatementDate?: string | null;
   groupId?: string | null;
+  participatesInSchool?: boolean;
 }
 
 export async function fetchBrothersClient(congregationId: string): Promise<Brother[]> {

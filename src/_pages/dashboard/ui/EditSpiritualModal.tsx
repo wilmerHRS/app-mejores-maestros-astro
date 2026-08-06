@@ -43,7 +43,8 @@ export function EditSpiritualModal({
       removalDate: '',
       isReinstated: false,
       reinstatementDate: '',
-      groupId: ''
+      groupId: '',
+      participatesInSchool: true
     }
   });
 
@@ -62,7 +63,8 @@ export function EditSpiritualModal({
         removalDate: brother.removalDate || '',
         isReinstated: brother.isReinstated || false,
         reinstatementDate: brother.reinstatementDate || '',
-        groupId: brother.groupId || ''
+        groupId: brother.groupId || '',
+        participatesInSchool: brother.participatesInSchool !== undefined ? brother.participatesInSchool : true
       });
     }
   }, [isOpen, brother, reset]);
@@ -148,8 +150,12 @@ export function EditSpiritualModal({
                 className="w-full px-4 py-2.5 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-100 focus:border-[#4a6da7] transition-all duration-300"
               >
                 <option value="publicador">Publicador</option>
-                <option value="anciano">Anciano</option>
-                <option value="siervo_ministerial">Siervo Ministerial</option>
+                {brother.gender === 'M' && (
+                  <>
+                    <option value="anciano">Anciano</option>
+                    <option value="siervo_ministerial">Siervo Ministerial</option>
+                  </>
+                )}
                 <option value="publicador_no_bautizado">Publicador no bautizado</option>
                 <option value="escuela">Escuela</option>
               </select>
@@ -189,7 +195,7 @@ export function EditSpiritualModal({
           </div>
 
           {/* Status Checkboxes */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-2 border-t border-slate-100 pt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 py-2 border-t border-slate-100 pt-4">
             <label className="flex items-center gap-3 text-sm font-medium text-slate-700 cursor-pointer select-none">
               <input
                 type="checkbox"
@@ -213,6 +219,19 @@ export function EditSpiritualModal({
               <div>
                 <span className="block font-semibold">¿Asiste Regularmente?</span>
                 <span className="block text-[10px] text-slate-400 font-semibold">Asiste a las reuniones</span>
+              </div>
+            </label>
+
+            <label className="flex items-center gap-3 text-sm font-medium text-slate-700 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                disabled={isLoading}
+                {...register('participatesInSchool')}
+                className="w-4.5 h-4.5 rounded border-slate-300 text-[#4a6da7] focus:ring-[#4a6da7]"
+              />
+              <div>
+                <span className="block font-semibold">¿Participa en Escuela?</span>
+                <span className="block text-[10px] text-slate-400 font-semibold">Seamos mejores lectores y maestros</span>
               </div>
             </label>
           </div>

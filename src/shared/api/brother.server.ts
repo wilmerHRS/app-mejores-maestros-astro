@@ -72,7 +72,8 @@ export async function getBrothersByCongregation(congregationId: string): Promise
         removalDate: fields.removalDate?.stringValue || null,
         isReinstated: fields.isReinstated?.booleanValue || false,
         reinstatementDate: fields.reinstatementDate?.stringValue || null,
-        groupId: fields.groupId?.stringValue || null
+        groupId: fields.groupId?.stringValue || null,
+        participatesInSchool: fields.participatesInSchool?.booleanValue !== undefined ? fields.participatesInSchool.booleanValue : true
       };
     });
 }
@@ -103,7 +104,8 @@ export async function createBrother(data: Omit<Brother, 'id'>): Promise<string> 
       removalDate: { stringValue: data.removalDate || '' },
       isReinstated: { booleanValue: !!data.isReinstated },
       reinstatementDate: { stringValue: data.reinstatementDate || '' },
-      groupId: { stringValue: data.groupId || '' }
+      groupId: { stringValue: data.groupId || '' },
+      participatesInSchool: { booleanValue: data.participatesInSchool !== undefined ? !!data.participatesInSchool : true }
     }
   };
 
@@ -175,7 +177,8 @@ export async function getBrotherById(id: string): Promise<Brother | null> {
     removalDate: fields.removalDate?.stringValue || null,
     isReinstated: fields.isReinstated?.booleanValue || false,
     reinstatementDate: fields.reinstatementDate?.stringValue || null,
-    groupId: fields.groupId?.stringValue || null
+    groupId: fields.groupId?.stringValue || null,
+    participatesInSchool: fields.participatesInSchool?.booleanValue !== undefined ? fields.participatesInSchool.booleanValue : true
   };
 }
 
@@ -207,6 +210,7 @@ export async function updateBrother(id: string, data: Partial<Omit<Brother, 'id'
   const updatedReinstated = data.isReinstated !== undefined ? data.isReinstated : current.isReinstated;
   const updatedReinstatementDate = data.reinstatementDate !== undefined ? data.reinstatementDate : current.reinstatementDate;
   const updatedGroup = data.groupId !== undefined ? data.groupId : current.groupId;
+  const updatedSchool = data.participatesInSchool !== undefined ? data.participatesInSchool : current.participatesInSchool;
 
   const body = {
     fields: {
@@ -227,7 +231,8 @@ export async function updateBrother(id: string, data: Partial<Omit<Brother, 'id'
       removalDate: { stringValue: updatedRemovalDate || '' },
       isReinstated: { booleanValue: !!updatedReinstated },
       reinstatementDate: { stringValue: updatedReinstatementDate || '' },
-      groupId: { stringValue: updatedGroup || '' }
+      groupId: { stringValue: updatedGroup || '' },
+      participatesInSchool: { booleanValue: updatedSchool !== undefined ? !!updatedSchool : true }
     }
   };
 

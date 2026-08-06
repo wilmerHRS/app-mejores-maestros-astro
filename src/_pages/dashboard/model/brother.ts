@@ -20,7 +20,8 @@ export const updateSpiritualSchema = z.object({
   removalDate: z.string().nullable().optional(),
   isReinstated: z.boolean(),
   reinstatementDate: z.string().nullable().optional(),
-  groupId: z.string().nullable().optional()
+  groupId: z.string().nullable().optional(),
+  participatesInSchool: z.boolean()
 });
 
 export type CreateBrotherFields = z.infer<typeof createBrotherSchema>;

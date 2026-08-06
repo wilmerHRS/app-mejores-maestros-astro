@@ -17,7 +17,7 @@ export const createBrotherHandler: APIRoute = async ({ request, cookies }) => {
     const {
       names, paternalLastname, maternalLastname, phone, gender, ageGroup, isSickOrDisabled, congregationId,
       privilege, pioneerStatus, isActive, attendsRegularly, isRemoved, removalDate, isReinstated, reinstatementDate,
-      groupId
+      groupId, participatesInSchool
     } = await request.json() as any;
 
     if (!names || !paternalLastname || !gender || !ageGroup || !congregationId) {
@@ -44,7 +44,8 @@ export const createBrotherHandler: APIRoute = async ({ request, cookies }) => {
       removalDate: removalDate || null,
       isReinstated: !!isReinstated,
       reinstatementDate: reinstatementDate || null,
-      groupId: groupId || null
+      groupId: groupId || null,
+      participatesInSchool: participatesInSchool !== undefined ? !!participatesInSchool : true
     });
 
     return new Response(JSON.stringify({ success: true, id }), {
