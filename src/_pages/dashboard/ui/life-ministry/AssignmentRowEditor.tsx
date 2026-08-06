@@ -44,7 +44,16 @@ export function AssignmentRowEditor({
           {brothers
             .filter(b => {
               if (section === 'fieldMinistry' || section === 'fieldMinistryAux') {
-                return b.participatesInSchool !== false || b.id === singleAssignment?.assignedTo;
+                if (b.participatesInSchool === false && b.id !== singleAssignment?.assignedTo) {
+                  return false;
+                }
+                if (partType === 'video' || partType === 'analisis') {
+                  return (b.gender === 'M' && (b.privilege === 'anciano' || b.privilege === 'siervo_ministerial')) || b.id === singleAssignment?.assignedTo;
+                }
+                if (partType === 'explique_creencias_discurso' || partType === 'discurso') {
+                  return (b.gender === 'M' && b.privilege === 'publicador') || b.id === singleAssignment?.assignedTo;
+                }
+                return true;
               }
               if (section === 'treasures') {
                 if (partType === 'discurso' || partType === 'perlas_escondidas') {
@@ -53,6 +62,9 @@ export function AssignmentRowEditor({
                 if (partType === 'lectura_biblia') {
                   return (b.gender === 'M' && b.privilege !== 'anciano' && b.privilege !== 'siervo_ministerial') || b.id === singleAssignment?.assignedTo;
                 }
+              }
+              if (section === 'christianLife') {
+                return (b.gender === 'M' && (b.privilege === 'anciano' || b.privilege === 'siervo_ministerial')) || b.id === singleAssignment?.assignedTo;
               }
               return true;
             })
@@ -80,6 +92,11 @@ export function AssignmentRowEditor({
               .filter(b => {
                 if (section === 'fieldMinistry' || section === 'fieldMinistryAux') {
                   return b.participatesInSchool !== false || b.id === singleAssignment?.assistant;
+                }
+                if (section === 'christianLife') {
+                  if (partType === 'estudio_biblico_congregacion') {
+                    return (b.gender === 'M' && (b.privilege === 'anciano' || b.privilege === 'siervo_ministerial' || b.privilege === 'publicador')) || b.id === singleAssignment?.assistant;
+                  }
                 }
                 return true;
               })
