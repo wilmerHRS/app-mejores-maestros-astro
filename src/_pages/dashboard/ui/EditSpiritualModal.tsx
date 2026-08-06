@@ -194,21 +194,8 @@ export function EditSpiritualModal({
             </select>
           </div>
 
-          {/* Status Checkboxes */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 py-2 border-t border-slate-100 pt-4">
-            <label className="flex items-center gap-3 text-sm font-medium text-slate-700 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                disabled={isLoading}
-                {...register('isActive')}
-                className="w-4.5 h-4.5 rounded border-slate-300 text-[#4a6da7] focus:ring-[#4a6da7]"
-              />
-              <div>
-                <span className="block font-semibold">¿Está Activo?</span>
-                <span className="block text-[10px] text-slate-400 font-semibold">Participa en las actividades</span>
-              </div>
-            </label>
-
+          {/* School & Attendance Status */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-2 border-t border-slate-100 pt-4">
             <label className="flex items-center gap-3 text-sm font-medium text-slate-700 cursor-pointer select-none">
               <input
                 type="checkbox"
@@ -236,8 +223,23 @@ export function EditSpiritualModal({
             </label>
           </div>
 
-          {/* Disfellowshipped & Reinstated */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 border-t border-slate-100 pt-4">
+          {/* Active status, Disfellowshipped & Reinstated */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 border-t border-slate-100 pt-4">
+            <div className="space-y-3">
+              <label className="flex items-center gap-3 text-sm font-medium text-slate-700 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  disabled={isLoading}
+                  {...register('isActive')}
+                  className="w-4.5 h-4.5 rounded border-slate-300 text-[#4a6da7] focus:ring-[#4a6da7]"
+                />
+                <div>
+                  <span className="block font-semibold">¿Está Activo?</span>
+                  <span className="block text-[10px] text-slate-400 font-semibold">Participa en las actividades</span>
+                </div>
+              </label>
+            </div>
+
             <div className="space-y-3">
               <label className="flex items-center gap-3 text-sm font-medium text-slate-700 cursor-pointer select-none">
                 <input
