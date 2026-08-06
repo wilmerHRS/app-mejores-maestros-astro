@@ -119,6 +119,7 @@ export function AssignmentSection({
                   showAssistant={showAssistant}
                   brothers={brothers}
                   onUpdateField={onUpdateField}
+                  partType={part.type}
                 />
               ) : (
                 <AssignmentRowReadOnly

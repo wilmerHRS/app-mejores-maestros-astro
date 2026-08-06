@@ -14,6 +14,7 @@ interface AssignmentRowEditorProps {
     field: keyof SingleAssignment,
     value: string
   ) => void;
+  partType?: string;
 }
 
 export function AssignmentRowEditor({
@@ -22,7 +23,8 @@ export function AssignmentRowEditor({
   singleAssignment,
   showAssistant = false,
   brothers,
-  onUpdateField
+  onUpdateField,
+  partType
 }: AssignmentRowEditorProps) {
   return (
     <div className="flex flex-wrap items-center gap-3">
@@ -43,6 +45,14 @@ export function AssignmentRowEditor({
             .filter(b => {
               if (section === 'fieldMinistry' || section === 'fieldMinistryAux') {
                 return b.participatesInSchool !== false || b.id === singleAssignment?.assignedTo;
+              }
+              if (section === 'treasures') {
+                if (partType === 'discurso' || partType === 'perlas_escondidas') {
+                  return b.privilege === 'anciano' || b.privilege === 'siervo_ministerial' || b.id === singleAssignment?.assignedTo;
+                }
+                if (partType === 'lectura_biblia') {
+                  return (b.gender === 'M' && b.privilege !== 'anciano' && b.privilege !== 'siervo_ministerial') || b.id === singleAssignment?.assignedTo;
+                }
               }
               return true;
             })
