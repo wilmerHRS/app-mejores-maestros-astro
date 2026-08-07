@@ -14,3 +14,47 @@
     flex: 0 0 80% !important;
   }
 }
+
+@media screen {
+  .print-only-layout {
+    display: none !important;
+  }
+}
+
+@media print {
+  /* Hide the entire website UI layout */
+  body > div:first-of-type,
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Show A4 print layout */
+  .print-only-layout {
+    display: block !important;
+    width: 100% !important;
+    background: white !important;
+    color: black !important;
+    padding: 10mm 15mm !important;
+    box-sizing: border-box !important;
+  }
+
+  .print-week-block {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    margin-bottom: 24px !important;
+  }
+
+  /* Force background colors in browsers when printing */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

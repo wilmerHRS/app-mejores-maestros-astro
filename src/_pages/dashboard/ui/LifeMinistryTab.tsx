@@ -6,6 +6,7 @@ import { WeekBannerHero } from './life-ministry/WeekBannerHero';
 import { AssignmentSection } from './life-ministry/AssignmentSection';
 import { HallTabSelector } from './life-ministry/HallTabSelector';
 import { AssignmentActionBar } from './life-ministry/AssignmentActionBar';
+import { ExportPdfModal } from './life-ministry/ExportPdfModal';
 
 interface LifeMinistryTabProps {
   congregationId: string;
@@ -35,6 +36,8 @@ export function LifeMinistryTab({ congregationId }: LifeMinistryTabProps) {
     saveAssignments,
     updateAssignmentField
   } = useLifeMinistryData({ congregationId });
+
+  const [isExportModalOpen, setIsExportModalOpen] = React.useState(false);
 
   if (isLoadingGuides) {
     return (
@@ -119,6 +122,7 @@ export function LifeMinistryTab({ congregationId }: LifeMinistryTabProps) {
                         cancelEditing();
                       }}
                       onCancel={cancelEditing}
+                      onExportPdf={() => setIsExportModalOpen(true)}
                     />
                   </div>
                 )}
@@ -192,6 +196,16 @@ export function LifeMinistryTab({ congregationId }: LifeMinistryTabProps) {
           )}
         </div>
       </div>
+
+      {isExportModalOpen && selectedGuide && (
+        <ExportPdfModal
+          guide={selectedGuide}
+          weeks={weeks}
+          congregationId={congregationId}
+          brothers={brothers}
+          onClose={() => setIsExportModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

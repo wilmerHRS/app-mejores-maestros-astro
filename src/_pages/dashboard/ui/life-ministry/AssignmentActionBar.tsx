@@ -6,6 +6,7 @@ interface AssignmentActionBarProps {
   onStartEdit: () => void;
   onSave: () => void;
   onCancel: () => void;
+  onExportPdf?: () => void;
 }
 
 export function AssignmentActionBar({
@@ -13,19 +14,33 @@ export function AssignmentActionBar({
   isSaving,
   onStartEdit,
   onSave,
-  onCancel
+  onCancel,
+  onExportPdf
 }: AssignmentActionBarProps) {
   if (!isEditingAssignments) {
     return (
-      <button
-        onClick={onStartEdit}
-        className="px-5 py-2.5 text-xs font-extrabold text-white bg-[#4a6da7] hover:bg-[#3d5a8c] rounded-xl transition-all shadow-sm cursor-pointer flex items-center gap-1.5 whitespace-nowrap"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor" className="w-3.5 h-3.5">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.83 21.75a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-        </svg>
-        <span>Editar Asignaciones</span>
-      </button>
+      <div className="flex items-center gap-2">
+        <button
+          onClick={onStartEdit}
+          className="px-5 py-2.5 text-xs font-extrabold text-white bg-[#4a6da7] hover:bg-[#3d5a8c] rounded-xl transition-all shadow-sm cursor-pointer flex items-center gap-1.5 whitespace-nowrap"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor" className="w-3.5 h-3.5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.83 21.75a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+          </svg>
+          <span>Editar Asignaciones</span>
+        </button>
+        {onExportPdf && (
+          <button
+            onClick={onExportPdf}
+            className="px-5 py-2.5 text-xs font-extrabold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-xl transition-all shadow-sm cursor-pointer flex items-center gap-1.5 whitespace-nowrap"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="rose" className="w-3.5 h-3.5 text-rose-500">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6.72 19.164l-.209.214a1.5 1.5 0 00-1.06 1.06l-.209.214m0 0L3.18 18.59m0 0l2.062-2.062M17.28 4.836l.209-.214a1.5 1.5 0 001.06-1.06l.209-.214m0 0L20.82 5.41m0 0l-2.062 2.062M3 12v3.75A2.25 2.25 0 005.25 18H18.75A2.25 2.25 0 0021 15.75V12m-18 0v-3.75A2.25 2.25 0 005.25 6h13.5A2.25 2.25 0 0021 8.25V12m-18 0h18" />
+            </svg>
+            <span>Exportar PDF</span>
+          </button>
+        )}
+      </div>
     );
   }
 
