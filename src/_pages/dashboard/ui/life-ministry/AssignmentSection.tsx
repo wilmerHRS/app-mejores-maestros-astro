@@ -116,36 +116,38 @@ export function AssignmentSection({
                     {part.part || (section === 'treasures' ? 'Discurso sin título' : 'Parte estudiantil')}
                   </h6>
                   <PartStatusIndicator singleAssignment={currentAssignment} />
-                  {isBibleReading && (
-                    <HallTabSelector
-                      activeHall={activeTreasuresHall}
-                      onChangeHall={setActiveTreasuresHall}
-                    />
-                  )}
                 </div>
                 <p className="text-slate-400 text-xs font-semibold mt-0.5">
                   {getPartTypeLabel(part.type, currentSection === 'fieldMinistryAux' ? 'fieldMinistry' : (currentSection === 'treasuresAux' ? 'treasures' : currentSection))} · {part.duration}
                 </p>
               </div>
 
-              {isEditing ? (
-                <AssignmentRowEditor
-                  section={currentSection}
-                  index={idx}
-                  singleAssignment={currentAssignment}
-                  showAssistant={showAssistant}
-                  brothers={brothers}
-                  onUpdateField={onUpdateField}
-                  partType={part.type}
-                />
-              ) : (
-                <AssignmentRowReadOnly
-                  section={currentSection}
-                  singleAssignment={currentAssignment}
-                  hasAssistant={showAssistant}
-                  brothers={brothers}
-                />
-              )}
+              <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                {isBibleReading && (
+                  <HallTabSelector
+                    activeHall={activeTreasuresHall}
+                    onChangeHall={setActiveTreasuresHall}
+                  />
+                )}
+                {isEditing ? (
+                  <AssignmentRowEditor
+                    section={currentSection}
+                    index={idx}
+                    singleAssignment={currentAssignment}
+                    showAssistant={showAssistant}
+                    brothers={brothers}
+                    onUpdateField={onUpdateField}
+                    partType={part.type}
+                  />
+                ) : (
+                  <AssignmentRowReadOnly
+                    section={currentSection}
+                    singleAssignment={currentAssignment}
+                    hasAssistant={showAssistant}
+                    brothers={brothers}
+                  />
+                )}
+              </div>
             </div>
           );
         })}
