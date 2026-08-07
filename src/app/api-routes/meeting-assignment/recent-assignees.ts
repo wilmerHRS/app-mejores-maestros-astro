@@ -4,7 +4,7 @@ import { getWeeksByCongregation, getMeetingAssignment, verifyFirebaseSessionCook
 // Configuración de límites de días para asignaciones recientes
 const ASSIGNEE_RECENT_DAYS = 30; // Excluir si fue asignado principal hace menos de 30 días
 const ASSISTANT_RECENT_DAYS = 15; // Excluir si fue ayudante hace menos de 15 días
-const LAST_WEEK_HELPER_DAYS = 7; // Excluir si fue ayudante la semana pasada (menos de 7 días)
+const LAST_WEEK_HELPER_DAYS = 14; // Excluir si fue ayudante/asignado principal en las últimas 2 semanas (menos de 14 días)
 
 export const recentAssigneesHandler: APIRoute = async ({ cookies, url }) => {
   try {
