@@ -24,6 +24,7 @@ interface AssignmentSectionProps {
   activeHall?: 'main' | 'aux'; // for keys/context if needed
   recentAssigneeIds?: string[];
   recentHelperIds?: string[];
+  lastWeekHelperIds?: string[];
   activeAssignment?: MeetingAssignment | null;
 }
 
@@ -76,6 +77,7 @@ export function AssignmentSection({
   activeHall,
   recentAssigneeIds,
   recentHelperIds,
+  lastWeekHelperIds,
   activeAssignment
 }: AssignmentSectionProps) {
   const [activeTreasuresHall, setActiveTreasuresHall] = React.useState<'main' | 'aux'>('main');
@@ -146,6 +148,7 @@ export function AssignmentSection({
                     partType={part.type}
                     recentAssigneeIds={recentAssigneeIds}
                     recentHelperIds={recentHelperIds}
+                    lastWeekHelperIds={lastWeekHelperIds}
                     activeAssignment={activeAssignment}
                   />
                 ) : (

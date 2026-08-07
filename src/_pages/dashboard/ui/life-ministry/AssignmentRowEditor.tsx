@@ -17,6 +17,7 @@ interface AssignmentRowEditorProps {
   partType?: string;
   recentAssigneeIds?: string[];
   recentHelperIds?: string[];
+  lastWeekHelperIds?: string[];
   activeAssignment?: MeetingAssignment | null;
 }
 
@@ -30,6 +31,7 @@ export function AssignmentRowEditor({
   partType,
   recentAssigneeIds,
   recentHelperIds,
+  lastWeekHelperIds,
   activeAssignment
 }: AssignmentRowEditorProps) {
   // Extract all assignee/assistant IDs assigned in Main Hall vs Auxiliary Hall for this week
@@ -127,6 +129,17 @@ export function AssignmentRowEditor({
                 const isSchoolSection = section === 'fieldMinistry' || section === 'fieldMinistryAux';
                 if (isBibleReading || isSchoolSection) {
                   if (recentAssigneeIds.includes(b.id)) {
+                    return false;
+                  }
+                }
+              }
+
+              // 5. Last week helper filter (if they were assistant last week, they cannot be assignee this week)
+              if (lastWeekHelperIds && lastWeekHelperIds.length > 0 && b.id !== singleAssignment?.assignedTo) {
+                const isBibleReading = partType === 'lectura_biblia';
+                const isSchoolSection = section === 'fieldMinistry' || section === 'fieldMinistryAux';
+                if (isBibleReading || isSchoolSection) {
+                  if (lastWeekHelperIds.includes(b.id)) {
                     return false;
                   }
                 }

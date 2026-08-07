@@ -37,7 +37,7 @@ export const recentAssigneesHandler: APIRoute = async ({ cookies, url }) => {
     }
 
     // Filter weeks within the maximum window of the configuration
-    const maxDaysWindow = Math.max(ASSIGNEE_RECENT_DAYS, ASSISTANT_RECENT_DAYS);
+    const maxDaysWindow = Math.max(ASSIGNEE_RECENT_DAYS, ASSISTANT_RECENT_DAYS, 7);
     const targetTime = new Date(targetWeek.startDate).getTime();
     const matchingWeeks = allWeeks.filter((w) => {
       if (w.id === targetWeekId) return false;
@@ -48,6 +48,7 @@ export const recentAssigneesHandler: APIRoute = async ({ cookies, url }) => {
 
     const recentAssigneeIds = new Set<string>();
     const recentHelperIds = new Set<string>();
+    const lastWeekHelperIds = new Set<string>();
 
     await Promise.all(
       matchingWeeks.map(async (w) => {
@@ -61,8 +62,14 @@ export const recentAssigneesHandler: APIRoute = async ({ cookies, url }) => {
               if (sa?.assignedTo && diffDays <= ASSIGNEE_RECENT_DAYS) {
                 recentAssigneeIds.add(sa.assignedTo);
               }
-              if (sa?.assistant && diffDays <= ASSISTANT_RECENT_DAYS) {
-                recentHelperIds.add(sa.assistant);
+              if (sa?.assistant) {
+                if (diffDays <= ASSISTANT_RECENT_DAYS) {
+                  recentHelperIds.add(sa.assistant);
+                }
+                // Si le tocó la semana pasada de ayudante (0 < diffDays <= 7)
+                if (diffDays > 0 && diffDays <= 7) {
+                  lastWeekHelperIds.add(sa.assistant);
+                }
               }
             };
             
@@ -81,7 +88,8 @@ export const recentAssigneesHandler: APIRoute = async ({ cookies, url }) => {
     return new Response(
       JSON.stringify({
         recentAssigneeIds: Array.from(recentAssigneeIds),
-        recentHelperIds: Array.from(recentHelperIds)
+        recentHelperIds: Array.from(recentHelperIds),
+        lastWeekHelperIds: Array.from(lastWeekHelperIds)
       }),
       {
         status: 200,

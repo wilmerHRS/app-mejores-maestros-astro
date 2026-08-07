@@ -31,6 +31,7 @@ export interface LifeMinistryData {
   activeAssignment: MeetingAssignment | null;
   recentAssigneeIds: string[];
   recentHelperIds: string[];
+  lastWeekHelperIds: string[];
 
   // UI state
   activeWeekIndex: number;
@@ -103,6 +104,7 @@ export function useLifeMinistryData({ congregationId }: UseLifeMinistryDataOptio
   const [activeAssignment, setActiveAssignment] = useState<MeetingAssignment | null>(null);
   const [recentAssigneeIds, setRecentAssigneeIds] = useState<string[]>([]);
   const [recentHelperIds, setRecentHelperIds] = useState<string[]>([]);
+  const [lastWeekHelperIds, setLastWeekHelperIds] = useState<string[]>([]);
 
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -180,12 +182,13 @@ export function useLifeMinistryData({ congregationId }: UseLifeMinistryDataOptio
       const [assignmentData, recentData] = await Promise.all([
         fetchMeetingAssignmentClient(week.id, congregationId),
         fetch(`/api/meeting-assignment/recent-assignees?congregationId=${encodeURIComponent(congregationId)}&targetWeekId=${encodeURIComponent(week.id)}`)
-          .then((res) => (res.ok ? res.json() : { recentAssigneeIds: [], recentHelperIds: [] }))
-          .catch(() => ({ recentAssigneeIds: [], recentHelperIds: [] }))
+          .then((res) => (res.ok ? res.json() : { recentAssigneeIds: [], recentHelperIds: [], lastWeekHelperIds: [] }))
+          .catch(() => ({ recentAssigneeIds: [], recentHelperIds: [], lastWeekHelperIds: [] }))
       ]);
 
       setRecentAssigneeIds((recentData as any).recentAssigneeIds || []);
       setRecentHelperIds((recentData as any).recentHelperIds || []);
+      setLastWeekHelperIds((recentData as any).lastWeekHelperIds || []);
 
       if (assignmentData) {
         setActiveAssignment({
@@ -252,6 +255,7 @@ export function useLifeMinistryData({ congregationId }: UseLifeMinistryDataOptio
     activeAssignment,
     recentAssigneeIds,
     recentHelperIds,
+    lastWeekHelperIds,
     activeWeekIndex,
     activeHall,
     isEditingAssignments,
