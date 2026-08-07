@@ -3,7 +3,6 @@ import { createPortal } from 'react-dom';
 import type { Brother, SingleAssignment, ActivityGuide, ActivityGuideWeek } from '@/shared/api';
 import { fetchMeetingAssignmentClient, fetchCongregationsClient } from '@/shared/api';
 import { getBrotherFullName, partRequiresAssistant } from '../../model/life-ministry';
-import { HallTabSelector } from './HallTabSelector';
 
 interface ExportPdfModalProps {
   guide: ActivityGuide;
@@ -17,7 +16,6 @@ interface ExportPdfModalProps {
 interface WeekPrintData {
   week: ActivityGuideWeek;
   assignment: any;
-  times: string[];
 }
 
 export function ExportPdfModal({
@@ -29,7 +27,6 @@ export function ExportPdfModal({
   onClose
 }: ExportPdfModalProps) {
   const [congName, setCongName] = useState(congregationName);
-  const [startTime, setStartTime] = useState('19:30');
   const [isLoading, setIsLoading] = useState(false);
   const [printData, setPrintData] = useState<WeekPrintData[] | null>(null);
 
@@ -50,39 +47,6 @@ export function ExportPdfModal({
     loadCongregations();
   }, [congregationId]);
 
-  // Helper to format time starting from base H:MM
-  function getPartTimes(week: ActivityGuideWeek, startTimeStr: string): string[] {
-    const [startHour, startMin] = startTimeStr.split(':').map(Number);
-    const baseTime = new Date();
-    baseTime.setHours(startHour, startMin, 0, 0);
-
-    // Initial offset for Bible Reading (song 5m + intro 1m + talk 10m + gems 10m = 26m)
-    const bibleReadingTime = new Date(baseTime.getTime() + 26 * 60 * 1000);
-    const times: string[] = [];
-
-    const formatTime = (dt: Date) => {
-      const hrs = dt.getHours();
-      const mins = dt.getMinutes();
-      return `${hrs}:${mins < 10 ? '0' : ''}${mins}`;
-    };
-
-    times.push(formatTime(bibleReadingTime));
-
-    let lastEndTime = new Date(bibleReadingTime.getTime() + 4 * 60 * 1000); // Bible reading duration is 4m
-    
-    const fieldMinistryParts = week.fieldMinistry || [];
-    for (let i = 0; i < fieldMinistryParts.length; i++) {
-      const part = fieldMinistryParts[i];
-      const partStartTime = new Date(lastEndTime.getTime() + 1 * 60 * 1000);
-      times.push(formatTime(partStartTime));
-      
-      const durationMin = parseInt(part.duration) || 3;
-      lastEndTime = new Date(partStartTime.getTime() + durationMin * 60 * 1000);
-    }
-
-    return times;
-  }
-
   const handleGenerate = async () => {
     try {
       setIsLoading(true);
@@ -90,11 +54,9 @@ export function ExportPdfModal({
       const data = await Promise.all(
         weeks.map(async (w) => {
           const assignment = await fetchMeetingAssignmentClient(w.id, congregationId);
-          const times = getPartTimes(w, startTime);
           return {
             week: w,
-            assignment,
-            times
+            assignment
           };
         })
       );
@@ -140,19 +102,6 @@ export function ExportPdfModal({
                 disabled={isLoading}
                 className="w-full px-3 py-2 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4a6da7]/10 focus:border-[#4a6da7] transition-all"
                 placeholder="Ej. Chinchaysuyo"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">
-                Hora de Inicio de Reunión
-              </label>
-              <input
-                type="time"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-                disabled={isLoading}
-                className="w-full px-3 py-2 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4a6da7]/10 focus:border-[#4a6da7] transition-all"
               />
             </div>
 
@@ -202,7 +151,7 @@ export function ExportPdfModal({
 
           {/* Weeks list */}
           <div className="space-y-8">
-            {printData.map(({ week, assignment, times }) => {
+            {printData.map(({ week, assignment }) => {
               const formattedDate = week.startDate.replaceAll('-', '/');
               
               // Get Bible Reading assignments
@@ -229,13 +178,16 @@ export function ExportPdfModal({
                       {/* Treasures Bible Reading Part */}
                       {bibleReadingPart && (
                         <tr className="border-b border-slate-100">
-                          <td className="w-[10%] text-xs font-bold text-slate-800 py-1.5">{times[0]}</td>
-                          <td className="w-[38%] text-xs text-slate-700 py-1.5">
+                          <td className="w-[50%] text-xs text-slate-700 py-2">
                             {bibleReadingIdx + 1}. {bibleReadingPart.part || 'Lectura de la Biblia'} ({bibleReadingPart.duration})
                           </td>
-                          <td className="w-[12%] text-[11px] font-bold text-slate-500 py-1.5">Estudiante:</td>
-                          <td className="w-[20%] text-xs text-slate-800 font-semibold py-1.5 pr-2 truncate">{auxLecturaName || '-'}</td>
-                          <td className="w-[20%] text-xs text-slate-800 font-semibold py-1.5 pr-2 truncate">{mainLecturaName || '-'}</td>
+                          <td className="w-[16%] text-[10px] font-bold text-slate-500 py-2">Estudiante:</td>
+                          <td className="w-[17%] text-xs text-slate-800 font-semibold py-2 pr-2">
+                            {auxLecturaName || '-'}
+                          </td>
+                          <td className="w-[17%] text-xs text-slate-800 font-semibold py-2 pr-2">
+                            {mainLecturaName || '-'}
+                          </td>
                         </tr>
                       )}
 
@@ -243,7 +195,7 @@ export function ExportPdfModal({
                       {week.fieldMinistry && week.fieldMinistry.length > 0 && (
                         <>
                           <tr>
-                            <td colSpan={3} className="bg-[#be8900] text-white font-bold text-[10px] uppercase px-2 py-1 tracking-wide rounded-l-md">
+                            <td colSpan={2} className="bg-[#be8900] text-white font-bold text-[10px] uppercase px-2 py-1 tracking-wide rounded-l-md">
                               SEAMOS MEJORES MAESTROS
                             </td>
                             <td className="text-[9px] font-bold text-slate-500 uppercase px-2 py-1 border-b border-slate-200">
@@ -256,9 +208,6 @@ export function ExportPdfModal({
 
                           {/* Seamos Mejores Maestros Parts */}
                           {week.fieldMinistry.map((part, pIdx) => {
-                            const timeIndex = pIdx + 1;
-                            const timeStr = times[timeIndex] || '';
-
                             const auxAssign = assignment?.fieldMinistryAux?.[pIdx];
                             const mainAssign = assignment?.fieldMinistry?.[pIdx];
 
@@ -269,27 +218,55 @@ export function ExportPdfModal({
                             const mainAssist = partRequiresAssistant(part.type) ? getBrotherFullName(mainAssign?.assistant, brothers) : '';
 
                             const isSolo = !partRequiresAssistant(part.type);
-                            const roleLabel = isSolo ? 'Estudiante:' : 'Estudiante/Ayudante:';
-
-                            // Combine assignee/assistant with slash
-                            const auxDisplay = auxStudent 
-                              ? (auxAssist ? `${auxStudent} / ${auxAssist}` : auxStudent)
-                              : '-';
-                            const mainDisplay = mainStudent 
-                              ? (mainAssist ? `${mainStudent} / ${mainAssist}` : mainStudent)
-                              : '-';
-
                             const partNum = bibleReadingPart ? pIdx + 4 : pIdx + 3;
 
                             return (
                               <tr key={pIdx} className="border-b border-slate-100 last:border-0">
-                                <td className="text-xs font-bold text-slate-800 py-1.5">{timeStr}</td>
-                                <td className="text-xs text-slate-700 py-1.5 pr-3">
+                                <td className="w-[50%] text-xs text-slate-700 py-2 pr-3">
                                   {partNum}. {part.part || 'Parte estudiantil'} ({part.duration})
                                 </td>
-                                <td className="text-[10px] font-bold text-slate-500 py-1.5">{roleLabel}</td>
-                                <td className="text-xs text-slate-800 font-semibold py-1.5 pr-2 truncate">{auxDisplay}</td>
-                                <td className="text-xs text-slate-800 font-semibold py-1.5 pr-2 truncate">{mainDisplay}</td>
+                                <td className="w-[16%] text-[10px] font-bold text-slate-500 py-2 leading-tight">
+                                  {isSolo ? (
+                                    <span>Estudiante:</span>
+                                  ) : (
+                                    <>
+                                      <span>Estudiante/</span>
+                                      <span className="block">Ayudante:</span>
+                                    </>
+                                  )}
+                                </td>
+                                <td className="w-[17%] text-xs text-slate-800 py-2 pr-2 leading-tight">
+                                  {auxStudent ? (
+                                    <div>
+                                      <span className="block font-semibold">
+                                        {auxStudent}{auxAssist ? '/' : ''}
+                                      </span>
+                                      {auxAssist && (
+                                        <span className="block font-semibold">
+                                          {auxAssist}
+                                        </span>
+                                      )}
+                                    </div>
+                                  ) : (
+                                    <span className="text-slate-400 font-semibold">-</span>
+                                  )}
+                                </td>
+                                <td className="w-[17%] text-xs text-slate-800 py-2 pr-2 leading-tight">
+                                  {mainStudent ? (
+                                    <div>
+                                      <span className="block font-semibold">
+                                        {mainStudent}{mainAssist ? '/' : ''}
+                                      </span>
+                                      {mainAssist && (
+                                        <span className="block font-semibold">
+                                          {mainAssist}
+                                        </span>
+                                      )}
+                                    </div>
+                                  ) : (
+                                    <span className="text-slate-400 font-semibold">-</span>
+                                  )}
+                                </td>
                               </tr>
                             );
                           })}
