@@ -18,6 +18,7 @@ interface AssignmentRowEditorProps {
   recentAssigneeIds?: string[];
   recentHelperIds?: string[];
   lastWeekHelperIds?: string[];
+  lastWeekAssigneeIds?: string[];
   activeAssignment?: MeetingAssignment | null;
 }
 
@@ -32,20 +33,35 @@ export function AssignmentRowEditor({
   recentAssigneeIds,
   recentHelperIds,
   lastWeekHelperIds,
+  lastWeekAssigneeIds,
   activeAssignment
 }: AssignmentRowEditorProps) {
   // Extract all assignee/assistant IDs assigned in Main Hall vs Auxiliary Hall for this week
   const assignedIdsInMain: string[] = [];
   const assignedIdsInAux: string[] = [];
+  const allAssignedToIds: string[] = [];
+  const allAssistantIds: string[] = [];
 
   if (activeAssignment) {
     const collectMain = (sa: SingleAssignment | undefined) => {
-      if (sa?.assignedTo) assignedIdsInMain.push(sa.assignedTo);
-      if (sa?.assistant) assignedIdsInMain.push(sa.assistant);
+      if (sa?.assignedTo) {
+        assignedIdsInMain.push(sa.assignedTo);
+        allAssignedToIds.push(sa.assignedTo);
+      }
+      if (sa?.assistant) {
+        assignedIdsInMain.push(sa.assistant);
+        allAssistantIds.push(sa.assistant);
+      }
     };
     const collectAux = (sa: SingleAssignment | undefined) => {
-      if (sa?.assignedTo) assignedIdsInAux.push(sa.assignedTo);
-      if (sa?.assistant) assignedIdsInAux.push(sa.assistant);
+      if (sa?.assignedTo) {
+        assignedIdsInAux.push(sa.assignedTo);
+        allAssignedToIds.push(sa.assignedTo);
+      }
+      if (sa?.assistant) {
+        assignedIdsInAux.push(sa.assistant);
+        allAssistantIds.push(sa.assistant);
+      }
     };
 
     (activeAssignment.treasures || []).forEach(collectMain);
@@ -120,6 +136,13 @@ export function AssignmentRowEditor({
                   if (assignedIdsInAux.includes(b.id)) {
                     return false;
                   }
+                }
+              }
+
+              // 3b. Same-week duplicate assignee exclusion (already assigned this week, either hall)
+              if (b.id !== singleAssignment?.assignedTo) {
+                if (allAssignedToIds.includes(b.id)) {
+                  return false;
                 }
               }
 
@@ -201,6 +224,27 @@ export function AssignmentRowEditor({
                 if (!isVideoOrAnalisis && recentHelperIds && recentHelperIds.length > 0 && b.id !== singleAssignment?.assistant) {
                   const isSchoolSection = section === 'fieldMinistry' || section === 'fieldMinistryAux';
                   if (isSchoolSection && recentHelperIds.includes(b.id)) {
+                    return false;
+                  }
+                }
+
+                // Same-week duplicate assistant exclusion (already assistant this week, either hall)
+                if (!isVideoOrAnalisis && b.id !== singleAssignment?.assistant) {
+                  if (allAssistantIds.includes(b.id)) {
+                    return false;
+                  }
+                }
+
+                // Same-week assignee cannot be assistant (already assigned this week, either hall)
+                if (!isVideoOrAnalisis && b.id !== singleAssignment?.assistant) {
+                  if (allAssignedToIds.includes(b.id)) {
+                    return false;
+                  }
+                }
+
+                // Last week assignee filter (if they were main assignee last week, they cannot be assistant this week)
+                if (!isVideoOrAnalisis && lastWeekAssigneeIds && lastWeekAssigneeIds.length > 0 && b.id !== singleAssignment?.assistant) {
+                  if (lastWeekAssigneeIds.includes(b.id)) {
                     return false;
                   }
                 }

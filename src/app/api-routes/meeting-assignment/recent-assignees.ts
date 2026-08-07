@@ -50,6 +50,7 @@ export const recentAssigneesHandler: APIRoute = async ({ cookies, url }) => {
     const recentAssigneeIds = new Set<string>();
     const recentHelperIds = new Set<string>();
     const lastWeekHelperIds = new Set<string>();
+    const lastWeekAssigneeIds = new Set<string>();
 
     await Promise.all(
       matchingWeeks.map(async (w) => {
@@ -60,8 +61,14 @@ export const recentAssigneesHandler: APIRoute = async ({ cookies, url }) => {
           const assignment = await getMeetingAssignment(w.id, congregationId);
           if (assignment) {
             const processPart = (sa: any) => {
-              if (sa?.assignedTo && diffDays <= ASSIGNEE_RECENT_DAYS) {
-                recentAssigneeIds.add(sa.assignedTo);
+              if (sa?.assignedTo) {
+                if (diffDays <= ASSIGNEE_RECENT_DAYS) {
+                  recentAssigneeIds.add(sa.assignedTo);
+                }
+                // Si le tocó la semana pasada asignación principal (0 < diffDays <= LAST_WEEK_HELPER_DAYS)
+                if (diffDays > 0 && diffDays <= LAST_WEEK_HELPER_DAYS) {
+                  lastWeekAssigneeIds.add(sa.assignedTo);
+                }
               }
               if (sa?.assistant) {
                 if (diffDays <= ASSISTANT_RECENT_DAYS) {
@@ -90,7 +97,8 @@ export const recentAssigneesHandler: APIRoute = async ({ cookies, url }) => {
       JSON.stringify({
         recentAssigneeIds: Array.from(recentAssigneeIds),
         recentHelperIds: Array.from(recentHelperIds),
-        lastWeekHelperIds: Array.from(lastWeekHelperIds)
+        lastWeekHelperIds: Array.from(lastWeekHelperIds),
+        lastWeekAssigneeIds: Array.from(lastWeekAssigneeIds)
       }),
       {
         status: 200,

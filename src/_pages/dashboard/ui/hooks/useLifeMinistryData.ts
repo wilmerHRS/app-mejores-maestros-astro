@@ -32,6 +32,7 @@ export interface LifeMinistryData {
   recentAssigneeIds: string[];
   recentHelperIds: string[];
   lastWeekHelperIds: string[];
+  lastWeekAssigneeIds: string[];
 
   // UI state
   activeWeekIndex: number;
@@ -105,6 +106,7 @@ export function useLifeMinistryData({ congregationId }: UseLifeMinistryDataOptio
   const [recentAssigneeIds, setRecentAssigneeIds] = useState<string[]>([]);
   const [recentHelperIds, setRecentHelperIds] = useState<string[]>([]);
   const [lastWeekHelperIds, setLastWeekHelperIds] = useState<string[]>([]);
+  const [lastWeekAssigneeIds, setLastWeekAssigneeIds] = useState<string[]>([]);
 
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -182,13 +184,14 @@ export function useLifeMinistryData({ congregationId }: UseLifeMinistryDataOptio
       const [assignmentData, recentData] = await Promise.all([
         fetchMeetingAssignmentClient(week.id, congregationId),
         fetch(`/api/meeting-assignment/recent-assignees?congregationId=${encodeURIComponent(congregationId)}&targetWeekId=${encodeURIComponent(week.id)}`)
-          .then((res) => (res.ok ? res.json() : { recentAssigneeIds: [], recentHelperIds: [], lastWeekHelperIds: [] }))
-          .catch(() => ({ recentAssigneeIds: [], recentHelperIds: [], lastWeekHelperIds: [] }))
+          .then((res) => (res.ok ? res.json() : { recentAssigneeIds: [], recentHelperIds: [], lastWeekHelperIds: [], lastWeekAssigneeIds: [] }))
+          .catch(() => ({ recentAssigneeIds: [], recentHelperIds: [], lastWeekHelperIds: [], lastWeekAssigneeIds: [] }))
       ]);
 
       setRecentAssigneeIds((recentData as any).recentAssigneeIds || []);
       setRecentHelperIds((recentData as any).recentHelperIds || []);
       setLastWeekHelperIds((recentData as any).lastWeekHelperIds || []);
+      setLastWeekAssigneeIds((recentData as any).lastWeekAssigneeIds || []);
 
       if (assignmentData) {
         setActiveAssignment({
@@ -256,6 +259,7 @@ export function useLifeMinistryData({ congregationId }: UseLifeMinistryDataOptio
     recentAssigneeIds,
     recentHelperIds,
     lastWeekHelperIds,
+    lastWeekAssigneeIds,
     activeWeekIndex,
     activeHall,
     isEditingAssignments,
