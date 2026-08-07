@@ -140,6 +140,7 @@ export function LifeMinistryTab({ congregationId }: LifeMinistryTabProps) {
                         colorClass="bg-[#3c7f8b]"
                         parts={activeWeek.treasures}
                         assignments={activeAssignment?.treasures}
+                        auxAssignments={activeAssignment?.treasuresAux}
                         isEditing={isEditingAssignments}
                         brothers={brothers}
                         onUpdateField={updateAssignmentField}

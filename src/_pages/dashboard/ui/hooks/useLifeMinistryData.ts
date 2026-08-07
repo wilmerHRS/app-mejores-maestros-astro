@@ -69,6 +69,7 @@ function buildEmptyAssignment(weekId: string, congregationId: string, week: Acti
     weekId,
     congregationId,
     treasures: (week.treasures || []).map(emptyRow),
+    treasuresAux: (week.treasures || []).map(emptyRow),
     fieldMinistry: (week.fieldMinistry || []).map(emptyRow),
     fieldMinistryAux: (week.fieldMinistry || []).map(emptyRow),
     christianLife: (week.christianLife || []).map(emptyRow),
@@ -177,6 +178,7 @@ export function useLifeMinistryData({ congregationId }: UseLifeMinistryDataOptio
         setActiveAssignment({
           ...data,
           treasures: syncArrayToTemplate((week.treasures || []).length, data.treasures),
+          treasuresAux: syncArrayToTemplate((week.treasures || []).length, data.treasuresAux),
           fieldMinistry: syncArrayToTemplate((week.fieldMinistry || []).length, data.fieldMinistry),
           fieldMinistryAux: syncArrayToTemplate((week.fieldMinistry || []).length, data.fieldMinistryAux),
           christianLife: syncArrayToTemplate((week.christianLife || []).length, data.christianLife),

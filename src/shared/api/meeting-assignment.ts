@@ -9,6 +9,7 @@ export interface MeetingAssignment {
   weekId: string;
   congregationId: string;
   treasures?: SingleAssignment[];
+  treasuresAux?: SingleAssignment[];
   fieldMinistry?: SingleAssignment[];
   fieldMinistryAux?: SingleAssignment[];
   christianLife?: SingleAssignment[];

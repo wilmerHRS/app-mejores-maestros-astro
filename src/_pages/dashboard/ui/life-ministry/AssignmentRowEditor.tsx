@@ -55,7 +55,7 @@ export function AssignmentRowEditor({
                 }
                 return true;
               }
-              if (section === 'treasures') {
+              if (section === 'treasures' || section === 'treasuresAux') {
                 if (partType === 'discurso' || partType === 'perlas_escondidas') {
                   return b.privilege === 'anciano' || b.privilege === 'siervo_ministerial' || b.id === singleAssignment?.assignedTo;
                 }

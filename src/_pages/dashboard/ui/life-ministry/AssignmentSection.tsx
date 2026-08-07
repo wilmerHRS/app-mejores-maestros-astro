@@ -3,6 +3,7 @@ import type { Brother, SingleAssignment, MeetingPart } from '@/shared/api';
 import { getPartTypeLabel, partRequiresAssistant, type AssignmentSection as SectionType } from '../../model/life-ministry';
 import { AssignmentRowReadOnly } from './AssignmentRowReadOnly';
 import { AssignmentRowEditor } from './AssignmentRowEditor';
+import { HallTabSelector } from './HallTabSelector';
 
 interface AssignmentSectionProps {
   section: SectionType;
@@ -10,6 +11,7 @@ interface AssignmentSectionProps {
   colorClass: string;
   parts: MeetingPart[];
   assignments?: SingleAssignment[];
+  auxAssignments?: SingleAssignment[];
   isEditing: boolean;
   brothers: Brother[];
   onUpdateField: (
@@ -63,12 +65,15 @@ export function AssignmentSection({
   colorClass,
   parts,
   assignments = [],
+  auxAssignments = [],
   isEditing,
   brothers,
   onUpdateField,
   headerRight,
   activeHall
 }: AssignmentSectionProps) {
+  const [activeTreasuresHall, setActiveTreasuresHall] = React.useState<'main' | 'aux'>('main');
+
   return (
     <div className="bg-white/95 border border-slate-200/80 rounded-2xl p-6 shadow-sm w-full">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-3 gap-3 mb-4">
@@ -81,8 +86,12 @@ export function AssignmentSection({
 
       <div className="space-y-4">
         {parts.map((part, idx) => {
-          const singleAssignment = assignments[idx];
-          
+          const isBibleReading = section === 'treasures' && part.type === 'lectura_biblia';
+          const currentSection = (isBibleReading && activeTreasuresHall === 'aux') ? 'treasuresAux' : section;
+          const currentAssignment = (isBibleReading && activeTreasuresHall === 'aux') 
+            ? auxAssignments[idx] 
+            : assignments[idx];
+
           // Determine if this part allows assistant based on FSD/clean rule or section specific rule
           let showAssistant = false;
           if (section === 'fieldMinistry' || section === 'fieldMinistryAux') {
@@ -91,8 +100,10 @@ export function AssignmentSection({
             showAssistant = part.type === 'estudio_biblico_congregacion';
           }
 
-          // Use activeHall prefix in key if it's fieldMinistry to avoid reuse of elements
-          const elementKey = activeHall ? `${activeHall}-${idx}` : idx;
+          // Use activeHall or activeTreasuresHall prefix in key to avoid reuse of elements
+          const elementKey = isBibleReading 
+            ? `${activeTreasuresHall}-${idx}` 
+            : (activeHall ? `${activeHall}-${idx}` : idx);
 
           return (
             <div
@@ -104,18 +115,24 @@ export function AssignmentSection({
                   <h6 className="font-bold text-slate-800 text-sm">
                     {part.part || (section === 'treasures' ? 'Discurso sin título' : 'Parte estudiantil')}
                   </h6>
-                  <PartStatusIndicator singleAssignment={singleAssignment} />
+                  <PartStatusIndicator singleAssignment={currentAssignment} />
+                  {isBibleReading && (
+                    <HallTabSelector
+                      activeHall={activeTreasuresHall}
+                      onChangeHall={setActiveTreasuresHall}
+                    />
+                  )}
                 </div>
                 <p className="text-slate-400 text-xs font-semibold mt-0.5">
-                  {getPartTypeLabel(part.type, section === 'fieldMinistryAux' ? 'fieldMinistry' : section)} · {part.duration}
+                  {getPartTypeLabel(part.type, currentSection === 'fieldMinistryAux' ? 'fieldMinistry' : (currentSection === 'treasuresAux' ? 'treasures' : currentSection))} · {part.duration}
                 </p>
               </div>
 
               {isEditing ? (
                 <AssignmentRowEditor
-                  section={section}
+                  section={currentSection}
                   index={idx}
-                  singleAssignment={singleAssignment}
+                  singleAssignment={currentAssignment}
                   showAssistant={showAssistant}
                   brothers={brothers}
                   onUpdateField={onUpdateField}
@@ -123,8 +140,8 @@ export function AssignmentSection({
                 />
               ) : (
                 <AssignmentRowReadOnly
-                  section={section}
-                  singleAssignment={singleAssignment}
+                  section={currentSection}
+                  singleAssignment={currentAssignment}
                   hasAssistant={showAssistant}
                   brothers={brothers}
                 />

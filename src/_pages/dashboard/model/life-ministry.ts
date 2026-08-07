@@ -1,11 +1,11 @@
 import type { Brother, SingleAssignment } from '@/shared/api';
 
-export type AssignmentSection = 'treasures' | 'fieldMinistry' | 'fieldMinistryAux' | 'christianLife';
+export type AssignmentSection = 'treasures' | 'treasuresAux' | 'fieldMinistry' | 'fieldMinistryAux' | 'christianLife';
 
 export function getPartTypeLabel(type?: string, section?: string): string {
   if (!type) return 'Parte';
 
-  if (section === 'treasures') {
+  if (section === 'treasures' || section === 'treasuresAux') {
     const labels: Record<string, string> = {
       discurso: 'Discurso',
       perlas_escondidas: 'Perlas escondidas',

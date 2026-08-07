@@ -61,6 +61,7 @@ export async function getMeetingAssignment(weekId: string, congregationId: strin
     weekId: fields.weekId?.stringValue || weekId,
     congregationId,
     treasures: mapFirestoreAssignments(fields.treasures),
+    treasuresAux: mapFirestoreAssignments(fields.treasuresAux),
     fieldMinistry: mapFirestoreAssignments(fields.fieldMinistry),
     fieldMinistryAux: mapFirestoreAssignments(fields.fieldMinistryAux),
     christianLife: mapFirestoreAssignments(fields.christianLife)
@@ -79,6 +80,7 @@ export async function saveMeetingAssignment(data: MeetingAssignment): Promise<vo
       weekId: { stringValue: data.weekId },
       congregationId: { referenceValue: `projects/${projectId}/databases/(default)/documents/congregation/${data.congregationId}` },
       treasures: toFirestoreAssignments(data.treasures || []),
+      treasuresAux: toFirestoreAssignments(data.treasuresAux || []),
       fieldMinistry: toFirestoreAssignments(data.fieldMinistry || []),
       fieldMinistryAux: toFirestoreAssignments(data.fieldMinistryAux || []),
       christianLife: toFirestoreAssignments(data.christianLife || []),
@@ -88,7 +90,7 @@ export async function saveMeetingAssignment(data: MeetingAssignment): Promise<vo
 
   // We use PATCH to upsert the document.
   // The updateMask specifies which fields to overwrite. If the document doesn't exist, it creates it.
-  const updateMaskQuery = "updateMask.fieldPaths=weekId&updateMask.fieldPaths=congregationId&updateMask.fieldPaths=treasures&updateMask.fieldPaths=fieldMinistry&updateMask.fieldPaths=fieldMinistryAux&updateMask.fieldPaths=christianLife&updateMask.fieldPaths=updatedAt";
+  const updateMaskQuery = "updateMask.fieldPaths=weekId&updateMask.fieldPaths=congregationId&updateMask.fieldPaths=treasures&updateMask.fieldPaths=treasuresAux&updateMask.fieldPaths=fieldMinistry&updateMask.fieldPaths=fieldMinistryAux&updateMask.fieldPaths=christianLife&updateMask.fieldPaths=updatedAt";
   const patchUrl = `${url}?${updateMaskQuery}`;
 
   const res = await fetch(patchUrl, {
