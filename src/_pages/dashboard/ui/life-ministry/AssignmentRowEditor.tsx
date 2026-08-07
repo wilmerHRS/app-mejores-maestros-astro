@@ -101,10 +101,6 @@ export function AssignmentRowEditor({
                 if (b.participatesInSchool === false && b.id !== singleAssignment?.assignedTo) {
                   return false;
                 }
-                // A minor cannot go as a student
-                if (b.ageGroup === 'minor' && b.id !== singleAssignment?.assignedTo) {
-                  return false;
-                }
                 if (partType === 'explique_creencias_discurso' || partType === 'discurso') {
                   if (!((b.gender === 'M' && b.privilege === 'publicador') || b.id === singleAssignment?.assignedTo)) {
                     return false;
@@ -199,6 +195,10 @@ export function AssignmentRowEditor({
                 // Privilege checks
                 if (section === 'fieldMinistry' || section === 'fieldMinistryAux') {
                   if (b.participatesInSchool === false && b.id !== singleAssignment?.assistant) {
+                    return false;
+                  }
+                  // A minor cannot be a helper either
+                  if (b.ageGroup === 'minor' && b.id !== singleAssignment?.assistant) {
                     return false;
                   }
                 }
