@@ -30,6 +30,7 @@ export interface LifeMinistryData {
   brothers: Brother[];
   activeAssignment: MeetingAssignment | null;
   recentAssigneeIds: string[];
+  recentHelperIds: string[];
 
   // UI state
   activeWeekIndex: number;
@@ -101,6 +102,7 @@ export function useLifeMinistryData({ congregationId }: UseLifeMinistryDataOptio
   const [brothers, setBrothers] = useState<Brother[]>([]);
   const [activeAssignment, setActiveAssignment] = useState<MeetingAssignment | null>(null);
   const [recentAssigneeIds, setRecentAssigneeIds] = useState<string[]>([]);
+  const [recentHelperIds, setRecentHelperIds] = useState<string[]>([]);
 
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -178,11 +180,12 @@ export function useLifeMinistryData({ congregationId }: UseLifeMinistryDataOptio
       const [assignmentData, recentData] = await Promise.all([
         fetchMeetingAssignmentClient(week.id, congregationId),
         fetch(`/api/meeting-assignment/recent-assignees?congregationId=${encodeURIComponent(congregationId)}&targetWeekId=${encodeURIComponent(week.id)}`)
-          .then((res) => (res.ok ? res.json() : { recentAssigneeIds: [] }))
-          .catch(() => ({ recentAssigneeIds: [] }))
+          .then((res) => (res.ok ? res.json() : { recentAssigneeIds: [], recentHelperIds: [] }))
+          .catch(() => ({ recentAssigneeIds: [], recentHelperIds: [] }))
       ]);
 
       setRecentAssigneeIds((recentData as any).recentAssigneeIds || []);
+      setRecentHelperIds((recentData as any).recentHelperIds || []);
 
       if (assignmentData) {
         setActiveAssignment({
@@ -248,6 +251,7 @@ export function useLifeMinistryData({ congregationId }: UseLifeMinistryDataOptio
     brothers,
     activeAssignment,
     recentAssigneeIds,
+    recentHelperIds,
     activeWeekIndex,
     activeHall,
     isEditingAssignments,

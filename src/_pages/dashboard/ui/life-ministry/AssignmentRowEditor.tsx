@@ -16,6 +16,7 @@ interface AssignmentRowEditorProps {
   ) => void;
   partType?: string;
   recentAssigneeIds?: string[];
+  recentHelperIds?: string[];
   activeAssignment?: MeetingAssignment | null;
 }
 
@@ -28,6 +29,7 @@ export function AssignmentRowEditor({
   onUpdateField,
   partType,
   recentAssigneeIds,
+  recentHelperIds,
   activeAssignment
 }: AssignmentRowEditorProps) {
   // Extract all assignee/assistant IDs assigned in Main Hall vs Auxiliary Hall for this week
@@ -119,7 +121,7 @@ export function AssignmentRowEditor({
                 }
               }
 
-              // 4. Last 20 days filter (only for Lectura de la Biblia and Seamos Mejores Maestros)
+              // 4. Last 30 days filter (only for Lectura de la Biblia and Seamos Mejores Maestros)
               if (recentAssigneeIds && recentAssigneeIds.length > 0 && b.id !== singleAssignment?.assignedTo) {
                 const isBibleReading = partType === 'lectura_biblia';
                 const isSchoolSection = section === 'fieldMinistry' || section === 'fieldMinistryAux';
@@ -179,6 +181,14 @@ export function AssignmentRowEditor({
                     if (assignedIdsInAux.includes(b.id)) {
                       return false;
                     }
+                  }
+                }
+
+                // Last 15 days filter for assistant
+                if (!isVideoOrAnalisis && recentHelperIds && recentHelperIds.length > 0 && b.id !== singleAssignment?.assistant) {
+                  const isSchoolSection = section === 'fieldMinistry' || section === 'fieldMinistryAux';
+                  if (isSchoolSection && recentHelperIds.includes(b.id)) {
+                    return false;
                   }
                 }
 
