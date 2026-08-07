@@ -53,9 +53,6 @@ export const recentAssigneesHandler: APIRoute = async ({ cookies, url }) => {
               if (sa?.assignedTo) {
                 recentAssigneeIds.add(sa.assignedTo);
               }
-              if (sa?.assistant) {
-                recentAssigneeIds.add(sa.assistant);
-              }
             };
             (assignment.treasures || []).forEach(addFromSingle);
             (assignment.treasuresAux || []).forEach(addFromSingle);

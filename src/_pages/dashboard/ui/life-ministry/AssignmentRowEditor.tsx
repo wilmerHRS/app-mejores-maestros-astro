@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Brother, SingleAssignment } from '@/shared/api';
+import type { Brother, SingleAssignment, MeetingAssignment } from '@/shared/api';
 import { getAssistantRoleLabel, type AssignmentSection } from '../../model/life-ministry';
 
 interface AssignmentRowEditorProps {
@@ -16,6 +16,7 @@ interface AssignmentRowEditorProps {
   ) => void;
   partType?: string;
   recentAssigneeIds?: string[];
+  activeAssignment?: MeetingAssignment | null;
 }
 
 export function AssignmentRowEditor({
@@ -26,8 +27,33 @@ export function AssignmentRowEditor({
   brothers,
   onUpdateField,
   partType,
-  recentAssigneeIds
+  recentAssigneeIds,
+  activeAssignment
 }: AssignmentRowEditorProps) {
+  // Extract all assignee/assistant IDs assigned in Main Hall vs Auxiliary Hall for this week
+  const assignedIdsInMain: string[] = [];
+  const assignedIdsInAux: string[] = [];
+
+  if (activeAssignment) {
+    const collectMain = (sa: SingleAssignment | undefined) => {
+      if (sa?.assignedTo) assignedIdsInMain.push(sa.assignedTo);
+      if (sa?.assistant) assignedIdsInMain.push(sa.assistant);
+    };
+    const collectAux = (sa: SingleAssignment | undefined) => {
+      if (sa?.assignedTo) assignedIdsInAux.push(sa.assignedTo);
+      if (sa?.assistant) assignedIdsInAux.push(sa.assistant);
+    };
+
+    (activeAssignment.treasures || []).forEach(collectMain);
+    (activeAssignment.fieldMinistry || []).forEach(collectMain);
+    (activeAssignment.christianLife || []).forEach(collectMain);
+
+    (activeAssignment.treasuresAux || []).forEach(collectAux);
+    (activeAssignment.fieldMinistryAux || []).forEach(collectAux);
+  }
+
+  const isVideoOrAnalisis = partType === 'video' || partType === 'analisis';
+
   return (
     <div className="flex flex-wrap items-center gap-3">
       {/* Assignee */}
@@ -45,38 +71,65 @@ export function AssignmentRowEditor({
           <option value="">-- Sin asignar --</option>
           {brothers
             .filter(b => {
-              if (recentAssigneeIds && recentAssigneeIds.length > 0) {
-                const isBibleReading = partType === 'lectura_biblia';
-                const isChristianLife = section === 'christianLife';
-                if (isBibleReading || isChristianLife) {
-                  if (recentAssigneeIds.includes(b.id) && b.id !== singleAssignment?.assignedTo) {
-                    return false;
-                  }
-                }
+              // 1. "Analisis con el auditorio" or "Video" exemption
+              if (isVideoOrAnalisis) {
+                return (b.gender === 'M' && (b.privilege === 'anciano' || b.privilege === 'siervo_ministerial')) || b.id === singleAssignment?.assignedTo;
               }
+
+              // 2. Privilege & school participation filters
               if (section === 'fieldMinistry' || section === 'fieldMinistryAux') {
                 if (b.participatesInSchool === false && b.id !== singleAssignment?.assignedTo) {
                   return false;
                 }
-                if (partType === 'video' || partType === 'analisis') {
-                  return (b.gender === 'M' && (b.privilege === 'anciano' || b.privilege === 'siervo_ministerial')) || b.id === singleAssignment?.assignedTo;
-                }
                 if (partType === 'explique_creencias_discurso' || partType === 'discurso') {
-                  return (b.gender === 'M' && b.privilege === 'publicador') || b.id === singleAssignment?.assignedTo;
+                  if (!((b.gender === 'M' && b.privilege === 'publicador') || b.id === singleAssignment?.assignedTo)) {
+                    return false;
+                  }
                 }
-                return true;
               }
               if (section === 'treasures' || section === 'treasuresAux') {
                 if (partType === 'discurso' || partType === 'perlas_escondidas') {
-                  return b.privilege === 'anciano' || b.privilege === 'siervo_ministerial' || b.id === singleAssignment?.assignedTo;
+                  if (!(b.privilege === 'anciano' || b.privilege === 'siervo_ministerial' || b.id === singleAssignment?.assignedTo)) {
+                    return false;
+                  }
                 }
                 if (partType === 'lectura_biblia') {
-                  return (b.gender === 'M' && b.privilege !== 'anciano' && b.privilege !== 'siervo_ministerial') || b.id === singleAssignment?.assignedTo;
+                  if (!((b.gender === 'M' && b.privilege !== 'anciano' && b.privilege !== 'siervo_ministerial') || b.id === singleAssignment?.assignedTo)) {
+                    return false;
+                  }
                 }
               }
               if (section === 'christianLife') {
-                return (b.gender === 'M' && (b.privilege === 'anciano' || b.privilege === 'siervo_ministerial')) || b.id === singleAssignment?.assignedTo;
+                if (!((b.gender === 'M' && (b.privilege === 'anciano' || b.privilege === 'siervo_ministerial')) || b.id === singleAssignment?.assignedTo)) {
+                  return false;
+                }
               }
+
+              // 3. Same-week main/aux hall validation
+              if (b.id !== singleAssignment?.assignedTo) {
+                const isAux = section === 'treasuresAux' || section === 'fieldMinistryAux';
+                if (isAux) {
+                  if (assignedIdsInMain.includes(b.id)) {
+                    return false;
+                  }
+                } else {
+                  if (assignedIdsInAux.includes(b.id)) {
+                    return false;
+                  }
+                }
+              }
+
+              // 4. Last 20 days filter (only for Lectura de la Biblia and Seamos Mejores Maestros)
+              if (recentAssigneeIds && recentAssigneeIds.length > 0 && b.id !== singleAssignment?.assignedTo) {
+                const isBibleReading = partType === 'lectura_biblia';
+                const isSchoolSection = section === 'fieldMinistry' || section === 'fieldMinistryAux';
+                if (isBibleReading || isSchoolSection) {
+                  if (recentAssigneeIds.includes(b.id)) {
+                    return false;
+                  }
+                }
+              }
+
               return true;
             })
             .map(b => (
@@ -101,14 +154,34 @@ export function AssignmentRowEditor({
             <option value="">-- Ninguno --</option>
             {brothers
               .filter(b => {
+                // Privilege checks
                 if (section === 'fieldMinistry' || section === 'fieldMinistryAux') {
-                  return b.participatesInSchool !== false || b.id === singleAssignment?.assistant;
+                  if (b.participatesInSchool === false && b.id !== singleAssignment?.assistant) {
+                    return false;
+                  }
                 }
                 if (section === 'christianLife') {
                   if (partType === 'estudio_biblico_congregacion') {
-                    return (b.gender === 'M' && (b.privilege === 'anciano' || b.privilege === 'siervo_ministerial' || b.privilege === 'publicador')) || b.id === singleAssignment?.assistant;
+                    if (!((b.gender === 'M' && (b.privilege === 'anciano' || b.privilege === 'siervo_ministerial' || b.privilege === 'publicador')) || b.id === singleAssignment?.assistant)) {
+                      return false;
+                    }
                   }
                 }
+
+                // Same-week main/aux hall validation for assistant
+                if (!isVideoOrAnalisis && b.id !== singleAssignment?.assistant) {
+                  const isAux = section === 'treasuresAux' || section === 'fieldMinistryAux';
+                  if (isAux) {
+                    if (assignedIdsInMain.includes(b.id)) {
+                      return false;
+                    }
+                  } else {
+                    if (assignedIdsInAux.includes(b.id)) {
+                      return false;
+                    }
+                  }
+                }
+
                 return true;
               })
               .map(b => (

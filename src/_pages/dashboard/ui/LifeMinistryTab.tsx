@@ -148,6 +148,7 @@ export function LifeMinistryTab({ congregationId }: LifeMinistryTabProps) {
                         brothers={brothers}
                         onUpdateField={updateAssignmentField}
                         recentAssigneeIds={recentAssigneeIds}
+                        activeAssignment={activeAssignment}
                       />
                     )}
 
@@ -168,6 +169,7 @@ export function LifeMinistryTab({ congregationId }: LifeMinistryTabProps) {
                         onUpdateField={updateAssignmentField}
                         activeHall={activeHall}
                         recentAssigneeIds={recentAssigneeIds}
+                        activeAssignment={activeAssignment}
                         headerRight={
                           <HallTabSelector
                             activeHall={activeHall}
@@ -189,6 +191,7 @@ export function LifeMinistryTab({ congregationId }: LifeMinistryTabProps) {
                         brothers={brothers}
                         onUpdateField={updateAssignmentField}
                         recentAssigneeIds={recentAssigneeIds}
+                        activeAssignment={activeAssignment}
                       />
                     )}
                   </div>
