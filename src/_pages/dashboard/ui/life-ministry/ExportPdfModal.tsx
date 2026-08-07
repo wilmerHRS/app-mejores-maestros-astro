@@ -178,14 +178,14 @@ export function ExportPdfModal({
                       {/* Treasures Bible Reading Part */}
                       {bibleReadingPart && (
                         <tr className="border-b border-slate-100">
-                          <td className="w-[50%] text-xs text-slate-700 py-2">
+                          <td className="w-[35%] text-xs text-slate-700 py-2">
                             {bibleReadingIdx + 1}. {bibleReadingPart.part || 'Lectura de la Biblia'} ({bibleReadingPart.duration})
                           </td>
-                          <td className="w-[16%] text-[10px] font-bold text-slate-500 py-2">Estudiante:</td>
-                          <td className="w-[17%] text-xs text-slate-800 font-semibold py-2 pr-2">
+                          <td className="w-[15%] text-[10px] font-bold text-slate-500 py-2">Estudiante:</td>
+                          <td className="w-[25%] text-xs text-slate-800 font-semibold py-2 pr-2">
                             {auxLecturaName || '-'}
                           </td>
-                          <td className="w-[17%] text-xs text-slate-800 font-semibold py-2 pr-2">
+                          <td className="w-[25%] text-xs text-slate-800 font-semibold py-2 pr-2">
                             {mainLecturaName || '-'}
                           </td>
                         </tr>
@@ -222,10 +222,10 @@ export function ExportPdfModal({
 
                             return (
                               <tr key={pIdx} className="border-b border-slate-100 last:border-0">
-                                <td className="w-[50%] text-xs text-slate-700 py-2 pr-3">
+                                <td className="w-[35%] text-xs text-slate-700 py-2 pr-3">
                                   {partNum}. {part.part || 'Parte estudiantil'} ({part.duration})
                                 </td>
-                                <td className="w-[16%] text-[10px] font-bold text-slate-500 py-2 leading-tight">
+                                <td className="w-[15%] text-[10px] font-bold text-slate-500 py-2 leading-tight">
                                   {isSolo ? (
                                     <span>Estudiante:</span>
                                   ) : (
@@ -235,7 +235,7 @@ export function ExportPdfModal({
                                     </>
                                   )}
                                 </td>
-                                <td className="w-[17%] text-xs text-slate-800 py-2 pr-2 leading-tight">
+                                <td className="w-[25%] text-xs text-slate-800 py-2 pr-2 leading-tight">
                                   {auxStudent ? (
                                     <div>
                                       <span className="block font-semibold">
@@ -251,7 +251,7 @@ export function ExportPdfModal({
                                     <span className="text-slate-400 font-semibold">-</span>
                                   )}
                                 </td>
-                                <td className="w-[17%] text-xs text-slate-800 py-2 pr-2 leading-tight">
+                                <td className="w-[25%] text-xs text-slate-800 py-2 pr-2 leading-tight">
                                   {mainStudent ? (
                                     <div>
                                       <span className="block font-semibold">
