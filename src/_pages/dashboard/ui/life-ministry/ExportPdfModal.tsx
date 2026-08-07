@@ -29,6 +29,9 @@ export function ExportPdfModal({
   const [congName, setCongName] = useState(congregationName);
   const [isLoading, setIsLoading] = useState(false);
   const [printData, setPrintData] = useState<WeekPrintData[] | null>(null);
+  const [selectedWeekIds, setSelectedWeekIds] = useState<string[]>(
+    weeks.map((w) => w.id)
+  );
 
   useEffect(() => {
     async function loadCongregations() {
@@ -48,11 +51,17 @@ export function ExportPdfModal({
   }, [congregationId]);
 
   const handleGenerate = async () => {
+    const weeksToExport = weeks.filter((w) => selectedWeekIds.includes(w.id));
+    if (weeksToExport.length === 0) {
+      alert('Por favor, selecciona al menos una semana para exportar.');
+      return;
+    }
+
     try {
       setIsLoading(true);
-      // Fetch all week assignments in parallel
+      // Fetch selected week assignments in parallel
       const data = await Promise.all(
-        weeks.map(async (w) => {
+        weeksToExport.map(async (w) => {
           const assignment = await fetchMeetingAssignmentClient(w.id, congregationId);
           return {
             week: w,
@@ -82,11 +91,11 @@ export function ExportPdfModal({
     <>
       {/* Modal Dialog */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-fade-in no-print">
-        <div className="bg-white rounded-2xl shadow-xl border border-slate-100 max-w-md w-full p-6 space-y-6">
+        <div className="bg-white rounded-2xl shadow-xl border border-slate-100 max-w-md w-full p-6 space-y-5">
           <div>
             <h3 className="text-base font-bold text-slate-800">Exportar Guía a PDF</h3>
             <p className="text-xs text-slate-400 font-semibold mt-1">
-              Exportar todas las semanas de la guía mensual en formato A4.
+              Selecciona las semanas que deseas incluir en el programa PDF.
             </p>
           </div>
 
@@ -103,6 +112,36 @@ export function ExportPdfModal({
                 className="w-full px-3 py-2 text-xs font-semibold bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4a6da7]/10 focus:border-[#4a6da7] transition-all"
                 placeholder="Ej. Chinchaysuyo"
               />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">
+                Semanas a incluir
+              </label>
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 max-h-48 overflow-y-auto space-y-2 select-none">
+                {weeks.map((w) => {
+                  const isChecked = selectedWeekIds.includes(w.id);
+                  const formattedDate = w.startDate.replaceAll('-', '/');
+                  return (
+                    <label key={w.id} className="flex items-center gap-2.5 text-xs text-slate-700 font-semibold cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        disabled={isLoading}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedWeekIds([...selectedWeekIds, w.id]);
+                          } else {
+                            setSelectedWeekIds(selectedWeekIds.filter((id) => id !== w.id));
+                          }
+                        }}
+                        className="w-4 h-4 rounded border-slate-300 text-[#4a6da7] focus:ring-[#4a6da7]"
+                      />
+                      <span>{formattedDate} | {w.bibleReading}</span>
+                    </label>
+                  );
+                })}
+              </div>
             </div>
 
             <div className="bg-slate-50 border border-slate-100 rounded-xl p-3 text-[11px] text-slate-500 font-semibold leading-relaxed">

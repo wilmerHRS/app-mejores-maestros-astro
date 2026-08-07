@@ -109,10 +109,16 @@ export function LifeMinistryTab({ congregationId }: LifeMinistryTabProps) {
                     onSelectWeek={selectWeek}
                   />
                 </div>
+              </div>
 
-                {/* Right side: Action buttons */}
-                {weeks.length > 0 && activeWeekItemHasContent(weeks, activeWeekIndex) && (
-                  <div className="flex-shrink-0 pb-2">
+              {/* Assignments Editor Section (Under carousel) */}
+              {weeks.length > 0 && activeWeek && (
+                <div className="space-y-6 w-full">
+                  {/* Week Info Banner (Cabecera premium) */}
+                  <WeekBannerHero week={activeWeek} />
+
+                  {/* Actions buttons directly under header banner */}
+                  <div className="flex justify-end w-full">
                     <AssignmentActionBar
                       isEditingAssignments={isEditingAssignments}
                       isSaving={isSaving}
@@ -125,14 +131,6 @@ export function LifeMinistryTab({ congregationId }: LifeMinistryTabProps) {
                       onExportPdf={() => setIsExportModalOpen(true)}
                     />
                   </div>
-                )}
-              </div>
-
-              {/* Assignments Editor Section (Under carousel) */}
-              {weeks.length > 0 && activeWeek && (
-                <div className="space-y-6 w-full">
-                  {/* Week Info Banner (Cabecera premium) */}
-                  <WeekBannerHero week={activeWeek} />
 
                   {/* Program sections */}
                   <div className="space-y-6 w-full">
