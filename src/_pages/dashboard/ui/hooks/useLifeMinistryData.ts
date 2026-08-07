@@ -29,6 +29,7 @@ export interface LifeMinistryData {
   weeks: ActivityGuideWeek[];
   brothers: Brother[];
   activeAssignment: MeetingAssignment | null;
+  recentAssigneeIds: string[];
 
   // UI state
   activeWeekIndex: number;
@@ -99,6 +100,7 @@ export function useLifeMinistryData({ congregationId }: UseLifeMinistryDataOptio
   const [activeWeekIndex, setActiveWeekIndex] = useState(0);
   const [brothers, setBrothers] = useState<Brother[]>([]);
   const [activeAssignment, setActiveAssignment] = useState<MeetingAssignment | null>(null);
+  const [recentAssigneeIds, setRecentAssigneeIds] = useState<string[]>([]);
 
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -172,16 +174,24 @@ export function useLifeMinistryData({ congregationId }: UseLifeMinistryDataOptio
   async function loadAssignmentForWeek(week: ActivityGuideWeek): Promise<void> {
     try {
       setErrorMsg(null);
-      const data = await fetchMeetingAssignmentClient(week.id, congregationId);
 
-      if (data) {
+      const [assignmentData, recentData] = await Promise.all([
+        fetchMeetingAssignmentClient(week.id, congregationId),
+        fetch(`/api/meeting-assignment/recent-assignees?congregationId=${encodeURIComponent(congregationId)}&targetWeekId=${encodeURIComponent(week.id)}`)
+          .then((res) => (res.ok ? res.json() : { recentAssigneeIds: [] }))
+          .catch(() => ({ recentAssigneeIds: [] }))
+      ]);
+
+      setRecentAssigneeIds((recentData as any).recentAssigneeIds || []);
+
+      if (assignmentData) {
         setActiveAssignment({
-          ...data,
-          treasures: syncArrayToTemplate((week.treasures || []).length, data.treasures),
-          treasuresAux: syncArrayToTemplate((week.treasures || []).length, data.treasuresAux),
-          fieldMinistry: syncArrayToTemplate((week.fieldMinistry || []).length, data.fieldMinistry),
-          fieldMinistryAux: syncArrayToTemplate((week.fieldMinistry || []).length, data.fieldMinistryAux),
-          christianLife: syncArrayToTemplate((week.christianLife || []).length, data.christianLife),
+          ...assignmentData,
+          treasures: syncArrayToTemplate((week.treasures || []).length, assignmentData.treasures),
+          treasuresAux: syncArrayToTemplate((week.treasures || []).length, assignmentData.treasuresAux),
+          fieldMinistry: syncArrayToTemplate((week.fieldMinistry || []).length, assignmentData.fieldMinistry),
+          fieldMinistryAux: syncArrayToTemplate((week.fieldMinistry || []).length, assignmentData.fieldMinistryAux),
+          christianLife: syncArrayToTemplate((week.christianLife || []).length, assignmentData.christianLife),
         });
       } else {
         setActiveAssignment(buildEmptyAssignment(week.id, congregationId, week));
@@ -237,6 +247,7 @@ export function useLifeMinistryData({ congregationId }: UseLifeMinistryDataOptio
     weeks,
     brothers,
     activeAssignment,
+    recentAssigneeIds,
     activeWeekIndex,
     activeHall,
     isEditingAssignments,

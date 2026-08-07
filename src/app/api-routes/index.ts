@@ -19,5 +19,6 @@ export { createActivityGuideHandler, listActivityGuidesHandler, deleteActivityGu
 export { createActivityGuideWeekHandler, listActivityGuideWeeksHandler, updateActivityGuideWeekHandler, deleteActivityGuideWeekHandler } from './activity-guide-week';
 export { getMeetingAssignmentHandler } from './meeting-assignment/get';
 export { saveMeetingAssignmentHandler } from './meeting-assignment/save';
+export { recentAssigneesHandler } from './meeting-assignment/recent-assignees';
 
 

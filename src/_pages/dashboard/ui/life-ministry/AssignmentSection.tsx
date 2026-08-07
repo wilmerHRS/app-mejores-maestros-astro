@@ -22,6 +22,7 @@ interface AssignmentSectionProps {
   ) => void;
   headerRight?: React.ReactNode;
   activeHall?: 'main' | 'aux'; // for keys/context if needed
+  recentAssigneeIds?: string[];
 }
 
 export function PartStatusIndicator({ singleAssignment }: { singleAssignment?: SingleAssignment }) {
@@ -70,7 +71,8 @@ export function AssignmentSection({
   brothers,
   onUpdateField,
   headerRight,
-  activeHall
+  activeHall,
+  recentAssigneeIds
 }: AssignmentSectionProps) {
   const [activeTreasuresHall, setActiveTreasuresHall] = React.useState<'main' | 'aux'>('main');
 
@@ -138,6 +140,7 @@ export function AssignmentSection({
                     brothers={brothers}
                     onUpdateField={onUpdateField}
                     partType={part.type}
+                    recentAssigneeIds={recentAssigneeIds}
                   />
                 ) : (
                   <AssignmentRowReadOnly

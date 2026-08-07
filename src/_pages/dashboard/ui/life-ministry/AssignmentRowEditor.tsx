@@ -15,6 +15,7 @@ interface AssignmentRowEditorProps {
     value: string
   ) => void;
   partType?: string;
+  recentAssigneeIds?: string[];
 }
 
 export function AssignmentRowEditor({
@@ -24,7 +25,8 @@ export function AssignmentRowEditor({
   showAssistant = false,
   brothers,
   onUpdateField,
-  partType
+  partType,
+  recentAssigneeIds
 }: AssignmentRowEditorProps) {
   return (
     <div className="flex flex-wrap items-center gap-3">
@@ -43,6 +45,15 @@ export function AssignmentRowEditor({
           <option value="">-- Sin asignar --</option>
           {brothers
             .filter(b => {
+              if (recentAssigneeIds && recentAssigneeIds.length > 0) {
+                const isBibleReading = partType === 'lectura_biblia';
+                const isChristianLife = section === 'christianLife';
+                if (isBibleReading || isChristianLife) {
+                  if (recentAssigneeIds.includes(b.id) && b.id !== singleAssignment?.assignedTo) {
+                    return false;
+                  }
+                }
+              }
               if (section === 'fieldMinistry' || section === 'fieldMinistryAux') {
                 if (b.participatesInSchool === false && b.id !== singleAssignment?.assignedTo) {
                   return false;

@@ -110,6 +110,78 @@ export async function getActivityGuideWeeks(guideId: string): Promise<ActivityGu
   return weeks.sort((a, b) => a.startDate.localeCompare(b.startDate));
 }
 
+export async function getWeeksByCongregation(congregationId: string): Promise<ActivityGuideWeek[]> {
+  const serviceAccount = getServiceAccount();
+  const accessToken = await getAccessToken(serviceAccount);
+  const projectId = serviceAccount.project_id;
+  const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents:runQuery`;
+
+  const body = {
+    structuredQuery: {
+      from: [{ collectionId: 'activity_guide_week' }],
+      where: {
+        fieldFilter: {
+          field: { fieldPath: 'congregationId' },
+          op: 'EQUAL',
+          value: { referenceValue: `projects/${projectId}/databases/(default)/documents/congregation/${congregationId}` }
+        }
+      }
+    }
+  };
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+
+  if (!res.ok) {
+    const errData = await res.json() as any;
+    throw new Error(`Failed to query weeks by congregation: ${JSON.stringify(errData)}`);
+  }
+
+  const results = await res.json() as Array<{ document?: any }>;
+  if (!results || results.length === 0 || (results.length === 1 && !results[0].document)) {
+    return [];
+  }
+
+  const weeks = results
+    .filter(r => r.document)
+    .map(r => {
+      const doc = r.document;
+      const parts = doc.name.split('/');
+      const id = parts[parts.length - 1];
+      const fields = doc.fields || {};
+
+      let congregationId = '';
+      const congRef = fields.congregationId?.referenceValue || '';
+      if (congRef) {
+        const parts = congRef.split('/');
+        congregationId = parts[parts.length - 1];
+      }
+
+      return {
+        id,
+        guideId: fields.guideId?.stringValue || '',
+        title: fields.title?.stringValue || '',
+        imageUrl: fields.imageUrl?.stringValue || '',
+        startDate: fields.startDate?.stringValue || '',
+        endDate: fields.endDate?.stringValue || '',
+        congregationId,
+        createdAt: fields.createdAt?.timestampValue || '',
+        bibleReading: fields.bibleReading?.stringValue || '',
+        treasures: mapFirestoreParts(fields.treasures),
+        fieldMinistry: mapFirestoreParts(fields.fieldMinistry),
+        christianLife: mapFirestoreParts(fields.christianLife)
+      };
+    });
+
+  return weeks.sort((a, b) => a.startDate.localeCompare(b.startDate));
+}
+
 export async function createActivityGuideWeek(data: Omit<ActivityGuideWeek, 'id'>): Promise<string> {
   const serviceAccount = getServiceAccount();
   const accessToken = await getAccessToken(serviceAccount);
