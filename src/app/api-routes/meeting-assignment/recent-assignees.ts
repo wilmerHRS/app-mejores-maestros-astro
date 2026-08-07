@@ -4,6 +4,7 @@ import { getWeeksByCongregation, getMeetingAssignment, verifyFirebaseSessionCook
 // Configuración de límites de días para asignaciones recientes
 const ASSIGNEE_RECENT_DAYS = 30; // Excluir si fue asignado principal hace menos de 30 días
 const ASSISTANT_RECENT_DAYS = 15; // Excluir si fue ayudante hace menos de 15 días
+const LAST_WEEK_HELPER_DAYS = 7; // Excluir si fue ayudante la semana pasada (menos de 7 días)
 
 export const recentAssigneesHandler: APIRoute = async ({ cookies, url }) => {
   try {
@@ -37,7 +38,7 @@ export const recentAssigneesHandler: APIRoute = async ({ cookies, url }) => {
     }
 
     // Filter weeks within the maximum window of the configuration
-    const maxDaysWindow = Math.max(ASSIGNEE_RECENT_DAYS, ASSISTANT_RECENT_DAYS, 7);
+    const maxDaysWindow = Math.max(ASSIGNEE_RECENT_DAYS, ASSISTANT_RECENT_DAYS, LAST_WEEK_HELPER_DAYS);
     const targetTime = new Date(targetWeek.startDate).getTime();
     const matchingWeeks = allWeeks.filter((w) => {
       if (w.id === targetWeekId) return false;
@@ -66,8 +67,8 @@ export const recentAssigneesHandler: APIRoute = async ({ cookies, url }) => {
                 if (diffDays <= ASSISTANT_RECENT_DAYS) {
                   recentHelperIds.add(sa.assistant);
                 }
-                // Si le tocó la semana pasada de ayudante (0 < diffDays <= 7)
-                if (diffDays > 0 && diffDays <= 7) {
+                // Si le tocó la semana pasada de ayudante (0 < diffDays <= LAST_WEEK_HELPER_DAYS)
+                if (diffDays > 0 && diffDays <= LAST_WEEK_HELPER_DAYS) {
                   lastWeekHelperIds.add(sa.assistant);
                 }
               }
