@@ -1,11 +1,21 @@
 import type { AstroCookies } from 'astro';
-import { verifyFirebaseSessionCookie, getUserProfile, getCongregationById } from '@/shared/api/index.server';
-import type { UserProfile, Congregation } from '@/shared/api';
+import {
+  verifyFirebaseSessionCookie,
+  getUserProfile,
+  getCongregationById,
+  getBrothersByCongregation,
+  getWeeksByCongregation,
+  getMeetingAssignment
+} from '@/shared/api/index.server';
+import type { UserProfile, Congregation, Brother, ActivityGuideWeek, MeetingAssignment } from '@/shared/api';
 
 export interface DashboardData {
   profile: UserProfile;
   congregation: Congregation | null;
   userEmail: string | undefined;
+  brothers: Brother[];
+  currentWeek: ActivityGuideWeek | null;
+  assignment: MeetingAssignment | null;
 }
 
 export async function getDashboardData(cookies: AstroCookies, redirect: (path: string) => any): Promise<DashboardData> {
@@ -26,15 +36,31 @@ export async function getDashboardData(cookies: AstroCookies, redirect: (path: s
       ? await getOrFetchCongregation(profile.congregationId, cookies)
       : null;
 
+    const congregationId = profile.congregationId;
+    const brothers = congregationId ? await getBrothersByCongregation(congregationId) : [];
+    const weeks = congregationId ? await getWeeksByCongregation(congregationId) : [];
+    const currentWeek = findCurrentWeek(weeks);
+    const assignment = currentWeek && congregationId
+      ? await getMeetingAssignment(currentWeek.id, congregationId)
+      : null;
+
     return {
       profile,
       congregation,
-      userEmail: decoded.email
+      userEmail: decoded.email,
+      brothers,
+      currentWeek,
+      assignment
     };
   } catch (error) {
     clearSessionAndCacheCookies(cookies);
     return redirect('/login');
   }
+}
+
+function findCurrentWeek(weeks: ActivityGuideWeek[]): ActivityGuideWeek | null {
+  const today = new Date().toISOString().slice(0, 10);
+  return weeks.find((week) => week.startDate <= today && week.endDate >= today) || null;
 }
 
 // Clean Code helper functions

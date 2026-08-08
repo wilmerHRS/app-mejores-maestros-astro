@@ -3,8 +3,8 @@ import DashboardLayout from '@/layouts/DashboardLayout.astro';
 import { OverviewTab } from '@/_pages/dashboard';
 import { getDashboardData } from '@/_pages/dashboard/index.server';
 
-const { profile, congregation, userEmail } = await getDashboardData(Astro.cookies, Astro.redirect);
+const { profile, congregation, userEmail, brothers, currentWeek, assignment } = await getDashboardData(Astro.cookies, Astro.redirect);
 ---
 <DashboardLayout activeTab="inicio" profile={profile} congregation={congregation} userEmail={userEmail}>
-  <OverviewTab client:load />
+  <OverviewTab brothers={brothers} currentWeek={currentWeek} assignment={assignment} client:load />
 </DashboardLayout>
