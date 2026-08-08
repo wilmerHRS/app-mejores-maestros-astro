@@ -44,26 +44,48 @@ export function GroupMembersPanel({
       >
         {members.length === 0 ? (
           <div className="h-[300px] flex flex-col items-center justify-center text-slate-400">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-10 h-10 text-slate-300 mb-2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="1.5"
+              stroke="currentColor"
+              className="w-10 h-10 text-slate-300 mb-2"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
+              />
             </svg>
             <p className="font-semibold text-sm text-slate-600">
               Este grupo no tiene integrantes asignados
             </p>
             <p className="text-xs text-slate-400 mt-1 max-w-xs text-center">
-              Arrastra hermanos desde la sección "Hermanos Sin Grupo" y suéltalos en la tarjeta de este grupo para agregarlos.
+              Arrastra hermanos desde la sección "Hermanos Sin Grupo" y
+              suéltalos en la tarjeta de este grupo para agregarlos.
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto max-h-[555px] overflow-y-auto [scrollbar-color:#cbd5e1_transparent] [scrollbar-width:thin]">
             <table className="w-full text-left text-sm text-slate-700">
               <thead className="text-[11px] font-extrabold uppercase text-slate-500 tracking-wider border-b border-slate-100 bg-slate-50/50 whitespace-nowrap">
                 <tr>
-                  <th scope="col" className="py-3 px-4 rounded-l-xl">Nombre Completo</th>
-                  <th scope="col" className="py-3 px-4">Celular</th>
-                  <th scope="col" className="py-3 px-4">Privilegio</th>
-                  <th scope="col" className="py-3 px-4">Precursor</th>
-                  <th scope="col" className="py-3 px-4 rounded-r-xl">Estado</th>
+                  <th scope="col" className="py-3 px-4 rounded-l-xl">
+                    Nombre Completo
+                  </th>
+                  <th scope="col" className="py-3 px-4">
+                    Celular
+                  </th>
+                  <th scope="col" className="py-3 px-4">
+                    Privilegio
+                  </th>
+                  <th scope="col" className="py-3 px-4">
+                    Precursor
+                  </th>
+                  <th scope="col" className="py-3 px-4 rounded-r-xl">
+                    Estado
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -78,8 +100,19 @@ export function GroupMembersPanel({
                     <td className="py-4 px-4 font-bold text-slate-800 text-[14px] whitespace-nowrap">
                       <div className="flex items-center gap-3">
                         <span className="text-slate-300 cursor-grab active:cursor-grabbing group-hover:text-slate-400 flex-shrink-0 transition-colors">
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor" className="w-3.5 h-3.5">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3.75v.008M3.75 7.5v.008M3.75 11.25v.008M3.75 15v.008M3.75 18.75v.008M7.5 3.75v.008M7.5 7.5v.008M7.5 11.25v.008M7.5 15v.008M7.5 18.75v.008" />
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth="2.5"
+                            stroke="currentColor"
+                            className="w-3.5 h-3.5"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M3.75 3.75v.008M3.75 7.5v.008M3.75 11.25v.008M3.75 15v.008M3.75 18.75v.008M7.5 3.75v.008M7.5 7.5v.008M7.5 11.25v.008M7.5 15v.008M7.5 18.75v.008"
+                            />
                           </svg>
                         </span>
                         <span className="truncate group-hover:text-[#4a6da7]">
@@ -90,7 +123,9 @@ export function GroupMembersPanel({
                     </td>
                     <td className="py-4 px-4 text-slate-500 font-bold text-[13px] whitespace-nowrap">
                       {member.phone || (
-                        <span className="text-slate-300 italic font-medium">Sin celular</span>
+                        <span className="text-slate-300 italic font-medium">
+                          Sin celular
+                        </span>
                       )}
                     </td>
                     <td className="py-4 px-4 whitespace-nowrap">
