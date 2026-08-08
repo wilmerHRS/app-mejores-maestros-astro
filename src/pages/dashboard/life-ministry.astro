@@ -3,8 +3,14 @@ import DashboardLayout from '@/layouts/DashboardLayout.astro';
 import { LifeMinistryTab } from '@/_pages/dashboard';
 import { getDashboardData } from '@/_pages/dashboard/index.server';
 
-const { profile, congregation, userEmail } = await getDashboardData(Astro.cookies, Astro.redirect);
+const { profile, congregation, userEmail, currentWeek } = await getDashboardData(Astro.cookies, Astro.redirect);
 ---
 <DashboardLayout activeTab="life-ministry" profile={profile} congregation={congregation} userEmail={userEmail}>
-  <LifeMinistryTab client:load congregationId={profile.congregationId} currentUserUid={profile.uid} />
+  <LifeMinistryTab
+    client:load
+    congregationId={profile.congregationId}
+    currentUserUid={profile.uid}
+    initialGuideId={currentWeek?.guideId}
+    initialWeekId={currentWeek?.id}
+  />
 </DashboardLayout>

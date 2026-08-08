@@ -5,7 +5,8 @@ import { Sidebar } from "@/_pages/dashboard/ui/Sidebar";
 import type { UserProfile, Congregation } from "@/shared/api";
 
 interface Props {
-  activeTab: "inicio" | "brothers" | "life-ministry" | "groups" | "activity-guides";
+  activeTab:
+    "inicio" | "brothers" | "life-ministry" | "groups" | "activity-guides";
   profile: UserProfile;
   congregation: Congregation | null;
   userEmail: string | undefined;
@@ -44,7 +45,7 @@ const { activeTab, profile, congregation, userEmail } = Astro.props;
       <Sidebar activeTab={activeTab} client:load transition:persist />
 
       <div class="flex-grow overflow-y-auto p-6 md:p-10 min-w-0 h-full">
-        <div class="max-w-7xl w-full mx-auto pb-12">
+        <div class="max-w-7xl w-full mx-auto">
           {/* Greeting and Header depending on activeTab */}
           <div class="mb-8">
             <div
@@ -76,10 +77,10 @@ const { activeTab, profile, congregation, userEmail } = Astro.props;
                   <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 animate-fade-in">
                     ¡Hola, {profile.name}! 👋
                   </h2>
-                   <p class="text-slate-500 text-sm mt-2 max-w-2xl leading-relaxed font-medium animate-fade-in">
-                     Consulta la programación de la reunión de entre semana y el
-                     estado de las asignaciones de tu congregación.
-                   </p>
+                  <p class="text-slate-500 text-sm mt-2 max-w-2xl leading-relaxed font-medium animate-fade-in">
+                    Consulta la programación de la reunión de entre semana y el
+                    estado de las asignaciones de tu congregación.
+                  </p>
                 </>
               )
             }

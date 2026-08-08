@@ -11,9 +11,11 @@ import { ExportPdfModal } from './life-ministry/ExportPdfModal';
 interface LifeMinistryTabProps {
   congregationId: string;
   currentUserUid?: string;
+  initialGuideId?: string;
+  initialWeekId?: string;
 }
 
-export function LifeMinistryTab({ congregationId }: LifeMinistryTabProps) {
+export function LifeMinistryTab({ congregationId, initialGuideId, initialWeekId }: LifeMinistryTabProps) {
   const {
     isLoadingGuides,
     isLoadingWeeks,
@@ -39,7 +41,7 @@ export function LifeMinistryTab({ congregationId }: LifeMinistryTabProps) {
     cancelEditing,
     saveAssignments,
     updateAssignmentField
-  } = useLifeMinistryData({ congregationId });
+  } = useLifeMinistryData({ congregationId, initialGuideId, initialWeekId });
 
   const [isExportModalOpen, setIsExportModalOpen] = React.useState(false);
 

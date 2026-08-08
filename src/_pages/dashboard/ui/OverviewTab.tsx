@@ -144,7 +144,7 @@ export function OverviewTab({ brothers, currentWeek, assignment }: Props) {
             <div className="flex items-center justify-between border-b border-slate-100 pb-4"><span className="text-sm text-slate-500">Asignaciones</span><span className="text-sm font-extrabold text-slate-800">{assignment ? 'Registradas' : 'Sin registrar'}</span></div>
             <div className="flex items-center justify-between"><span className="text-sm text-slate-500">Participación activa</span><span className="text-sm font-extrabold text-slate-800">{activeBrothers.length ? `${Math.round((assignedBrothers.length / activeBrothers.length) * 100)}%` : '0%'}</span></div>
           </div>
-          <a href="/dashboard/activity-guides" className="mt-6 block rounded-xl bg-slate-50 px-4 py-3 text-center text-sm font-bold text-[#4a6da7] transition hover:bg-[#4a6da7]/10">Gestionar asignaciones</a>
+          <a href={currentWeek ? `/dashboard/life-ministry?guideId=${encodeURIComponent(currentWeek.guideId)}&weekId=${encodeURIComponent(currentWeek.id)}` : '/dashboard/life-ministry'} className="mt-6 block rounded-xl bg-slate-50 px-4 py-3 text-center text-sm font-bold text-[#4a6da7] transition hover:bg-[#4a6da7]/10">Gestionar asignaciones</a>
         </section>
       </div>
     </div>

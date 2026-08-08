@@ -15,6 +15,8 @@ import type { AssignmentSection } from '../../model/life-ministry';
 
 interface UseLifeMinistryDataOptions {
   congregationId: string;
+  initialGuideId?: string;
+  initialWeekId?: string;
 }
 
 export interface LifeMinistryData {
@@ -80,19 +82,28 @@ function buildEmptyAssignment(weekId: string, congregationId: string, week: Acti
   };
 }
 
-function getInitialGuideIdFromUrl(): string | null {
-  if (typeof window === 'undefined') return null;
-  return new URLSearchParams(window.location.search).get('id');
+function getInitialIdsFromUrl(): { guideId: string | null; weekId: string | null } {
+  if (typeof window === 'undefined') return { guideId: null, weekId: null };
+  const params = new URLSearchParams(window.location.search);
+  return {
+    guideId: params.get('guideId'),
+    weekId: params.get('weekId')
+  };
 }
 
-function pushGuideIdToUrl(guideId: string): void {
+function pushSelectionToUrl(guideId: string, weekId?: string): void {
   if (typeof window === 'undefined') return;
   const url = new URL(window.location.href);
-  url.searchParams.set('id', guideId);
+  url.searchParams.set('guideId', guideId);
+  if (weekId) {
+    url.searchParams.set('weekId', weekId);
+  } else {
+    url.searchParams.delete('weekId');
+  }
   window.history.replaceState({}, '', url.toString());
 }
 
-export function useLifeMinistryData({ congregationId }: UseLifeMinistryDataOptions): LifeMinistryData {
+export function useLifeMinistryData({ congregationId, initialGuideId, initialWeekId }: UseLifeMinistryDataOptions): LifeMinistryData {
   const [isLoadingGuides, setIsLoadingGuides] = useState(true);
   const [isLoadingWeeks, setIsLoadingWeeks] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -113,7 +124,8 @@ export function useLifeMinistryData({ congregationId }: UseLifeMinistryDataOptio
   const [activeHall, setActiveHall] = useState<'main' | 'aux'>('main');
   const [isEditingAssignments, setIsEditingAssignments] = useState(false);
 
-  const initialGuideIdFromUrl = useRef<string | null>(getInitialGuideIdFromUrl());
+  const initialIdsFromUrl = useRef(getInitialIdsFromUrl());
+  const hasAppliedInitialSelection = useRef(false);
 
   useEffect(() => {
     if (congregationId) loadInitialData();
@@ -122,7 +134,7 @@ export function useLifeMinistryData({ congregationId }: UseLifeMinistryDataOptio
   useEffect(() => {
     if (selectedGuide) {
       loadWeeks(selectedGuide.id);
-      pushGuideIdToUrl(selectedGuide.id);
+      pushSelectionToUrl(selectedGuide.id);
     } else {
       setWeeks([]);
       setActiveAssignment(null);
@@ -152,7 +164,7 @@ export function useLifeMinistryData({ congregationId }: UseLifeMinistryDataOptio
       setGuides(guidesData);
 
       if (guidesData.length > 0) {
-        const urlGuideId = initialGuideIdFromUrl.current;
+        const urlGuideId = initialIdsFromUrl.current.guideId || initialGuideId;
         const matchedGuide = urlGuideId ? guidesData.find(g => g.id === urlGuideId) : null;
         setSelectedGuide(matchedGuide ?? guidesData[0]);
       }
@@ -167,9 +179,22 @@ export function useLifeMinistryData({ congregationId }: UseLifeMinistryDataOptio
     try {
       setIsLoadingWeeks(true);
       setErrorMsg(null);
-      setActiveWeekIndex(0);
-      const weeksData = await fetchActivityGuideWeeksClient(guideId);
-      setWeeks(weeksData.sort((a, b) => a.startDate.localeCompare(b.startDate)));
+       setActiveWeekIndex(0);
+       const weeksData = await fetchActivityGuideWeeksClient(guideId);
+       const sortedWeeks = weeksData.sort((a, b) => a.startDate.localeCompare(b.startDate));
+       const requestedWeekId = hasAppliedInitialSelection.current
+         ? null
+         : initialIdsFromUrl.current.weekId || initialWeekId;
+       const requestedWeekIndex = requestedWeekId
+         ? sortedWeeks.findIndex((week) => week.id === requestedWeekId)
+         : -1;
+       const nextWeekIndex = requestedWeekIndex >= 0 ? requestedWeekIndex : 0;
+       setWeeks(sortedWeeks);
+       setActiveWeekIndex(nextWeekIndex);
+       hasAppliedInitialSelection.current = true;
+       if (sortedWeeks[nextWeekIndex]) {
+         pushSelectionToUrl(guideId, sortedWeeks[nextWeekIndex].id);
+       }
     } catch (err: any) {
       setErrorMsg('Error al cargar las semanas de la guía');
     } finally {
@@ -266,7 +291,13 @@ export function useLifeMinistryData({ congregationId }: UseLifeMinistryDataOptio
     successMsg,
     errorMsg,
     selectGuide: setSelectedGuide,
-    selectWeek: setActiveWeekIndex,
+    selectWeek: (index: number) => {
+      setActiveWeekIndex(index);
+      const selectedWeek = weeks[index];
+      if (selectedGuide && selectedWeek) {
+        pushSelectionToUrl(selectedGuide.id, selectedWeek.id);
+      }
+    },
     setActiveHall,
     startEditing: () => setIsEditingAssignments(true),
     cancelEditing,
