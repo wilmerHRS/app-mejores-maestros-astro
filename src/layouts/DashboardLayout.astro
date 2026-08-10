@@ -6,7 +6,7 @@ import type { UserProfile, Congregation } from "@/shared/api";
 
 interface Props {
   activeTab:
-    "inicio" | "brothers" | "life-ministry" | "groups" | "activity-guides";
+    "inicio" | "brothers" | "life-ministry" | "assignments" | "groups" | "activity-guides" | "settings";
   profile: UserProfile;
   congregation: Congregation | null;
   userEmail: string | undefined;
@@ -59,8 +59,12 @@ const { activeTab, profile, congregation, userEmail } = Astro.props;
                       ? "Congregación > Hermanos"
                       : activeTab === "groups"
                         ? "Congregación > Grupos"
-                        : activeTab === "activity-guides"
+                      : activeTab === "activity-guides"
                           ? "Congregación > Guías de Actividades"
+                          : activeTab === "assignments"
+                            ? "Reunión > Asignaciones"
+                          : activeTab === "settings"
+                            ? "Configuración"
                           : "Reunión > Vida y Ministerio"
                 }
               </span>

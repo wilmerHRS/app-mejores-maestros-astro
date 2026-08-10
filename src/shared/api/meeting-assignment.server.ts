@@ -10,7 +10,8 @@ function mapFirestoreAssignments(fieldValue: any): SingleAssignment[] {
     return {
       assignedTo: fields.assignedTo?.stringValue || "",
       assistant: fields.assistant?.stringValue || "",
-      status: fields.status?.stringValue || ""
+      status: fields.status?.stringValue || "",
+      imageUrl: fields.imageUrl?.stringValue || ""
     } as SingleAssignment;
   });
 }
@@ -23,7 +24,8 @@ function toFirestoreAssignments(assignments: SingleAssignment[]): any {
           fields: {
             assignedTo: { stringValue: a.assignedTo || "" },
             assistant: { stringValue: a.assistant || "" },
-            status: { stringValue: a.status || "Pendiente" }
+            status: { stringValue: a.status || "Pendiente" },
+            imageUrl: { stringValue: a.imageUrl || "" }
           }
         }
       }))

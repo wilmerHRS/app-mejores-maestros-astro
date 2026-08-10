@@ -2,6 +2,7 @@ export interface SingleAssignment {
   assignedTo?: string; // Brother ID
   assistant?: string;  // Brother ID
   status?: 'Confirmado' | 'Pendiente' | 'Sustitución';
+  imageUrl?: string;
 }
 
 export interface MeetingAssignment {

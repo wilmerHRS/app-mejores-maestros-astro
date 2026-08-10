@@ -5,6 +5,19 @@ export interface Congregation {
   department: string;
   district: string;
   zipCode: string;
+  meetingDay?: number;
+}
+
+export async function updateCongregationMeetingDayClient(id: string, meetingDay: number): Promise<void> {
+  const res = await fetch('/api/congregation/meeting-day', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, meetingDay }),
+  });
+  if (!res.ok) {
+    const result = await res.json() as { error?: string };
+    throw new Error(result.error || 'Error al actualizar el día de reunión');
+  }
 }
 
 export async function fetchCongregationsClient(): Promise<Congregation[]> {

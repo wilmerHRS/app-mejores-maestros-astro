@@ -19,9 +19,18 @@
   .print-only-layout {
     display: none !important;
   }
+
+  .weekly-assignment-print-layout {
+    display: none !important;
+  }
 }
 
 @media print {
+  @page {
+    size: A4 landscape;
+    margin: 0;
+  }
+
   /* Hide the entire website UI layout */
   body > div:first-of-type,
   .no-print {
@@ -44,6 +53,29 @@
     color: black !important;
     padding: 10mm 15mm !important;
     box-sizing: border-box !important;
+  }
+
+  .weekly-assignment-print-layout {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .weekly-assignment-print-page {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    grid-template-rows: repeat(2, 1fr) !important;
+    gap: 3mm !important;
+    width: 287mm !important;
+    height: 200mm !important;
+    padding: 5mm !important;
+    box-sizing: border-box !important;
+    background: white !important;
+    color: black !important;
+    page-break-after: always !important;
+  }
+
+  .weekly-assignment-print-layout .weekly-print-title {
+    display: none !important;
   }
 
   .print-week-block {

@@ -4,6 +4,17 @@
 	"compatibility_flags": ["global_fetch_strictly_public", "nodejs_compat"],
 	"name": "app-mejores-maestros-astro",
 	"main": "@astrojs/cloudflare/entrypoints/server",
+	"browser": {
+		"binding": "BROWSER",
+		"remote": true
+	},
+	"r2_buckets": [
+		{
+			"binding": "ASSIGNMENT_IMAGES",
+			"bucket_name": "app-mejores-maestros-assignment-images",
+			"remote": true
+		}
+	],
 	"assets": {
 		"directory": "./dist",
 		"binding": "ASSETS"

@@ -14,7 +14,7 @@ export const updateCongregationHandler: APIRoute = async ({ request, cookies }) 
     // Verify session
     await verifyFirebaseSessionCookie(session);
 
-    const { id, name, address, department, district, zipCode } = await request.json() as any;
+    const { id, name, address, department, district, zipCode, meetingDay } = await request.json() as any;
 
     if (!id || !name || !address || !department || !district || !zipCode) {
       return new Response(JSON.stringify({ error: 'Todos los campos son obligatorios' }), {
@@ -23,7 +23,7 @@ export const updateCongregationHandler: APIRoute = async ({ request, cookies }) 
       });
     }
 
-    await updateCongregation(id, { name, address, department, district, zipCode });
+    await updateCongregation(id, { name, address, department, district, zipCode, meetingDay });
 
     // Clear cached congregation cookie
     cookies.delete('user_congregation', { path: '/' });

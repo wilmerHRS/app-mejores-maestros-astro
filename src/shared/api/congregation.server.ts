@@ -31,7 +31,8 @@ export async function getCongregations(): Promise<Congregation[]> {
       address: fields.address?.stringValue || '',
       department: fields.department?.stringValue || '',
       district: fields.district?.stringValue || '',
-      zipCode: fields.zipCode?.stringValue || ''
+       zipCode: fields.zipCode?.stringValue || '',
+       meetingDay: fields.meetingDay?.integerValue !== undefined ? Number(fields.meetingDay.integerValue) : 5
     };
   });
 }
@@ -48,7 +49,8 @@ export async function createCongregation(data: Omit<Congregation, 'id'>): Promis
       address: { stringValue: data.address },
       department: { stringValue: data.department },
       district: { stringValue: data.district },
-      zipCode: { stringValue: data.zipCode },
+       zipCode: { stringValue: data.zipCode },
+       meetingDay: { integerValue: String(data.meetingDay ?? 5) },
       createdAt: { timestampValue: new Date().toISOString() },
       updatedAt: { timestampValue: new Date().toISOString() }
     }
@@ -103,7 +105,8 @@ export async function getCongregationById(id: string): Promise<Congregation | nu
     address: fields.address?.stringValue || '',
     department: fields.department?.stringValue || '',
     district: fields.district?.stringValue || '',
-    zipCode: fields.zipCode?.stringValue || ''
+    zipCode: fields.zipCode?.stringValue || '',
+    meetingDay: fields.meetingDay?.integerValue !== undefined ? Number(fields.meetingDay.integerValue) : 5
   };
 }
 
@@ -123,6 +126,7 @@ export async function updateCongregation(id: string, data: Partial<Omit<Congrega
   const updatedDepartment = data.department !== undefined ? data.department : current.department;
   const updatedDistrict = data.district !== undefined ? data.district : current.district;
   const updatedZipCode = data.zipCode !== undefined ? data.zipCode : current.zipCode;
+  const updatedMeetingDay = data.meetingDay !== undefined ? data.meetingDay : (current.meetingDay ?? 5);
 
   const body = {
     fields: {
@@ -130,7 +134,8 @@ export async function updateCongregation(id: string, data: Partial<Omit<Congrega
       address: { stringValue: updatedAddress },
       department: { stringValue: updatedDepartment },
       district: { stringValue: updatedDistrict },
-      zipCode: { stringValue: updatedZipCode },
+       zipCode: { stringValue: updatedZipCode },
+       meetingDay: { integerValue: String(updatedMeetingDay) },
       updatedAt: { timestampValue: new Date().toISOString() }
     }
   };
