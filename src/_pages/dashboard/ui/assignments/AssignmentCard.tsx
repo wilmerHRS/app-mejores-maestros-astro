@@ -5,10 +5,16 @@ import { getPartTypeLabel } from '../../model/life-ministry';
 interface Props {
   assignment: IndividualAssignment;
   onDownload: () => Promise<void>;
+  whatsappTestMode: boolean;
+  onSendWhatsApp: () => Promise<void>;
+  onShareWhatsApp: () => Promise<void>;
 }
 
-export function AssignmentCard({ assignment, onDownload }: Props) {
+export function AssignmentCard({ assignment, onDownload, whatsappTestMode, onSendWhatsApp, onShareWhatsApp }: Props) {
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isSendingWhatsApp, setIsSendingWhatsApp] = useState(false);
+  const [wasSent, setWasSent] = useState(!!assignment.whatsappSentAt);
+  const [isSharingWhatsApp, setIsSharingWhatsApp] = useState(false);
   const assignmentType = assignment.type === 'lectura_biblia'
     ? 'La lectura de la Biblia'
     : getPartTypeLabel(assignment.type, 'fieldMinistry');
@@ -22,6 +28,27 @@ export function AssignmentCard({ assignment, onDownload }: Props) {
       await onDownload();
     } finally {
       setIsDownloading(false);
+    }
+  };
+
+  const handleSendWhatsApp = async () => {
+    setIsSendingWhatsApp(true);
+    try {
+      await onSendWhatsApp();
+      setWasSent(true);
+    } finally {
+      setIsSendingWhatsApp(false);
+    }
+  };
+
+  const canSendWhatsApp = whatsappTestMode || !!assignment.phone;
+
+  const handleShareWhatsApp = async () => {
+    setIsSharingWhatsApp(true);
+    try {
+      await onShareWhatsApp();
+    } finally {
+      setIsSharingWhatsApp(false);
     }
   };
 
@@ -58,6 +85,17 @@ export function AssignmentCard({ assignment, onDownload }: Props) {
         <AssignmentDetail label="Sala" value={displayRoom} />
         <AssignmentDetail label="Fecha" value={assignment.date} />
       </div>
+      <div className="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 pt-3">
+        <span className={`text-[10px] font-extrabold ${!canSendWhatsApp ? 'text-slate-400' : wasSent ? 'text-emerald-600' : 'text-amber-600'}`}>
+          {!canSendWhatsApp ? 'Sin número de celular' : wasSent ? 'Mensaje enviado' : 'Pendiente de envío'}
+        </span>
+        <button onClick={handleSendWhatsApp} disabled={!canSendWhatsApp || isSendingWhatsApp} className="rounded-xl px-2.5 py-1.5 text-[10px] font-extrabold transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50" style={{ backgroundColor: wasSent ? '#ecfdf5' : '#dcfce7', color: '#15803d' }}>
+          {isSendingWhatsApp ? 'Enviando...' : wasSent ? 'Reenviar WhatsApp' : 'Enviar WhatsApp'}
+        </button>
+      </div>
+      <button onClick={handleShareWhatsApp} disabled={isSharingWhatsApp} className="mt-2 w-full rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-[10px] font-extrabold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-wait disabled:opacity-60">
+        {isSharingWhatsApp ? 'Preparando imagen...' : 'Compartir por WhatsApp'}
+      </button>
       </div>
     </article>
   );

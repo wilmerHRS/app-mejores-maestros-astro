@@ -12,6 +12,8 @@ function mapFirestoreAssignments(fieldValue: any): SingleAssignment[] {
       assistant: fields.assistant?.stringValue || "",
       status: fields.status?.stringValue || "",
       imageUrl: fields.imageUrl?.stringValue || ""
+      ,whatsappSentAt: fields.whatsappSentAt?.stringValue || ""
+      ,whatsappMessageSid: fields.whatsappMessageSid?.stringValue || ""
     } as SingleAssignment;
   });
 }
@@ -26,6 +28,8 @@ function toFirestoreAssignments(assignments: SingleAssignment[]): any {
             assistant: { stringValue: a.assistant || "" },
             status: { stringValue: a.status || "Pendiente" },
             imageUrl: { stringValue: a.imageUrl || "" }
+            ,whatsappSentAt: { stringValue: a.whatsappSentAt || "" }
+            ,whatsappMessageSid: { stringValue: a.whatsappMessageSid || "" }
           }
         }
       }))

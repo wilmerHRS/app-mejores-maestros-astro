@@ -37,7 +37,7 @@ export const renderMeetingAssignmentImageHandler: APIRoute = async ({ request, c
     const existingImage = await env.ASSIGNMENT_IMAGES.get(objectKey);
     if (existingImage) {
       await saveImageUrl(meetingAssignment, assignment, publicUrl);
-      return new Response(existingImage.body, { headers: { 'Content-Type': 'image/png', 'Cache-Control': 'public, max-age=31536000, immutable' } });
+      return new Response(existingImage.body, { headers: { 'Content-Type': 'image/png', 'X-Assignment-Image-Url': publicUrl, 'Cache-Control': 'public, max-age=31536000, immutable' } });
     }
 
     const browser = await puppeteer.launch(env.BROWSER);
@@ -49,7 +49,7 @@ export const renderMeetingAssignmentImageHandler: APIRoute = async ({ request, c
       const image = await page.screenshot({ type: 'png' });
       await env.ASSIGNMENT_IMAGES.put(objectKey, image, { httpMetadata: { contentType: 'image/png', cacheControl: 'public, max-age=31536000, immutable' } });
       await saveImageUrl(meetingAssignment, assignment, publicUrl);
-      return new Response(image, { headers: { 'Content-Type': 'image/png', 'Cache-Control': 'no-store' } });
+      return new Response(image, { headers: { 'Content-Type': 'image/png', 'X-Assignment-Image-Url': publicUrl, 'Cache-Control': 'no-store' } });
     } finally {
       await browser.close();
     }

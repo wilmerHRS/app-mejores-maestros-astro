@@ -3,6 +3,8 @@ export interface SingleAssignment {
   assistant?: string;  // Brother ID
   status?: 'Confirmado' | 'Pendiente' | 'Sustitución';
   imageUrl?: string;
+  whatsappSentAt?: string;
+  whatsappMessageSid?: string;
 }
 
 export interface MeetingAssignment {
@@ -38,4 +40,15 @@ export async function saveMeetingAssignmentClient(data: MeetingAssignment): Prom
     throw new Error(result.error || 'Error al guardar las asignaciones');
   }
   return result.data!;
+}
+
+export async function sendMeetingAssignmentWhatsAppClient(data: Record<string, unknown>): Promise<{ messageSid: string; testMode: boolean }> {
+  const res = await fetch('/api/meeting-assignment/send-whatsapp', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  const result = await res.json() as { messageSid?: string; testMode?: boolean; error?: string };
+  if (!res.ok) throw new Error(result.error || 'No se pudo enviar el mensaje por WhatsApp');
+  return { messageSid: result.messageSid!, testMode: !!result.testMode };
 }
