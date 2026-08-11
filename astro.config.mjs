@@ -13,6 +13,9 @@ export default defineConfig({
 
   vite: {
     plugins: [tailwindcss()],
+    optimizeDeps: {
+      exclude: ['@cloudflare/puppeteer']
+    },
     resolve: {
       dedupe: ['react', 'react-dom']
     },

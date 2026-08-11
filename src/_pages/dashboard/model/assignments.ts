@@ -50,6 +50,7 @@ export interface IndividualAssignment {
   phone?: string;
   whatsappSentAt?: string;
   whatsappMessageSid?: string;
+  isCurrentWeek: boolean;
 }
 
 export function getTodayIsoDate(): string {
@@ -175,6 +176,7 @@ function createAssignment(
     phone: brothers.find((brother) => brother.id === assignment.assignedTo)?.phone,
     whatsappSentAt: assignment.whatsappSentAt,
     whatsappMessageSid: assignment.whatsappMessageSid,
+    isCurrentWeek: week.startDate <= getTodayIsoDate() && week.endDate >= getTodayIsoDate(),
   };
 }
 

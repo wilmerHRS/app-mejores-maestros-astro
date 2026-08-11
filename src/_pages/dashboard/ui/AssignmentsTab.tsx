@@ -5,7 +5,7 @@ import { fetchAssignmentsPageData } from '../api/fetch-assignments';
 import { getBrotherName, getIndividualAssignments, type AssignmentGuideData, type AssignmentWeekData, type AssignmentWeekOption } from '../model/assignments';
 import { AssignmentCard } from './assignments/AssignmentCard';
 import { AssignmentExportModal } from './assignments/AssignmentExportModal';
-import { downloadAssignmentSheet, shareAssignmentOnWhatsApp } from '../lib/assignment-sheet';
+import { downloadAssignmentSheet, shareAssignmentOnWhatsApp, shareAssignmentReminderOnWhatsApp } from '../lib/assignment-sheet';
 import { ExportPdfModal } from './life-ministry/ExportPdfModal';
 
 export function AssignmentsTab({ congregationId, meetingDay = 5 }: { congregationId: string; meetingDay?: number }) {
@@ -69,7 +69,7 @@ export function AssignmentsTab({ congregationId, meetingDay = 5 }: { congregatio
   return <div className="space-y-7">
     <PageHeader assignmentCount={assignments.length} onExport={() => setIsExportModalOpen(true)} onExportWeeks={() => setIsWeeksExportOpen(true)} disableWeeksExport={!legacyExportGuide} />
     <Filters guides={guides} weeks={availableWeeks} guideFilter={guideFilter} weekFilter={weekFilter} onGuideChange={(value) => { setGuideFilter(value); setWeekFilter('all'); }} onWeekChange={setWeekFilter} />
-    {!assignments.length ? <EmptyState /> : <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">{filteredWeeks.map(({ week, assignment }) => getIndividualAssignments(week, assignment, meetingDay, brothers).map((item) => { const printable = { ...item, name: getBrotherName(item.name, brothers), assistant: getBrotherName(item.assistant, brothers) }; return <AssignmentCard key={item.id} assignment={printable} whatsappTestMode={whatsappTestMode} onDownload={() => downloadAssignmentSheet(printable)} onSendWhatsApp={async () => { await sendMeetingAssignmentWhatsAppClient(printable); }} onShareWhatsApp={() => shareAssignmentOnWhatsApp(printable)} />; }))}</div>}
+    {!assignments.length ? <EmptyState /> : <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">{filteredWeeks.map(({ week, assignment }) => getIndividualAssignments(week, assignment, meetingDay, brothers).map((item) => { const printable = { ...item, name: getBrotherName(item.name, brothers), assistant: getBrotherName(item.assistant, brothers) }; return <AssignmentCard key={item.id} assignment={printable} whatsappTestMode={whatsappTestMode} onDownload={() => downloadAssignmentSheet(printable)} onSendWhatsApp={async () => { await sendMeetingAssignmentWhatsAppClient(printable); }} onShareWhatsApp={() => shareAssignmentOnWhatsApp(printable)} onShareReminder={() => shareAssignmentReminderOnWhatsApp(printable)} />; }))}</div>}
     {isWeeksExportOpen && legacyExportGuide && <ExportPdfModal guide={legacyExportGuide} weeks={legacyExportWeeks} congregationId={congregationId} brothers={brothers} onClose={() => setIsWeeksExportOpen(false)} />}
     {isExportModalOpen && <AssignmentExportModal weeks={visibleWeeks as AssignmentWeekOption[]} onClose={() => setIsExportModalOpen(false)} onExport={(selectedWeeks) => { void exportPdf(selectedWeeks.map(({ week }) => week.id)); }} />}
     {isExportingPdf && <ProcessingOverlay assignmentCount={exportingAssignmentCount} />}

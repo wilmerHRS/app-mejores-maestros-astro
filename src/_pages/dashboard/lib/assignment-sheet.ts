@@ -12,13 +12,22 @@ export async function downloadAssignmentSheet(assignment: IndividualAssignment):
 
 export async function shareAssignmentOnWhatsApp(assignment: IndividualAssignment): Promise<void> {
   const { imageBlob, imageUrl } = await fetchAssignmentImage(assignment);
-  const message = `Hola, ${assignment.name} 👋\n\nTe enviamos tu asignación de Vida y Ministerio para el ${assignment.date}:\n\n📌 ${assignment.part}\n⏱️ Duración: ${assignment.duration}.\n\nSi tienes alguna duda, comunícate con el hermano encargado.`;
+  const message = `Hola, hermano(a) ${assignment.name} 👋\n\nEspero que estés teniendo un buen día. Te comparto tu asignación para la reunión Vida y Ministerio del ${assignment.date}:\n\n📌 ${assignment.part}\n⏱️ Duración: ${assignment.duration}.\n\nSi tienes alguna duda, puedes preguntarme directamente. También puedes hacerme llegar cualquier comentario por este medio.\n\n¡Gracias por tu buena disposición! 🙌`;
   const imageFile = new File([imageBlob], `asignacion-${assignment.interventionNumber}.png`, { type: 'image/png' });
   if (navigator.share && navigator.canShare?.({ files: [imageFile] })) {
     await navigator.share({ title: 'Asignación Vida y Ministerio', text: message, files: [imageFile] });
     return;
   }
   window.open(`https://wa.me/?text=${encodeURIComponent(`${message}\n\n${imageUrl}`)}`, '_blank', 'noopener,noreferrer');
+}
+
+export async function shareAssignmentReminderOnWhatsApp(assignment: IndividualAssignment): Promise<void> {
+  const message = `Hola, hermano(a) ${assignment.name} 👋\n\nSolo quería recordarte que tienes una asignación para la reunión Vida y Ministerio del ${assignment.date}:\n\n📌 ${assignment.part}\n⏱️ Duración: ${assignment.duration}.\n\nSi tienes alguna duda, puedes preguntarme directamente. ¡Gracias por tu buena disposición! 🙌`;
+  if (navigator.share) {
+    await navigator.share({ title: 'Recordatorio de asignación', text: message });
+    return;
+  }
+  window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
 }
 
 async function fetchAssignmentImage(assignment: IndividualAssignment): Promise<{ imageBlob: Blob; imageUrl: string }> {
