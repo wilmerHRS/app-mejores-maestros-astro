@@ -260,9 +260,23 @@ export function useLifeMinistryData({ congregationId, initialGuideId, initialWee
     setActiveAssignment(prev => {
       if (!prev) return null;
       const list = [...(prev[section] || [])];
-      list[index] = { ...list[index], [field]: value };
+      const shouldInvalidateGeneratedContent = isImageAssignmentSection(section) && (field === 'assignedTo' || field === 'assistant');
+      list[index] = {
+        ...list[index],
+        [field]: value,
+        ...(shouldInvalidateGeneratedContent
+          ? { imageUrl: '', whatsappSentAt: '', whatsappMessageSid: '' }
+          : {}),
+      };
       return { ...prev, [section]: list };
     });
+  }
+
+  function isImageAssignmentSection(section: AssignmentSection): boolean {
+    return section === 'treasures'
+      || section === 'treasuresAux'
+      || section === 'fieldMinistry'
+      || section === 'fieldMinistryAux';
   }
 
   function cancelEditing(): void {
