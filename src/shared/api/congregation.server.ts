@@ -52,7 +52,7 @@ export async function createCongregation(data: Omit<Congregation, 'id'>): Promis
       district: { stringValue: data.district },
        zipCode: { stringValue: data.zipCode },
        meetingDay: { integerValue: String(data.meetingDay ?? 5) },
-       hasAuxiliaryRoom: { booleanValue: data.hasAuxiliaryRoom || false },
+       hasAuxiliaryRoom: { booleanValue: data.hasAuxiliaryRoom !== undefined ? data.hasAuxiliaryRoom : true },
       createdAt: { timestampValue: new Date().toISOString() },
       updatedAt: { timestampValue: new Date().toISOString() }
     }
