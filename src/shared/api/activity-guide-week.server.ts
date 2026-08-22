@@ -102,7 +102,12 @@ export async function getActivityGuideWeeks(guideId: string): Promise<ActivityGu
         bibleReading: fields.bibleReading?.stringValue || '',
         treasures: mapFirestoreParts(fields.treasures),
         fieldMinistry: mapFirestoreParts(fields.fieldMinistry),
-        christianLife: mapFirestoreParts(fields.christianLife)
+        christianLife: mapFirestoreParts(fields.christianLife),
+        songFirst: fields.songFirst?.stringValue || '',
+        introDuration: fields.introDuration?.stringValue || '',
+        songSecond: fields.songSecond?.stringValue || '',
+        conclDuration: fields.conclDuration?.stringValue || '',
+        songThird: fields.songThird?.stringValue || ''
       };
     });
 
@@ -175,7 +180,12 @@ export async function getWeeksByCongregation(congregationId: string): Promise<Ac
         bibleReading: fields.bibleReading?.stringValue || '',
         treasures: mapFirestoreParts(fields.treasures),
         fieldMinistry: mapFirestoreParts(fields.fieldMinistry),
-        christianLife: mapFirestoreParts(fields.christianLife)
+        christianLife: mapFirestoreParts(fields.christianLife),
+        songFirst: fields.songFirst?.stringValue || '',
+        introDuration: fields.introDuration?.stringValue || '',
+        songSecond: fields.songSecond?.stringValue || '',
+        conclDuration: fields.conclDuration?.stringValue || '',
+        songThird: fields.songThird?.stringValue || ''
       };
     });
 
@@ -201,7 +211,12 @@ export async function createActivityGuideWeek(data: Omit<ActivityGuideWeek, 'id'
       bibleReading: { stringValue: data.bibleReading || '' },
       treasures: toFirestoreParts(data.treasures || []),
       fieldMinistry: toFirestoreParts(data.fieldMinistry || []),
-      christianLife: toFirestoreParts(data.christianLife || [])
+      christianLife: toFirestoreParts(data.christianLife || []),
+      songFirst: { stringValue: data.songFirst || '' },
+      introDuration: { stringValue: data.introDuration || '' },
+      songSecond: { stringValue: data.songSecond || '' },
+      conclDuration: { stringValue: data.conclDuration || '' },
+      songThird: { stringValue: data.songThird || '' }
     }
   };
 
@@ -264,6 +279,26 @@ export async function updateActivityGuideWeek(id: string, data: Partial<Omit<Act
   if (data.christianLife !== undefined) {
     fields.christianLife = toFirestoreParts(data.christianLife);
     updateMaskFields.push('christianLife');
+  }
+  if (data.songFirst !== undefined) {
+    fields.songFirst = { stringValue: data.songFirst };
+    updateMaskFields.push('songFirst');
+  }
+  if (data.introDuration !== undefined) {
+    fields.introDuration = { stringValue: data.introDuration };
+    updateMaskFields.push('introDuration');
+  }
+  if (data.songSecond !== undefined) {
+    fields.songSecond = { stringValue: data.songSecond };
+    updateMaskFields.push('songSecond');
+  }
+  if (data.conclDuration !== undefined) {
+    fields.conclDuration = { stringValue: data.conclDuration };
+    updateMaskFields.push('conclDuration');
+  }
+  if (data.songThird !== undefined) {
+    fields.songThird = { stringValue: data.songThird };
+    updateMaskFields.push('songThird');
   }
 
   fields.updatedAt = { timestampValue: new Date().toISOString() };
@@ -345,7 +380,12 @@ export async function getActivityGuideWeek(id: string): Promise<ActivityGuideWee
     bibleReading: fields.bibleReading?.stringValue || '',
     treasures: mapFirestoreParts(fields.treasures),
     fieldMinistry: mapFirestoreParts(fields.fieldMinistry),
-    christianLife: mapFirestoreParts(fields.christianLife)
+    christianLife: mapFirestoreParts(fields.christianLife),
+    songFirst: fields.songFirst?.stringValue || '',
+    introDuration: fields.introDuration?.stringValue || '',
+    songSecond: fields.songSecond?.stringValue || '',
+    conclDuration: fields.conclDuration?.stringValue || '',
+    songThird: fields.songThird?.stringValue || ''
   };
 }
 

@@ -34,6 +34,7 @@ export function getPartTypeLabel(type?: string, section?: string): string {
       estudio_biblico_congregacion: 'Estudio bíblico de la congregación',
       discurso: 'Discurso',
       parte_local: 'Parte local',
+      analisis: 'Análisis con el auditorio',
     };
     return labels[type] ?? type;
   }

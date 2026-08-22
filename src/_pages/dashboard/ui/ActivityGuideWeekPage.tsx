@@ -10,6 +10,8 @@ import {
 } from "@/shared/api";
 import { formatDateRange } from "@/shared/lib";
 import { WeekSectionCard } from "./WeekSectionCard";
+import { ProgramSongRow } from "./ProgramSongRow";
+import { ProgramDurationRow } from "./ProgramDurationRow";
 
 interface ActivityGuideWeekPageProps {
   week: ActivityGuideWeek;
@@ -66,7 +68,12 @@ export function ActivityGuideWeekPage({ week, congregationId, currentUserUid, pa
         bibleReading: localWeek.bibleReading || "",
         treasures: cleanParts(localWeek.treasures),
         fieldMinistry: cleanParts(localWeek.fieldMinistry),
-        christianLife: cleanParts(localWeek.christianLife)
+        christianLife: cleanParts(localWeek.christianLife),
+        songFirst: localWeek.songFirst || "",
+        introDuration: localWeek.introDuration || "",
+        songSecond: localWeek.songSecond || "",
+        conclDuration: localWeek.conclDuration || "",
+        songThird: localWeek.songThird || ""
       });
       setIsEditing(false);
     } catch (err: any) {
@@ -259,6 +266,23 @@ export function ActivityGuideWeekPage({ week, congregationId, currentUserUid, pa
 
       {/* Sections List */}
       <div className="space-y-6 w-full">
+        {/* Canción Inicial */}
+        <ProgramSongRow
+          isEditing={isEditing}
+          subtitle="Número o título de la canción inicial"
+          value={localWeek.songFirst || ""}
+          onChange={(val) => setLocalWeek((prev) => ({ ...prev, songFirst: val }))}
+        />
+
+        {/* Palabras de Introducción */}
+        <ProgramDurationRow
+          isEditing={isEditing}
+          title="Palabras de introducción"
+          subtitle="Duración de la introducción"
+          value={localWeek.introDuration || ""}
+          onChange={(val) => setLocalWeek((prev) => ({ ...prev, introDuration: val }))}
+        />
+
         <WeekSectionCard
           title="Tesoros de la Biblia"
           sectionKey="treasures"
@@ -273,7 +297,7 @@ export function ActivityGuideWeekPage({ week, congregationId, currentUserUid, pa
         />
 
         <WeekSectionCard
-          title="Seamos Mejores Lectores y Maestros"
+          title="Seamos Mejores Maestros"
           sectionKey="fieldMinistry"
           parts={fieldMinistry}
           badgeColor="#be8900"
@@ -283,6 +307,14 @@ export function ActivityGuideWeekPage({ week, congregationId, currentUserUid, pa
           onAddPart={addPart}
           getBrotherName={getBrotherName}
           assignments={assignment?.fieldMinistry}
+        />
+
+        {/* Canción Intermedia */}
+        <ProgramSongRow
+          isEditing={isEditing}
+          subtitle="Número o título de la canción intermedia"
+          value={localWeek.songSecond || ""}
+          onChange={(val) => setLocalWeek((prev) => ({ ...prev, songSecond: val }))}
         />
 
         <WeekSectionCard
@@ -296,6 +328,23 @@ export function ActivityGuideWeekPage({ week, congregationId, currentUserUid, pa
           onAddPart={addPart}
           getBrotherName={getBrotherName}
           assignments={assignment?.christianLife}
+        />
+
+        {/* Palabras de Conclusión */}
+        <ProgramDurationRow
+          isEditing={isEditing}
+          title="Palabras de conclusión"
+          subtitle="Duración de la conclusión"
+          value={localWeek.conclDuration || ""}
+          onChange={(val) => setLocalWeek((prev) => ({ ...prev, conclDuration: val }))}
+        />
+
+        {/* Canción Final */}
+        <ProgramSongRow
+          isEditing={isEditing}
+          subtitle="Número o título de la canción final"
+          value={localWeek.songThird || ""}
+          onChange={(val) => setLocalWeek((prev) => ({ ...prev, songThird: val }))}
         />
       </div>
     </div>

@@ -45,14 +45,15 @@ function getPartLabel(type?: string, fallback?: string): string {
     haga_revisitas: 'Haga revisitas',
     haga_discipulos: 'Haga discípulos',
     estudio_biblico_congregacion: 'Estudio bíblico de la congregación',
-    parte_local: 'Parte local'
+    parte_local: 'Parte local',
+    analisis: 'Análisis con el auditorio'
   };
   return (type && labels[type]) || fallback || 'Parte de la reunión';
 }
 
 function sectionStyle(section: string): { color: string; background: string } {
   if (section === 'Tesoros de la Biblia') return { color: '#147487', background: '#e9f5f6' };
-  if (section === 'Seamos mejores lectores y maestros') return { color: '#a87300', background: '#fff7df' };
+  if (section === 'Seamos mejores maestros' || section === 'Seamos mejores lectores y maestros') return { color: '#a87300', background: '#fff7df' };
   return { color: '#b63720', background: '#fff0ec' };
 }
 
@@ -61,8 +62,8 @@ function getParticipations(week: ActivityGuideWeek | null, assignment: MeetingAs
   const sections: Array<{ key: AssignmentSection; title: string; room: string; parts?: ActivityGuideWeek['treasures']; assigned?: SingleAssignment[] }> = [
     { key: 'treasures', title: 'Tesoros de la Biblia', room: 'Sala principal', parts: week.treasures, assigned: assignment.treasures },
     { key: 'treasuresAux', title: 'Tesoros de la Biblia', room: 'Sala auxiliar', parts: week.treasures, assigned: assignment.treasuresAux },
-    { key: 'fieldMinistry', title: 'Seamos mejores lectores y maestros', room: 'Sala principal', parts: week.fieldMinistry, assigned: assignment.fieldMinistry },
-    { key: 'fieldMinistryAux', title: 'Seamos mejores lectores y maestros', room: 'Sala auxiliar', parts: week.fieldMinistry, assigned: assignment.fieldMinistryAux },
+    { key: 'fieldMinistry', title: 'Seamos mejores maestros', room: 'Sala principal', parts: week.fieldMinistry, assigned: assignment.fieldMinistry },
+    { key: 'fieldMinistryAux', title: 'Seamos mejores maestros', room: 'Sala auxiliar', parts: week.fieldMinistry, assigned: assignment.fieldMinistryAux },
     { key: 'christianLife', title: 'Nuestra vida cristiana', room: 'Sala principal', parts: week.christianLife, assigned: assignment.christianLife }
   ];
 

@@ -218,7 +218,7 @@ export function EditSpiritualModal({
               />
               <div>
                 <span className="block font-semibold">¿Participa en Escuela?</span>
-                <span className="block text-[10px] text-slate-400 font-semibold">Seamos mejores lectores y maestros</span>
+                <span className="block text-[10px] text-slate-400 font-semibold">Seamos mejores maestros</span>
               </div>
             </label>
           </div>

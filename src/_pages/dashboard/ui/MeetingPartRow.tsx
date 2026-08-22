@@ -75,6 +75,7 @@ export function MeetingPartRow({
               <option value="">-- Selecciona tipo --</option>
               <option value="necesidades_congregacion">Necesidades de la congregación</option>
               <option value="estudio_biblico_congregacion">Estudio bíblico de la congregación</option>
+              <option value="analisis">Análisis con el auditorio</option>
               <option value="discurso">Discurso</option>
               <option value="parte_local">Parte local</option>
             </select>
@@ -177,6 +178,7 @@ function getPartTypeLabel(type?: string, section?: string): string {
     switch (type) {
       case "necesidades_congregacion": return "Necesidades de la congregación";
       case "estudio_biblico_congregacion": return "Estudio bíblico de la congregación";
+      case "analisis": return "Análisis con el auditorio";
       case "discurso": return "Discurso";
       case "parte_local": return "Parte local";
       default: return type;

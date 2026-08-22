@@ -20,6 +20,11 @@ export interface ActivityGuideWeek {
   treasures?: MeetingPart[];
   fieldMinistry?: MeetingPart[];
   christianLife?: MeetingPart[];
+  songFirst?: string;
+  introDuration?: string;
+  songSecond?: string;
+  conclDuration?: string;
+  songThird?: string;
 }
 
 

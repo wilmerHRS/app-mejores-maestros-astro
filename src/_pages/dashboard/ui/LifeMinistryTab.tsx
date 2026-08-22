@@ -13,9 +13,16 @@ interface LifeMinistryTabProps {
   currentUserUid?: string;
   initialGuideId?: string;
   initialWeekId?: string;
+  hasAuxiliaryRoom?: boolean;
 }
 
-export function LifeMinistryTab({ congregationId, initialGuideId, initialWeekId }: LifeMinistryTabProps) {
+export function LifeMinistryTab({
+  congregationId,
+  initialGuideId,
+  initialWeekId,
+  hasAuxiliaryRoom: hasAuxiliaryRoomProp
+}: LifeMinistryTabProps) {
+  const hasAuxiliaryRoom = hasAuxiliaryRoomProp !== false;
   const {
     isLoadingGuides,
     isLoadingWeeks,
@@ -157,6 +164,7 @@ export function LifeMinistryTab({ congregationId, initialGuideId, initialWeekId 
                         lastWeekHelperIds={lastWeekHelperIds}
                         lastWeekAssigneeIds={lastWeekAssigneeIds}
                         activeAssignment={activeAssignment}
+                        hasAuxiliaryRoom={hasAuxiliaryRoom}
                       />
                     )}
 
@@ -164,7 +172,7 @@ export function LifeMinistryTab({ congregationId, initialGuideId, initialWeekId 
                     {activeWeek.fieldMinistry && activeWeek.fieldMinistry.length > 0 && (
                       <AssignmentSection
                         section={activeHall === 'main' ? 'fieldMinistry' : 'fieldMinistryAux'}
-                        title="Seamos Mejores Lectores y Maestros"
+                        title="Seamos Mejores Maestros"
                         colorClass="bg-[#be8900]"
                         parts={activeWeek.fieldMinistry}
                         assignments={
@@ -181,11 +189,14 @@ export function LifeMinistryTab({ congregationId, initialGuideId, initialWeekId 
                         lastWeekHelperIds={lastWeekHelperIds}
                         lastWeekAssigneeIds={lastWeekAssigneeIds}
                         activeAssignment={activeAssignment}
+                        hasAuxiliaryRoom={hasAuxiliaryRoom}
                         headerRight={
-                          <HallTabSelector
-                            activeHall={activeHall}
-                            onChangeHall={setActiveHall}
-                          />
+                          hasAuxiliaryRoom ? (
+                            <HallTabSelector
+                              activeHall={activeHall}
+                              onChangeHall={setActiveHall}
+                            />
+                          ) : undefined
                         }
                       />
                     )}

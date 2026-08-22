@@ -27,6 +27,7 @@ interface AssignmentSectionProps {
   lastWeekHelperIds?: string[];
   lastWeekAssigneeIds?: string[];
   activeAssignment?: MeetingAssignment | null;
+  hasAuxiliaryRoom?: boolean;
 }
 
 export function PartStatusIndicator({ singleAssignment }: { singleAssignment?: SingleAssignment }) {
@@ -80,7 +81,8 @@ export function AssignmentSection({
   recentHelperIds,
   lastWeekHelperIds,
   lastWeekAssigneeIds,
-  activeAssignment
+  activeAssignment,
+  hasAuxiliaryRoom = true
 }: AssignmentSectionProps) {
   const [activeTreasuresHall, setActiveTreasuresHall] = React.useState<'main' | 'aux'>('main');
 
@@ -133,7 +135,7 @@ export function AssignmentSection({
               </div>
 
               <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                {isBibleReading && (
+                {isBibleReading && hasAuxiliaryRoom && (
                   <HallTabSelector
                     activeHall={activeTreasuresHall}
                     onChangeHall={setActiveTreasuresHall}

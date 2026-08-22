@@ -124,7 +124,7 @@ export function getAssignmentGroups(
       isBibleReading: true,
     },
     {
-      title: 'Seamos mejores lectores y maestros',
+      title: 'Seamos mejores maestros',
       parts: week.fieldMinistry || [],
       values: assignment?.fieldMinistry || [],
       color: 'text-[#a87500]',
