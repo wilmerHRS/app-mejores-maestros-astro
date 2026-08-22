@@ -6,6 +6,22 @@ export interface Congregation {
   district: string;
   zipCode: string;
   meetingDay?: number;
+  hasAuxiliaryRoom?: boolean;
+}
+
+export async function updateCongregationSettingsClient(
+  id: string,
+  settings: { meetingDay?: number; hasAuxiliaryRoom?: boolean }
+): Promise<void> {
+  const res = await fetch('/api/congregation/settings', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, ...settings }),
+  });
+  if (!res.ok) {
+    const result = await res.json() as { error?: string };
+    throw new Error(result.error || 'Error al actualizar la configuración');
+  }
 }
 
 export async function updateCongregationMeetingDayClient(id: string, meetingDay: number): Promise<void> {

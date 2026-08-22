@@ -32,7 +32,8 @@ export async function getCongregations(): Promise<Congregation[]> {
       department: fields.department?.stringValue || '',
       district: fields.district?.stringValue || '',
        zipCode: fields.zipCode?.stringValue || '',
-       meetingDay: fields.meetingDay?.integerValue !== undefined ? Number(fields.meetingDay.integerValue) : 5
+       meetingDay: fields.meetingDay?.integerValue !== undefined ? Number(fields.meetingDay.integerValue) : 5,
+        hasAuxiliaryRoom: fields.hasAuxiliaryRoom?.booleanValue || false
     };
   });
 }
@@ -51,6 +52,7 @@ export async function createCongregation(data: Omit<Congregation, 'id'>): Promis
       district: { stringValue: data.district },
        zipCode: { stringValue: data.zipCode },
        meetingDay: { integerValue: String(data.meetingDay ?? 5) },
+       hasAuxiliaryRoom: { booleanValue: data.hasAuxiliaryRoom || false },
       createdAt: { timestampValue: new Date().toISOString() },
       updatedAt: { timestampValue: new Date().toISOString() }
     }
@@ -106,7 +108,8 @@ export async function getCongregationById(id: string): Promise<Congregation | nu
     department: fields.department?.stringValue || '',
     district: fields.district?.stringValue || '',
     zipCode: fields.zipCode?.stringValue || '',
-    meetingDay: fields.meetingDay?.integerValue !== undefined ? Number(fields.meetingDay.integerValue) : 5
+    meetingDay: fields.meetingDay?.integerValue !== undefined ? Number(fields.meetingDay.integerValue) : 5,
+    hasAuxiliaryRoom: fields.hasAuxiliaryRoom?.booleanValue || false
   };
 }
 
@@ -127,6 +130,7 @@ export async function updateCongregation(id: string, data: Partial<Omit<Congrega
   const updatedDistrict = data.district !== undefined ? data.district : current.district;
   const updatedZipCode = data.zipCode !== undefined ? data.zipCode : current.zipCode;
   const updatedMeetingDay = data.meetingDay !== undefined ? data.meetingDay : (current.meetingDay ?? 5);
+  const updatedHasAuxiliaryRoom = data.hasAuxiliaryRoom !== undefined ? data.hasAuxiliaryRoom : (current.hasAuxiliaryRoom || false);
 
   const body = {
     fields: {
@@ -136,6 +140,7 @@ export async function updateCongregation(id: string, data: Partial<Omit<Congrega
       district: { stringValue: updatedDistrict },
        zipCode: { stringValue: updatedZipCode },
        meetingDay: { integerValue: String(updatedMeetingDay) },
+       hasAuxiliaryRoom: { booleanValue: updatedHasAuxiliaryRoom },
       updatedAt: { timestampValue: new Date().toISOString() }
     }
   };
