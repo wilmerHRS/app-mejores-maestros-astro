@@ -7,6 +7,9 @@ import { AssignmentSection } from './life-ministry/AssignmentSection';
 import { HallTabSelector } from './life-ministry/HallTabSelector';
 import { AssignmentActionBar } from './life-ministry/AssignmentActionBar';
 import { ExportPdfModal } from './life-ministry/ExportPdfModal';
+import { ProgramSongRow } from './ProgramSongRow';
+import { ProgramDurationRow } from './ProgramDurationRow';
+import { ProgramSingleAssignmentCard } from './life-ministry/ProgramSingleAssignmentCard';
 
 interface LifeMinistryTabProps {
   congregationId: string;
@@ -147,6 +150,81 @@ export function LifeMinistryTab({
 
                   {/* Program sections */}
                   <div className="space-y-6 w-full">
+                    {/* Inicio de la reunión */}
+                    <div className="bg-white/95 border border-slate-200/80 rounded-2xl p-6 shadow-sm w-full space-y-4">
+                      {/* President */}
+                      <ProgramSingleAssignmentCard
+                        isEditing={isEditingAssignments}
+                        section="president"
+                        title="Presidente"
+                        description="Presidente de la reunión"
+                        assignment={activeAssignment?.president}
+                        brothers={brothers}
+                        onUpdateField={updateAssignmentField}
+                        recentAssigneeIds={recentAssigneeIds}
+                        recentHelperIds={recentHelperIds}
+                        lastWeekHelperIds={lastWeekHelperIds}
+                        lastWeekAssigneeIds={lastWeekAssigneeIds}
+                        activeAssignment={activeAssignment}
+                        flat={true}
+                      />
+
+                      {/* Aux Counselor */}
+                      {hasAuxiliaryRoom && (
+                        <ProgramSingleAssignmentCard
+                          isEditing={isEditingAssignments}
+                          section="auxCounselor"
+                          title="Consejero de la sala auxiliar"
+                          description="Consejero de la sala auxiliar de la reunión"
+                          assignment={activeAssignment?.auxCounselor}
+                          brothers={brothers}
+                          onUpdateField={updateAssignmentField}
+                          recentAssigneeIds={recentAssigneeIds}
+                          recentHelperIds={recentHelperIds}
+                          lastWeekHelperIds={lastWeekHelperIds}
+                          lastWeekAssigneeIds={lastWeekAssigneeIds}
+                          activeAssignment={activeAssignment}
+                          flat={true}
+                        />
+                      )}
+
+                      {/* Song First */}
+                      <ProgramSongRow
+                        isEditing={false}
+                        subtitle="Número o título de la canción inicial"
+                        value={activeWeek.songFirst || ""}
+                        onChange={() => {}}
+                        flat={true}
+                      />
+
+                      {/* Initial Prayer */}
+                      <ProgramSingleAssignmentCard
+                        isEditing={isEditingAssignments}
+                        section="prayerFirst"
+                        title="Oración"
+                        description="Oración inicial de la reunión"
+                        assignment={activeAssignment?.prayerFirst}
+                        brothers={brothers}
+                        onUpdateField={updateAssignmentField}
+                        recentAssigneeIds={recentAssigneeIds}
+                        recentHelperIds={recentHelperIds}
+                        lastWeekHelperIds={lastWeekHelperIds}
+                        lastWeekAssigneeIds={lastWeekAssigneeIds}
+                        activeAssignment={activeAssignment}
+                        flat={true}
+                      />
+
+                      {/* Intro Duration */}
+                      <ProgramDurationRow
+                        isEditing={false}
+                        title="Palabras de introducción"
+                        subtitle="Duración de la introducción"
+                        value={activeWeek.introDuration || ""}
+                        onChange={() => {}}
+                        flat={true}
+                      />
+                    </div>
+
                     {/* Section 1: Treasures */}
                     {activeWeek.treasures && activeWeek.treasures.length > 0 && (
                       <AssignmentSection
@@ -201,6 +279,14 @@ export function LifeMinistryTab({
                       />
                     )}
 
+                    {/* Song Second */}
+                    <ProgramSongRow
+                      isEditing={false}
+                      subtitle="Número o título de la canción intermedia"
+                      value={activeWeek.songSecond || ""}
+                      onChange={() => {}}
+                    />
+
                     {/* Section 3: Christian Life */}
                     {activeWeek.christianLife && activeWeek.christianLife.length > 0 && (
                       <AssignmentSection
@@ -219,6 +305,45 @@ export function LifeMinistryTab({
                         activeAssignment={activeAssignment}
                       />
                     )}
+
+                    {/* Conclusión de la reunión */}
+                    <div className="bg-white/95 border border-slate-200/80 rounded-2xl p-6 shadow-sm w-full space-y-4">
+                      {/* Concl Duration */}
+                      <ProgramDurationRow
+                        isEditing={false}
+                        title="Palabras de conclusión"
+                        subtitle="Duración de la conclusión"
+                        value={activeWeek.conclDuration || ""}
+                        onChange={() => {}}
+                        flat={true}
+                      />
+
+                      {/* Song Third */}
+                      <ProgramSongRow
+                        isEditing={false}
+                        subtitle="Número o título de la canción final"
+                        value={activeWeek.songThird || ""}
+                        onChange={() => {}}
+                        flat={true}
+                      />
+
+                      {/* Final Prayer */}
+                      <ProgramSingleAssignmentCard
+                        isEditing={isEditingAssignments}
+                        section="prayerLast"
+                        title="Oración"
+                        description="Oración final de la reunión"
+                        assignment={activeAssignment?.prayerLast}
+                        brothers={brothers}
+                        onUpdateField={updateAssignmentField}
+                        recentAssigneeIds={recentAssigneeIds}
+                        recentHelperIds={recentHelperIds}
+                        lastWeekHelperIds={lastWeekHelperIds}
+                        lastWeekAssigneeIds={lastWeekAssigneeIds}
+                        activeAssignment={activeAssignment}
+                        flat={true}
+                      />
+                    </div>
                   </div>
                 </div>
               )}

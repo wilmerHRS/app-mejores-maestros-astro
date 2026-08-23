@@ -79,6 +79,10 @@ function buildEmptyAssignment(weekId: string, congregationId: string, week: Acti
     fieldMinistry: (week.fieldMinistry || []).map(emptyRow),
     fieldMinistryAux: (week.fieldMinistry || []).map(emptyRow),
     christianLife: (week.christianLife || []).map(emptyRow),
+    president: emptyRow(),
+    auxCounselor: emptyRow(),
+    prayerFirst: emptyRow(),
+    prayerLast: emptyRow(),
   };
 }
 
@@ -226,6 +230,10 @@ export function useLifeMinistryData({ congregationId, initialGuideId, initialWee
           fieldMinistry: syncArrayToTemplate((week.fieldMinistry || []).length, assignmentData.fieldMinistry),
           fieldMinistryAux: syncArrayToTemplate((week.fieldMinistry || []).length, assignmentData.fieldMinistryAux),
           christianLife: syncArrayToTemplate((week.christianLife || []).length, assignmentData.christianLife),
+          president: assignmentData.president || { assignedTo: '', assistant: '', status: 'Pendiente' },
+          auxCounselor: assignmentData.auxCounselor || { assignedTo: '', assistant: '', status: 'Pendiente' },
+          prayerFirst: assignmentData.prayerFirst || { assignedTo: '', assistant: '', status: 'Pendiente' },
+          prayerLast: assignmentData.prayerLast || { assignedTo: '', assistant: '', status: 'Pendiente' },
         });
       } else {
         setActiveAssignment(buildEmptyAssignment(week.id, congregationId, week));
@@ -259,6 +267,30 @@ export function useLifeMinistryData({ congregationId, initialGuideId, initialWee
   ): void {
     setActiveAssignment(prev => {
       if (!prev) return null;
+      if (section === 'president' || section === 'auxCounselor' || section === 'prayerFirst' || section === 'prayerLast') {
+        const currentVal = prev[section] || { assignedTo: '', assistant: '', status: 'Pendiente' };
+        let updatedState = {
+          ...prev,
+          [section]: {
+            ...currentVal,
+            [field]: value
+          }
+        };
+
+        // If changing the president's assignee, copy by default to the final prayer
+        if (section === 'president' && field === 'assignedTo') {
+          const currentPrayerLast = prev.prayerLast || { assignedTo: '', assistant: '', status: 'Pendiente' };
+          updatedState = {
+            ...updatedState,
+            prayerLast: {
+              ...currentPrayerLast,
+              assignedTo: value
+            }
+          };
+        }
+
+        return updatedState;
+      }
       const list = [...(prev[section] || [])];
       const shouldInvalidateGeneratedContent = isImageAssignmentSection(section) && (field === 'assignedTo' || field === 'assistant');
       list[index] = {

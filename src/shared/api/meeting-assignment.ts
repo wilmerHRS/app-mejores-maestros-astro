@@ -16,6 +16,10 @@ export interface MeetingAssignment {
   fieldMinistry?: SingleAssignment[];
   fieldMinistryAux?: SingleAssignment[];
   christianLife?: SingleAssignment[];
+  president?: SingleAssignment;
+  auxCounselor?: SingleAssignment;
+  prayerFirst?: SingleAssignment;
+  prayerLast?: SingleAssignment;
 }
 
 export async function fetchMeetingAssignmentClient(weekId: string, congregationId: string): Promise<MeetingAssignment | null> {

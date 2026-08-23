@@ -70,9 +70,11 @@ export function AssignmentRowEditor({
 
     (activeAssignment.treasuresAux || []).forEach(collectAux);
     (activeAssignment.fieldMinistryAux || []).forEach(collectAux);
+
   }
 
   const isVideoOrAnalisis = partType === 'video' || partType === 'analisis';
+  const isEstudioBiblicoLector = partType === 'estudio_biblico_congregacion';
 
   return (
     <div className="flex flex-wrap items-center gap-3">
@@ -97,6 +99,11 @@ export function AssignmentRowEditor({
               }
 
               // 2. Privilege & school participation filters
+              if (section === 'president' || section === 'auxCounselor' || section === 'prayerFirst' || section === 'prayerLast') {
+                if (!((b.gender === 'M' && (b.privilege === 'anciano' || b.privilege === 'siervo_ministerial')) || b.id === singleAssignment?.assignedTo)) {
+                  return false;
+                }
+              }
               if (section === 'fieldMinistry' || section === 'fieldMinistryAux') {
                 if (b.participatesInSchool === false && b.id !== singleAssignment?.assignedTo) {
                   return false;
@@ -126,7 +133,7 @@ export function AssignmentRowEditor({
               }
 
               // 3. Same-week main/aux hall validation
-              if (b.id !== singleAssignment?.assignedTo) {
+              if (b.id !== singleAssignment?.assignedTo && section !== 'prayerFirst' && section !== 'prayerLast' && section !== 'auxCounselor' && section !== 'president') {
                 const isAux = section === 'treasuresAux' || section === 'fieldMinistryAux';
                 if (isAux) {
                   if (assignedIdsInMain.includes(b.id)) {
@@ -140,7 +147,7 @@ export function AssignmentRowEditor({
               }
 
               // 3b. Same-week duplicate assignee exclusion (already assigned this week, either hall)
-              if (b.id !== singleAssignment?.assignedTo) {
+              if (b.id !== singleAssignment?.assignedTo && section !== 'prayerFirst' && section !== 'prayerLast' && section !== 'auxCounselor' && section !== 'president') {
                 if (allAssignedToIds.includes(b.id)) {
                   return false;
                 }
@@ -204,14 +211,14 @@ export function AssignmentRowEditor({
                 }
                 if (section === 'christianLife') {
                   if (partType === 'estudio_biblico_congregacion') {
-                    if (!((b.gender === 'M' && (b.privilege === 'anciano' || b.privilege === 'siervo_ministerial' || b.privilege === 'publicador')) || b.id === singleAssignment?.assistant)) {
+                    if (!(b.gender === 'M' || b.id === singleAssignment?.assistant)) {
                       return false;
                     }
                   }
                 }
 
                 // Same-week main/aux hall validation for assistant
-                if (!isVideoOrAnalisis && b.id !== singleAssignment?.assistant) {
+                if (!isVideoOrAnalisis && !isEstudioBiblicoLector && b.id !== singleAssignment?.assistant) {
                   const isAux = section === 'treasuresAux' || section === 'fieldMinistryAux';
                   if (isAux) {
                     if (assignedIdsInMain.includes(b.id)) {
@@ -225,7 +232,7 @@ export function AssignmentRowEditor({
                 }
 
                 // Last 15 days filter for assistant
-                if (!isVideoOrAnalisis && recentHelperIds && recentHelperIds.length > 0 && b.id !== singleAssignment?.assistant) {
+                if (!isVideoOrAnalisis && !isEstudioBiblicoLector && recentHelperIds && recentHelperIds.length > 0 && b.id !== singleAssignment?.assistant) {
                   const isSchoolSection = section === 'fieldMinistry' || section === 'fieldMinistryAux';
                   if (isSchoolSection && recentHelperIds.includes(b.id)) {
                     return false;
@@ -233,21 +240,21 @@ export function AssignmentRowEditor({
                 }
 
                 // Same-week duplicate assistant exclusion (already assistant this week, either hall)
-                if (!isVideoOrAnalisis && b.id !== singleAssignment?.assistant) {
+                if (!isVideoOrAnalisis && !isEstudioBiblicoLector && b.id !== singleAssignment?.assistant) {
                   if (allAssistantIds.includes(b.id)) {
                     return false;
                   }
                 }
 
                 // Same-week assignee cannot be assistant (already assigned this week, either hall)
-                if (!isVideoOrAnalisis && b.id !== singleAssignment?.assistant) {
+                if (!isVideoOrAnalisis && !isEstudioBiblicoLector && b.id !== singleAssignment?.assistant) {
                   if (allAssignedToIds.includes(b.id)) {
                     return false;
                   }
                 }
 
                 // Last week assignee filter (if they were main assignee last week, they cannot be assistant this week)
-                if (!isVideoOrAnalisis && lastWeekAssigneeIds && lastWeekAssigneeIds.length > 0 && b.id !== singleAssignment?.assistant) {
+                if (!isVideoOrAnalisis && !isEstudioBiblicoLector && lastWeekAssigneeIds && lastWeekAssigneeIds.length > 0 && b.id !== singleAssignment?.assistant) {
                   if (lastWeekAssigneeIds.includes(b.id)) {
                     return false;
                   }

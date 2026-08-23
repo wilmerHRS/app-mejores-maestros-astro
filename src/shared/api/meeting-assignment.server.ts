@@ -37,6 +37,36 @@ function toFirestoreAssignments(assignments: SingleAssignment[]): any {
   };
 }
 
+function mapFirestoreSingleAssignment(fieldValue: any): SingleAssignment | undefined {
+  if (!fieldValue || !fieldValue.mapValue || !fieldValue.mapValue.fields) {
+    return undefined;
+  }
+  const fields = fieldValue.mapValue.fields;
+  return {
+    assignedTo: fields.assignedTo?.stringValue || "",
+    assistant: fields.assistant?.stringValue || "",
+    status: fields.status?.stringValue || "",
+    imageUrl: fields.imageUrl?.stringValue || "",
+    whatsappSentAt: fields.whatsappSentAt?.stringValue || "",
+    whatsappMessageSid: fields.whatsappMessageSid?.stringValue || ""
+  };
+}
+
+function toFirestoreSingleAssignment(a: SingleAssignment | undefined): any {
+  return {
+    mapValue: {
+      fields: {
+        assignedTo: { stringValue: a?.assignedTo || "" },
+        assistant: { stringValue: a?.assistant || "" },
+        status: { stringValue: a?.status || "Pendiente" },
+        imageUrl: { stringValue: a?.imageUrl || "" },
+        whatsappSentAt: { stringValue: a?.whatsappSentAt || "" },
+        whatsappMessageSid: { stringValue: a?.whatsappMessageSid || "" }
+      }
+    }
+  };
+}
+
 export async function getMeetingAssignment(weekId: string, congregationId: string): Promise<MeetingAssignment | null> {
   const serviceAccount = getServiceAccount();
   const accessToken = await getAccessToken(serviceAccount);
@@ -70,7 +100,11 @@ export async function getMeetingAssignment(weekId: string, congregationId: strin
     treasuresAux: mapFirestoreAssignments(fields.treasuresAux),
     fieldMinistry: mapFirestoreAssignments(fields.fieldMinistry),
     fieldMinistryAux: mapFirestoreAssignments(fields.fieldMinistryAux),
-    christianLife: mapFirestoreAssignments(fields.christianLife)
+    christianLife: mapFirestoreAssignments(fields.christianLife),
+    president: mapFirestoreSingleAssignment(fields.president),
+    auxCounselor: mapFirestoreSingleAssignment(fields.auxCounselor),
+    prayerFirst: mapFirestoreSingleAssignment(fields.prayerFirst),
+    prayerLast: mapFirestoreSingleAssignment(fields.prayerLast)
   };
 }
 
@@ -90,13 +124,17 @@ export async function saveMeetingAssignment(data: MeetingAssignment): Promise<vo
       fieldMinistry: toFirestoreAssignments(data.fieldMinistry || []),
       fieldMinistryAux: toFirestoreAssignments(data.fieldMinistryAux || []),
       christianLife: toFirestoreAssignments(data.christianLife || []),
+      president: toFirestoreSingleAssignment(data.president),
+      auxCounselor: toFirestoreSingleAssignment(data.auxCounselor),
+      prayerFirst: toFirestoreSingleAssignment(data.prayerFirst),
+      prayerLast: toFirestoreSingleAssignment(data.prayerLast),
       updatedAt: { timestampValue: new Date().toISOString() }
     }
   };
 
   // We use PATCH to upsert the document.
   // The updateMask specifies which fields to overwrite. If the document doesn't exist, it creates it.
-  const updateMaskQuery = "updateMask.fieldPaths=weekId&updateMask.fieldPaths=congregationId&updateMask.fieldPaths=treasures&updateMask.fieldPaths=treasuresAux&updateMask.fieldPaths=fieldMinistry&updateMask.fieldPaths=fieldMinistryAux&updateMask.fieldPaths=christianLife&updateMask.fieldPaths=updatedAt";
+  const updateMaskQuery = "updateMask.fieldPaths=weekId&updateMask.fieldPaths=congregationId&updateMask.fieldPaths=treasures&updateMask.fieldPaths=treasuresAux&updateMask.fieldPaths=fieldMinistry&updateMask.fieldPaths=fieldMinistryAux&updateMask.fieldPaths=christianLife&updateMask.fieldPaths=president&updateMask.fieldPaths=auxCounselor&updateMask.fieldPaths=prayerFirst&updateMask.fieldPaths=prayerLast&updateMask.fieldPaths=updatedAt";
   const patchUrl = `${url}?${updateMaskQuery}`;
 
   const res = await fetch(patchUrl, {

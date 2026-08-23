@@ -1,6 +1,6 @@
 import type { Brother, SingleAssignment } from '@/shared/api';
 
-export type AssignmentSection = 'treasures' | 'treasuresAux' | 'fieldMinistry' | 'fieldMinistryAux' | 'christianLife';
+export type AssignmentSection = 'treasures' | 'treasuresAux' | 'fieldMinistry' | 'fieldMinistryAux' | 'christianLife' | 'president' | 'auxCounselor' | 'prayerFirst' | 'prayerLast';
 
 export function getPartTypeLabel(type?: string, section?: string): string {
   if (!type) return 'Parte';

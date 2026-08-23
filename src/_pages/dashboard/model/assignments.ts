@@ -97,7 +97,11 @@ export function getAssignedCount(week: ActivityGuideWeek, assignment: MeetingAss
     ...getReadingAssignments(week, assignment),
     ...(assignment.fieldMinistry || []),
     ...(assignment.fieldMinistryAux || []),
-  ].filter((item) => item.assignedTo).length;
+    assignment.president,
+    assignment.auxCounselor,
+    assignment.prayerFirst,
+    assignment.prayerLast
+  ].filter((item) => item && item.assignedTo).length;
 }
 
 export function getTotalAssignmentCount(week: ActivityGuideWeek): number {
