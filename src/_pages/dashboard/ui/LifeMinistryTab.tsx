@@ -166,7 +166,6 @@ export function LifeMinistryTab({
                         lastWeekHelperIds={lastWeekHelperIds}
                         lastWeekAssigneeIds={lastWeekAssigneeIds}
                         activeAssignment={activeAssignment}
-                        flat={true}
                       />
 
                       {/* Aux Counselor */}
@@ -184,7 +183,6 @@ export function LifeMinistryTab({
                           lastWeekHelperIds={lastWeekHelperIds}
                           lastWeekAssigneeIds={lastWeekAssigneeIds}
                           activeAssignment={activeAssignment}
-                          flat={true}
                         />
                       )}
 
@@ -211,7 +209,6 @@ export function LifeMinistryTab({
                         lastWeekHelperIds={lastWeekHelperIds}
                         lastWeekAssigneeIds={lastWeekAssigneeIds}
                         activeAssignment={activeAssignment}
-                        flat={true}
                       />
 
                       {/* Intro Duration */}
@@ -341,7 +338,6 @@ export function LifeMinistryTab({
                         lastWeekHelperIds={lastWeekHelperIds}
                         lastWeekAssigneeIds={lastWeekAssigneeIds}
                         activeAssignment={activeAssignment}
-                        flat={true}
                       />
                     </div>
                   </div>
