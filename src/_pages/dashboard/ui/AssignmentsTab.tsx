@@ -30,6 +30,7 @@ export function AssignmentsTab({ congregationId, meetingDay = 5 }: { congregatio
     fetch('/api/meeting-assignment/whatsapp-config').then((response) => response.ok ? response.json() : { testMode: false }).then((config) => setWhatsappTestMode(!!(config as { testMode?: boolean }).testMode)).catch(() => setWhatsappTestMode(false));
   }, []);
 
+  const exportGuides = useMemo(() => guides.map(({ guide }) => guide), [guides]);
   const visibleWeeks = useMemo(() => guides.flatMap(({ guide, weeks }) => weeks.map((data) => ({ ...data, guideTitle: guide.title, guideId: guide.id }))), [guides]);
   const availableWeeks = useMemo(() => visibleWeeks.filter(({ guideId }) => guideFilter === 'all' || guideId === guideFilter), [visibleWeeks, guideFilter]);
   const filteredWeeks = availableWeeks.filter(({ week }) => weekFilter === 'all' || week.id === weekFilter);
@@ -73,7 +74,7 @@ export function AssignmentsTab({ congregationId, meetingDay = 5 }: { congregatio
     <PageHeader assignmentCount={filteredAssignments.length} onExport={() => setIsExportModalOpen(true)} onExportWeeks={() => setIsWeeksExportOpen(true)} disableWeeksExport={!legacyExportGuide} />
     <Filters guides={guides} weeks={availableWeeks} guideFilter={guideFilter} weekFilter={weekFilter} searchTerm={searchTerm} onSearchChange={setSearchTerm} onGuideChange={(value) => { setGuideFilter(value); setWeekFilter('all'); }} onWeekChange={setWeekFilter} />
     {!filteredAssignments.length ? <EmptyState /> : <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">{filteredAssignments.map((printable) => <AssignmentCard key={printable.id} assignment={printable} whatsappTestMode={whatsappTestMode} onDownload={() => downloadAssignmentSheet(printable)} onSendWhatsApp={async () => { await sendMeetingAssignmentWhatsAppClient(printable); }} onShareWhatsApp={() => shareAssignmentOnWhatsApp(printable)} onShareReminder={() => shareAssignmentReminderOnWhatsApp(printable)} />)}</div>}
-    {isWeeksExportOpen && legacyExportGuide && <ExportPdfModal guide={legacyExportGuide} weeks={legacyExportWeeks} congregationId={congregationId} brothers={brothers} onClose={() => setIsWeeksExportOpen(false)} />}
+    {isWeeksExportOpen && legacyExportGuide && <ExportPdfModal guide={legacyExportGuide} guides={exportGuides} weeks={legacyExportWeeks} congregationId={congregationId} brothers={brothers} onClose={() => setIsWeeksExportOpen(false)} />}
     {isExportModalOpen && <AssignmentExportModal weeks={visibleWeeks as AssignmentWeekOption[]} onClose={() => setIsExportModalOpen(false)} onExport={(selectedWeeks) => { void exportPdf(selectedWeeks.map(({ week }) => week.id)); }} />}
     {isExportingPdf && <ProcessingOverlay assignmentCount={exportingAssignmentCount} />}
   </div>;

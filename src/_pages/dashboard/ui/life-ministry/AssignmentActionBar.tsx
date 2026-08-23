@@ -32,9 +32,9 @@ export function AssignmentActionBar({
         {onExportPdf && (
           <button
             onClick={onExportPdf}
-            className="px-5 py-2.5 text-xs font-extrabold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-xl transition-all shadow-sm cursor-pointer flex items-center gap-1.5 whitespace-nowrap"
+            className="px-5 py-2.5 text-xs font-extrabold text-rose-700 bg-rose-50/40 border border-rose-200/50 hover:bg-rose-50 rounded-xl transition-all shadow-sm cursor-pointer flex items-center gap-1.5 whitespace-nowrap"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="rose" className="w-3.5 h-3.5 text-rose-500">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor" className="w-3.5 h-3.5 text-rose-600">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6.72 19.164l-.209.214a1.5 1.5 0 00-1.06 1.06l-.209.214m0 0L3.18 18.59m0 0l2.062-2.062M17.28 4.836l.209-.214a1.5 1.5 0 001.06-1.06l.209-.214m0 0L20.82 5.41m0 0l-2.062 2.062M3 12v3.75A2.25 2.25 0 005.25 18H18.75A2.25 2.25 0 0021 15.75V12m-18 0v-3.75A2.25 2.25 0 005.25 6h13.5A2.25 2.25 0 0021 8.25V12m-18 0h18" />
             </svg>
             <span>Exportar PDF</span>

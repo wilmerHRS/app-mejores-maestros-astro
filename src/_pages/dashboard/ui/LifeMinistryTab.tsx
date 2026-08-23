@@ -351,6 +351,7 @@ export function LifeMinistryTab({
       {isExportModalOpen && selectedGuide && (
         <ExportPdfModal
           guide={selectedGuide}
+          guides={guides}
           weeks={weeks}
           congregationId={congregationId}
           brothers={brothers}

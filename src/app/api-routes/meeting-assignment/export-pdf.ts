@@ -27,7 +27,7 @@ export const exportMeetingAssignmentsPdfHandler: APIRoute = async ({ request, co
       const pdfPage = await browser.newPage();
       await pdfPage.setContent(createPdfHtml(images), { waitUntil: 'networkidle0' });
       const pdf = await pdfPage.pdf({ format: 'A4', landscape: true, printBackground: true, margin: { top: '0mm', right: '0mm', bottom: '0mm', left: '0mm' } });
-      return new Response(pdf, { headers: { 'Content-Type': 'application/pdf', 'Content-Disposition': 'attachment; filename="asignaciones-vida-y-ministerio.pdf"' } });
+      return new Response(new Uint8Array(pdf), { headers: { 'Content-Type': 'application/pdf', 'Content-Disposition': 'attachment; filename="asignaciones-vida-y-ministerio.pdf"' } });
     } finally {
       await browser.close();
     }

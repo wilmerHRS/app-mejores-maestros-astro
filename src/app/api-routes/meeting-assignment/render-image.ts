@@ -49,7 +49,7 @@ export const renderMeetingAssignmentImageHandler: APIRoute = async ({ request, c
       const image = await page.screenshot({ type: 'png' });
       await env.ASSIGNMENT_IMAGES.put(objectKey, image, { httpMetadata: { contentType: 'image/png', cacheControl: 'public, max-age=31536000, immutable' } });
       await saveImageUrl(meetingAssignment, assignment, publicUrl);
-      return new Response(image, { headers: { 'Content-Type': 'image/png', 'X-Assignment-Image-Url': publicUrl, 'Cache-Control': 'no-store' } });
+      return new Response(new Uint8Array(image), { headers: { 'Content-Type': 'image/png', 'X-Assignment-Image-Url': publicUrl, 'Cache-Control': 'no-store' } });
     } finally {
       await browser.close();
     }
