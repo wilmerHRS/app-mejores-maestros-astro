@@ -97,8 +97,14 @@ function buildWeekAssignments(week: ActivityGuideWeek, assignment: MeetingAssign
   };
   readingParts.forEach((part, index) => add(part, assignment.treasures?.[readingIndexes[index]], 'treasures', readingIndexes[index], index + 1, 'Sala principal'));
   readingParts.forEach((part, index) => add(part, assignment.treasuresAux?.[readingIndexes[index]], 'treasuresAux', readingIndexes[index], index + 1, 'Sala auxiliar núm. 1'));
-  (week.fieldMinistry || []).forEach((part, index) => add(part, assignment.fieldMinistry?.[index], 'fieldMinistry', index, index + 2, 'Sala principal'));
-  (week.fieldMinistry || []).forEach((part, index) => add(part, assignment.fieldMinistryAux?.[index], 'fieldMinistryAux', index, index + 2, 'Sala auxiliar núm. 1'));
+  (week.fieldMinistry || []).forEach((part, index) => {
+    if (part.type === 'analisis') return;
+    add(part, assignment.fieldMinistry?.[index], 'fieldMinistry', index, index + 2, 'Sala principal');
+  });
+  (week.fieldMinistry || []).forEach((part, index) => {
+    if (part.type === 'analisis') return;
+    add(part, assignment.fieldMinistryAux?.[index], 'fieldMinistryAux', index, index + 2, 'Sala auxiliar núm. 1');
+  });
   return result;
 }
 
