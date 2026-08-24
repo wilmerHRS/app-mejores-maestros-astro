@@ -1,9 +1,10 @@
 import puppeteer from '@cloudflare/puppeteer';
 import { env } from 'cloudflare:workers';
 import type { APIRoute } from 'astro';
-import { getBrothersByCongregation, getCongregationById, getMeetingAssignment, getWeeksByCongregation, saveMeetingAssignment, verifyFirebaseSessionCookie } from '@/shared/api/index.server';
+import { saveMeetingAssignment, verifyFirebaseSessionCookie } from '@/shared/api/index.server';
 import type { ActivityGuideWeek, Brother, MeetingAssignment, MeetingPart, SingleAssignment } from '@/shared/api';
 import { createAssignmentHtml, type AssignmentImageData } from './render-image';
+import { getBrotherName, getMeetingDate } from './lib/export-helpers';
 
 interface ExportAssignment extends AssignmentImageData {
   id: string;
@@ -104,16 +105,6 @@ function buildWeekAssignments(week: ActivityGuideWeek, assignment: MeetingAssign
   return result;
 }
 
-function getBrotherName(id: string | undefined, brothers: Brother[]): string {
-  const brother = brothers.find((item) => item.id === id);
-  return brother ? `${brother.names} ${brother.paternalLastname}` : '';
-}
-
-function getMeetingDate(week: ActivityGuideWeek, meetingDay: number): string {
-  const date = new Date(`${week.startDate}T00:00:00`);
-  date.setDate(date.getDate() + ((meetingDay - date.getDay() + 7) % 7));
-  return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
-}
 
 function updateAssignmentImageUrl(meetingAssignment: MeetingAssignment, assignment: ExportAssignment, imageUrl: string): void {
   const list = [...(meetingAssignment[assignment.section] || [])];

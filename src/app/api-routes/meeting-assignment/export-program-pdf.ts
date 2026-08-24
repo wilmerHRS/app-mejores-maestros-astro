@@ -1,8 +1,9 @@
 import puppeteer from '@cloudflare/puppeteer';
 import { env } from 'cloudflare:workers';
 import type { APIRoute } from 'astro';
-import { getBrothersByCongregation, getCongregationById, getMeetingAssignment, getWeeksByCongregation, verifyFirebaseSessionCookie } from '@/shared/api/index.server';
+import { verifyFirebaseSessionCookie } from '@/shared/api/index.server';
 import type { ActivityGuideWeek, Brother, MeetingAssignment, MeetingPart, SingleAssignment } from '@/shared/api';
+import { getBrotherName, getMeetingDate, parseDuration, formatTime, getExportData } from './lib/export-helpers';
 
 export const exportMeetingProgramPdfHandler: APIRoute = async ({ request, cookies }) => {
   try {
@@ -57,12 +58,6 @@ interface WeekData {
   assignment: MeetingAssignment | null;
 }
 
-function getMeetingDate(week: ActivityGuideWeek, meetingDay: number): string {
-  const date = new Date(`${week.startDate}T00:00:00`);
-  date.setDate(date.getDate() + ((meetingDay - date.getDay() + 7) % 7));
-  return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
-}
-
 function getPartNameText(partText: string, partNumber: number, duration: string): string {
   const trimmed = partText.trim();
   if (/^\d+\.?\s*/.test(trimmed)) {
@@ -74,53 +69,6 @@ function getPartNameText(partText: string, partNumber: number, duration: string)
   return `${partNumber}. ${trimmed} (${duration})`;
 }
 
-async function getExportData(
-  congregationId: string,
-  weekIds: string[],
-  fallbackCongregationName?: string
-): Promise<{
-  weeks: ActivityGuideWeek[];
-  assignments: Map<string, MeetingAssignment>;
-  brothers: Brother[];
-  congregationName: string;
-  meetingDay: number;
-}> {
-  const [allWeeks, brothers, congregation] = await Promise.all([
-    getWeeksByCongregation(congregationId),
-    getBrothersByCongregation(congregationId),
-    getCongregationById(congregationId)
-  ]);
-
-  const congregationName = fallbackCongregationName || congregation?.name || 'Congregación';
-  const meetingDay = congregation?.meetingDay ?? 5;
-  
-  const selectedWeeks = allWeeks
-    .filter((w) => weekIds.includes(w.id))
-    .sort((a, b) => a.startDate.localeCompare(b.startDate));
-
-  const assignments = new Map<string, MeetingAssignment>();
-  for (const week of selectedWeeks) {
-    const meetingAssignment = await getMeetingAssignment(week.id, congregationId);
-    if (meetingAssignment) {
-      assignments.set(week.id, meetingAssignment);
-    }
-  }
-
-  return {
-    weeks: selectedWeeks,
-    assignments,
-    brothers,
-    congregationName,
-    meetingDay
-  };
-}
-
-function getBrotherName(id: string | undefined, brothers: Brother[]): string {
-  if (!id) return '';
-  const brother = brothers.find((b) => b.id === id);
-  return brother ? `${brother.names} ${brother.paternalLastname}` : '';
-}
-
 function getAssigneeText(
   assign: SingleAssignment | undefined,
   requiresAssistant: boolean,
@@ -129,19 +77,7 @@ function getAssigneeText(
   if (!assign?.assignedTo) return '';
   const stud = getBrotherName(assign.assignedTo, brothers);
   const assist = requiresAssistant && assign.assistant ? getBrotherName(assign.assistant, brothers) : '';
-  return assist ? `${stud} / ${assist}` : stud;
-}
-
-function parseDuration(durationStr: string | undefined, defaultVal: number): number {
-  if (!durationStr) return defaultVal;
-  const match = durationStr.match(/(\d+)/);
-  return match ? parseInt(match[1], 10) : defaultVal;
-}
-
-function formatTime(totalMinutes: number): string {
-  const hour = Math.floor(totalMinutes / 60) % 12 || 12;
-  const minute = String(totalMinutes % 60).padStart(2, '0');
-  return `${hour}:${minute}`;
+  return assist ? `<strong>${stud}</strong> / ${assist}` : `<strong>${stud}</strong>`;
 }
 
 interface CalculatedPart {
@@ -377,10 +313,7 @@ function calculateWeekParts(
 }
 
 function partRequiresAssistant(type: string): boolean {
-  return type === 'primera_conversacion'
-    || type === 'revision'
-    || type === 'curso_biblico'
-    || type === 'explicacion_creencias';
+  return type ? !['discurso', 'analisis', 'video', 'explique_creencias_discurso'].includes(type) : true;
 }
 
 function createProgramPdfHtml(
@@ -440,6 +373,9 @@ function createProgramPdfHtml(
     <html>
       <head>
         <meta charset="utf-8" />
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
         <style>
           @page {
             size: A4 portrait;
@@ -449,7 +385,7 @@ function createProgramPdfHtml(
             box-sizing: border-box;
           }
           body {
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: 'Plus Jakarta Sans', 'Century Gothic', 'Calibri', Arial, sans-serif;
             color: #000;
             margin: 0;
             padding: 0;
@@ -463,6 +399,7 @@ function createProgramPdfHtml(
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
+            gap: 16px;
             page-break-after: always;
             box-sizing: border-box;
             overflow: hidden;
@@ -475,9 +412,8 @@ function createProgramPdfHtml(
             display: flex;
             justify-content: space-between;
             align-items: baseline;
-            border-bottom: 2px solid #000;
+            border-bottom: 2px solid #cbd5e1;
             padding-bottom: 2px;
-            margin-bottom: 6px;
             flex-shrink: 0;
           }
           .page-header-title {
@@ -494,23 +430,18 @@ function createProgramPdfHtml(
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
-            margin-bottom: 12px;
             flex-shrink: 0;
-          }
-          .week-container:last-of-type {
-            margin-bottom: 0;
           }
           .week-header {
-            background-color: #2b68a1;
+            width: 100%;
+            background-color: #2e74b5;
             color: white;
             font-weight: bold;
-            font-size: 12px;
-            padding: 6px 10px;
-            border-radius: 4px 4px 0 0;
+            font-size: 14px;
+            padding: 4px 6px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
             flex-shrink: 0;
-            border: 1px solid #2b68a1;
+            border: 1px solid #2e74b5;
           }
           table {
             width: 100%;
