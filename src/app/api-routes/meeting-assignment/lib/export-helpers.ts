@@ -1,4 +1,4 @@
-import { getBrothersByCongregation, getCongregationById, getMeetingAssignment, getWeeksByCongregation } from '@/shared/api/index.server';
+import { getBrothersByCongregation, getCongregationById, getMeetingAssignment, getActivityGuideWeek } from '@/shared/api/index.server';
 import type { ActivityGuideWeek, Brother, MeetingAssignment, SingleAssignment } from '@/shared/api';
 
 export function getBrotherName(id: string | undefined, brothers: Brother[]): string {
@@ -36,8 +36,8 @@ export async function getExportData(
   congregationName: string;
   meetingDay: number;
 }> {
-  const [allWeeks, brothers, congregation] = await Promise.all([
-    getWeeksByCongregation(congregationId),
+  const [weeks, brothers, congregation] = await Promise.all([
+    Promise.all(weekIds.map((id) => getActivityGuideWeek(id))),
     getBrothersByCongregation(congregationId),
     getCongregationById(congregationId)
   ]);
@@ -45,9 +45,7 @@ export async function getExportData(
   const congregationName = fallbackCongregationName || congregation?.name || 'Congregación';
   const meetingDay = congregation?.meetingDay ?? 5;
   
-  const selectedWeeks = allWeeks
-    .filter((w) => weekIds.includes(w.id))
-    .sort((a, b) => a.startDate.localeCompare(b.startDate));
+  const selectedWeeks = [...weeks].sort((a, b) => a.startDate.localeCompare(b.startDate));
 
   const assignments = new Map<string, MeetingAssignment>();
   for (const week of selectedWeeks) {
