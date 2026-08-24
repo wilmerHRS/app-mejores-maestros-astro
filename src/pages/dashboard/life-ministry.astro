@@ -13,5 +13,7 @@ const { profile, congregation, userEmail, currentWeek } = await getDashboardData
     initialGuideId={currentWeek?.guideId}
     initialWeekId={currentWeek?.id}
     hasAuxiliaryRoom={congregation?.hasAuxiliaryRoom}
+    allowMinorsAsAssistants={congregation?.allowMinorsAsAssistants}
+    allowSameWeekRepetition={congregation?.allowSameWeekRepetition}
   />
 </DashboardLayout>

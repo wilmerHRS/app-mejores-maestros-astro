@@ -17,13 +17,17 @@ interface LifeMinistryTabProps {
   initialGuideId?: string;
   initialWeekId?: string;
   hasAuxiliaryRoom?: boolean;
+  allowMinorsAsAssistants?: boolean;
+  allowSameWeekRepetition?: boolean;
 }
 
 export function LifeMinistryTab({
   congregationId,
   initialGuideId,
   initialWeekId,
-  hasAuxiliaryRoom: hasAuxiliaryRoomProp
+  hasAuxiliaryRoom: hasAuxiliaryRoomProp,
+  allowMinorsAsAssistants = false,
+  allowSameWeekRepetition = false
 }: LifeMinistryTabProps) {
   const hasAuxiliaryRoom = hasAuxiliaryRoomProp !== false;
   const {
@@ -166,6 +170,8 @@ export function LifeMinistryTab({
                         lastWeekHelperIds={lastWeekHelperIds}
                         lastWeekAssigneeIds={lastWeekAssigneeIds}
                         activeAssignment={activeAssignment}
+                        allowMinorsAsAssistants={allowMinorsAsAssistants}
+                        allowSameWeekRepetition={allowSameWeekRepetition}
                       />
 
                       {/* Aux Counselor */}
@@ -183,6 +189,8 @@ export function LifeMinistryTab({
                           lastWeekHelperIds={lastWeekHelperIds}
                           lastWeekAssigneeIds={lastWeekAssigneeIds}
                           activeAssignment={activeAssignment}
+                          allowMinorsAsAssistants={allowMinorsAsAssistants}
+                          allowSameWeekRepetition={allowSameWeekRepetition}
                         />
                       )}
 
@@ -209,6 +217,8 @@ export function LifeMinistryTab({
                         lastWeekHelperIds={lastWeekHelperIds}
                         lastWeekAssigneeIds={lastWeekAssigneeIds}
                         activeAssignment={activeAssignment}
+                        allowMinorsAsAssistants={allowMinorsAsAssistants}
+                        allowSameWeekRepetition={allowSameWeekRepetition}
                       />
 
                       {/* Intro Duration */}
@@ -240,6 +250,8 @@ export function LifeMinistryTab({
                         lastWeekAssigneeIds={lastWeekAssigneeIds}
                         activeAssignment={activeAssignment}
                         hasAuxiliaryRoom={hasAuxiliaryRoom}
+                        allowMinorsAsAssistants={allowMinorsAsAssistants}
+                        allowSameWeekRepetition={allowSameWeekRepetition}
                       />
                     )}
 
@@ -265,6 +277,8 @@ export function LifeMinistryTab({
                         lastWeekAssigneeIds={lastWeekAssigneeIds}
                         activeAssignment={activeAssignment}
                         hasAuxiliaryRoom={hasAuxiliaryRoom}
+                        allowMinorsAsAssistants={allowMinorsAsAssistants}
+                        allowSameWeekRepetition={allowSameWeekRepetition}
                         headerRight={
                           hasAuxiliaryRoom ? (
                             <HallTabSelector
@@ -300,6 +314,8 @@ export function LifeMinistryTab({
                         lastWeekHelperIds={lastWeekHelperIds}
                         lastWeekAssigneeIds={lastWeekAssigneeIds}
                         activeAssignment={activeAssignment}
+                        allowMinorsAsAssistants={allowMinorsAsAssistants}
+                        allowSameWeekRepetition={allowSameWeekRepetition}
                       />
                     )}
 
@@ -338,6 +354,8 @@ export function LifeMinistryTab({
                         lastWeekHelperIds={lastWeekHelperIds}
                         lastWeekAssigneeIds={lastWeekAssigneeIds}
                         activeAssignment={activeAssignment}
+                        allowMinorsAsAssistants={allowMinorsAsAssistants}
+                        allowSameWeekRepetition={allowSameWeekRepetition}
                       />
                     </div>
                   </div>

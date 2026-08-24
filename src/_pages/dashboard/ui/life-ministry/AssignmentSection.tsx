@@ -28,6 +28,8 @@ interface AssignmentSectionProps {
   lastWeekAssigneeIds?: string[];
   activeAssignment?: MeetingAssignment | null;
   hasAuxiliaryRoom?: boolean;
+  allowMinorsAsAssistants?: boolean;
+  allowSameWeekRepetition?: boolean;
 }
 
 export function PartStatusIndicator({ singleAssignment }: { singleAssignment?: SingleAssignment }) {
@@ -82,7 +84,9 @@ export function AssignmentSection({
   lastWeekHelperIds,
   lastWeekAssigneeIds,
   activeAssignment,
-  hasAuxiliaryRoom = true
+  hasAuxiliaryRoom = true,
+  allowMinorsAsAssistants = false,
+  allowSameWeekRepetition = false
 }: AssignmentSectionProps) {
   const [activeTreasuresHall, setActiveTreasuresHall] = React.useState<'main' | 'aux'>('main');
 
@@ -155,6 +159,8 @@ export function AssignmentSection({
                     lastWeekHelperIds={lastWeekHelperIds}
                     lastWeekAssigneeIds={lastWeekAssigneeIds}
                     activeAssignment={activeAssignment}
+                    allowMinorsAsAssistants={allowMinorsAsAssistants}
+                    allowSameWeekRepetition={allowSameWeekRepetition}
                   />
                 ) : (
                   <AssignmentRowReadOnly

@@ -23,6 +23,8 @@ interface ProgramSingleAssignmentCardProps {
   lastWeekHelperIds?: string[];
   lastWeekAssigneeIds?: string[];
   activeAssignment?: MeetingAssignment | null;
+  allowMinorsAsAssistants?: boolean;
+  allowSameWeekRepetition?: boolean;
 }
 
 export function ProgramSingleAssignmentCard({
@@ -37,7 +39,9 @@ export function ProgramSingleAssignmentCard({
   recentHelperIds,
   lastWeekHelperIds,
   lastWeekAssigneeIds,
-  activeAssignment
+  activeAssignment,
+  allowMinorsAsAssistants = false,
+  allowSameWeekRepetition = false
 }: ProgramSingleAssignmentCardProps) {
   return (
     <div className="flex flex-col lg:flex-row lg:items-center justify-between border-b border-slate-100 last:border-0 pb-4 lg:pb-3 gap-3">
@@ -67,6 +71,8 @@ export function ProgramSingleAssignmentCard({
             lastWeekHelperIds={lastWeekHelperIds}
             lastWeekAssigneeIds={lastWeekAssigneeIds}
             activeAssignment={activeAssignment}
+            allowMinorsAsAssistants={allowMinorsAsAssistants}
+            allowSameWeekRepetition={allowSameWeekRepetition}
           />
         ) : (
           <AssignmentRowReadOnly

@@ -16,7 +16,7 @@ export function AssignmentWeekCard({ data, brothers, onExport, onWeeklyExport }:
   const assignedCount = getAssignedCount(week, assignment);
   const totalAssignments = getTotalAssignmentCount(week);
   const isCurrentWeek = week.startDate <= getTodayIsoDate() && week.endDate >= getTodayIsoDate();
-  const individualAssignments = getIndividualAssignments(week, assignment);
+  const individualAssignments = getIndividualAssignments(week, assignment, undefined, brothers, week.congregationId);
 
   return (
     <article className="bg-white/90 border border-slate-200/70 rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">

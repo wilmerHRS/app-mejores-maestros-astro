@@ -20,6 +20,8 @@ interface AssignmentRowEditorProps {
   lastWeekHelperIds?: string[];
   lastWeekAssigneeIds?: string[];
   activeAssignment?: MeetingAssignment | null;
+  allowMinorsAsAssistants?: boolean;
+  allowSameWeekRepetition?: boolean;
 }
 
 export function AssignmentRowEditor({
@@ -34,13 +36,37 @@ export function AssignmentRowEditor({
   recentHelperIds,
   lastWeekHelperIds,
   lastWeekAssigneeIds,
-  activeAssignment
+  activeAssignment,
+  allowMinorsAsAssistants = false,
+  allowSameWeekRepetition = false
 }: AssignmentRowEditorProps) {
   // Extract all assignee/assistant IDs assigned in Main Hall vs Auxiliary Hall for this week
   const assignedIdsInMain: string[] = [];
   const assignedIdsInAux: string[] = [];
   const allAssignedToIds: string[] = [];
   const allAssistantIds: string[] = [];
+
+  const isAssignedToStudentPartThisWeek = (brotherId: string): boolean => {
+    if (!activeAssignment) return false;
+    
+    // Check Bible reading (partType === 'lectura_biblia') in treasures / treasuresAux
+    const hasBibleReading = (activeAssignment.treasures || []).some(
+      t => t.assignedTo === brotherId && t.type === 'lectura_biblia'
+    ) || (activeAssignment.treasuresAux || []).some(
+      t => t.assignedTo === brotherId && t.type === 'lectura_biblia'
+    );
+    if (hasBibleReading) return true;
+
+    // Check school sections (fieldMinistry / fieldMinistryAux) that are NOT Análisis con el auditorio
+    const hasSchoolPart = (activeAssignment.fieldMinistry || []).some(
+      fm => fm.assignedTo === brotherId && fm.type !== 'analisis'
+    ) || (activeAssignment.fieldMinistryAux || []).some(
+      fm => fm.assignedTo === brotherId && fm.type !== 'analisis'
+    );
+    if (hasSchoolPart) return true;
+
+    return false;
+  };
 
   if (activeAssignment) {
     const collectMain = (sa: SingleAssignment | undefined) => {
@@ -147,20 +173,40 @@ export function AssignmentRowEditor({
               }
 
               // 3b. Same-week duplicate assignee exclusion (already assigned this week, either hall)
-              if (b.id !== singleAssignment?.assignedTo && section !== 'prayerFirst' && section !== 'prayerLast' && section !== 'auxCounselor' && section !== 'president') {
-                if (allAssignedToIds.includes(b.id)) {
-                  return false;
+              if (b.id !== singleAssignment?.assignedTo) {
+                const isBibleReading = partType === 'lectura_biblia';
+                const isSchoolSection = section === 'fieldMinistry' || section === 'fieldMinistryAux';
+                const isAuditoriumAnalysis = partType === 'analisis';
+                const isStudentPart = isBibleReading || (isSchoolSection && !isAuditoriumAnalysis);
+
+                const alwaysAllowed = section === 'prayerFirst' || section === 'prayerLast' || section === 'auxCounselor' || section === 'president';
+
+                if (allowSameWeekRepetition) {
+                  // If it is a student part, it cannot repeat or overlap with anything this week
+                  if (isStudentPart && allAssignedToIds.includes(b.id)) {
+                    return false;
+                  }
+                  // A brother already assigned to a student part cannot be assigned to another part this week
+                  if (isAssignedToStudentPartThisWeek(b.id)) {
+                    return false;
+                  }
+                } else {
+                  // Standard behavior: block if already assigned to another part this week, unless alwaysAllowed
+                  if (!alwaysAllowed && allAssignedToIds.includes(b.id)) {
+                    return false;
+                  }
                 }
               }
 
-              // 4. Last 30 days filter (only for Lectura de la Biblia and Seamos Mejores Maestros)
+              // 4. Last recent assignee days filter (only for Lectura de la Biblia and Seamos Mejores Maestros except Análisis con el auditorio)
               if (recentAssigneeIds && recentAssigneeIds.length > 0 && b.id !== singleAssignment?.assignedTo) {
                 const isBibleReading = partType === 'lectura_biblia';
                 const isSchoolSection = section === 'fieldMinistry' || section === 'fieldMinistryAux';
-                if (isBibleReading || isSchoolSection) {
-                  if (recentAssigneeIds.includes(b.id)) {
-                    return false;
-                  }
+                const isAuditoriumAnalysis = partType === 'analisis';
+                const shouldEnforceRecent = isBibleReading || (isSchoolSection && !isAuditoriumAnalysis);
+
+                if (shouldEnforceRecent && recentAssigneeIds.includes(b.id)) {
+                  return false;
                 }
               }
 
@@ -168,10 +214,11 @@ export function AssignmentRowEditor({
               if (lastWeekHelperIds && lastWeekHelperIds.length > 0 && b.id !== singleAssignment?.assignedTo) {
                 const isBibleReading = partType === 'lectura_biblia';
                 const isSchoolSection = section === 'fieldMinistry' || section === 'fieldMinistryAux';
-                if (isBibleReading || isSchoolSection) {
-                  if (lastWeekHelperIds.includes(b.id)) {
-                    return false;
-                  }
+                const isAuditoriumAnalysis = partType === 'analisis';
+                const shouldEnforceRecent = isBibleReading || (isSchoolSection && !isAuditoriumAnalysis);
+
+                if (shouldEnforceRecent && lastWeekHelperIds.includes(b.id)) {
+                  return false;
                 }
               }
 
@@ -205,7 +252,7 @@ export function AssignmentRowEditor({
                     return false;
                   }
                   // A minor cannot be a helper either
-                  if (b.ageGroup === 'minor' && b.id !== singleAssignment?.assistant) {
+                  if (b.ageGroup === 'minor' && b.id !== singleAssignment?.assistant && !allowMinorsAsAssistants) {
                     return false;
                   }
                 }
@@ -248,8 +295,14 @@ export function AssignmentRowEditor({
 
                 // Same-week assignee cannot be assistant (already assigned this week, either hall)
                 if (!isVideoOrAnalisis && !isEstudioBiblicoLector && b.id !== singleAssignment?.assistant) {
-                  if (allAssignedToIds.includes(b.id)) {
-                    return false;
+                  if (allowSameWeekRepetition) {
+                    if (isAssignedToStudentPartThisWeek(b.id)) {
+                      return false;
+                    }
+                  } else {
+                    if (allAssignedToIds.includes(b.id)) {
+                      return false;
+                    }
                   }
                 }
 

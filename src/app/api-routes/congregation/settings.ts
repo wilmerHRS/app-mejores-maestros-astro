@@ -7,10 +7,15 @@ export const updateCongregationSettingsHandler: APIRoute = async ({ request, coo
     if (!session) return Response.json({ error: 'No autorizado' }, { status: 401 });
     await verifyFirebaseSessionCookie(session);
 
-    const { id, meetingDay, hasAuxiliaryRoom } = await request.json() as {
+    const { id, meetingDay, hasAuxiliaryRoom, assigneeRecentDays, assistantRecentDays, lastWeekHelperDays, allowMinorsAsAssistants, allowSameWeekRepetition } = await request.json() as {
       id?: string;
       meetingDay?: number;
       hasAuxiliaryRoom?: boolean;
+      assigneeRecentDays?: number;
+      assistantRecentDays?: number;
+      lastWeekHelperDays?: number;
+      allowMinorsAsAssistants?: boolean;
+      allowSameWeekRepetition?: boolean;
     };
 
     if (!id) {
@@ -26,6 +31,33 @@ export const updateCongregationSettingsHandler: APIRoute = async ({ request, coo
     }
     if (hasAuxiliaryRoom !== undefined) {
       updates.hasAuxiliaryRoom = hasAuxiliaryRoom;
+    }
+    if (assigneeRecentDays !== undefined) {
+      const parsed = Number(assigneeRecentDays);
+      if (isNaN(parsed) || parsed < 0) {
+        return Response.json({ error: 'El límite de días para asignado principal no es válido' }, { status: 400 });
+      }
+      updates.assigneeRecentDays = parsed;
+    }
+    if (assistantRecentDays !== undefined) {
+      const parsed = Number(assistantRecentDays);
+      if (isNaN(parsed) || parsed < 0) {
+        return Response.json({ error: 'El límite de días para ayudante no es válido' }, { status: 400 });
+      }
+      updates.assistantRecentDays = parsed;
+    }
+    if (lastWeekHelperDays !== undefined) {
+      const parsed = Number(lastWeekHelperDays);
+      if (isNaN(parsed) || parsed < 0) {
+        return Response.json({ error: 'El límite de días para descanso no es válido' }, { status: 400 });
+      }
+      updates.lastWeekHelperDays = parsed;
+    }
+    if (allowMinorsAsAssistants !== undefined) {
+      updates.allowMinorsAsAssistants = allowMinorsAsAssistants;
+    }
+    if (allowSameWeekRepetition !== undefined) {
+      updates.allowSameWeekRepetition = allowSameWeekRepetition;
     }
 
     await updateCongregation(id, updates);

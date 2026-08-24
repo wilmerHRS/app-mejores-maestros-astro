@@ -39,7 +39,7 @@ export function AssignmentsTab({ congregationId, meetingDay = 5 }: { congregatio
   const legacyExportWeeks = selectedGuide?.weeks
     .filter(({ week }) => weekFilter === 'all' || week.id === weekFilter)
     .map(({ week }) => week) || [];
-  const assignments = filteredWeeks.flatMap(({ week, assignment }) => getIndividualAssignments(week, assignment, meetingDay, brothers).map((item) => ({ ...item, name: getBrotherName(item.name, brothers), assistant: getBrotherName(item.assistant, brothers) })));
+  const assignments = filteredWeeks.flatMap(({ week, assignment }) => getIndividualAssignments(week, assignment, meetingDay, brothers, congregationId).map((item) => ({ ...item, name: getBrotherName(item.name, brothers), assistant: getBrotherName(item.assistant, brothers) })));
   const normalizedSearch = searchTerm.trim().toLocaleLowerCase();
   const filteredAssignments = assignments.filter((assignment) => !normalizedSearch || assignment.name.toLocaleLowerCase().includes(normalizedSearch) || assignment.assistant.toLocaleLowerCase().includes(normalizedSearch));
 

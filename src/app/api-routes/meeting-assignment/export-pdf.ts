@@ -82,18 +82,18 @@ async function getExportAssignments(congregationId: string, weekIds: string[]): 
   for (const week of weeks) {
     const meetingAssignment = assignmentsMap.get(week.id);
     if (!meetingAssignment) continue;
-    assignments.push(...buildWeekAssignments(week, meetingAssignment, brothers, meetingDay));
+    assignments.push(...buildWeekAssignments(week, meetingAssignment, brothers, meetingDay, congregationId));
   }
   return assignments;
 }
 
-function buildWeekAssignments(week: ActivityGuideWeek, assignment: MeetingAssignment, brothers: Brother[], meetingDay: number): ExportAssignment[] {
+function buildWeekAssignments(week: ActivityGuideWeek, assignment: MeetingAssignment, brothers: Brother[], meetingDay: number, congregationId: string): ExportAssignment[] {
   const result: ExportAssignment[] = [];
   const readingIndexes = (week.treasures || []).map((part, index) => part.type === 'lectura_biblia' ? index : -1).filter((index) => index >= 0);
   const readingParts = (week.treasures || []).filter((part) => part.type === 'lectura_biblia');
   const add = (part: MeetingPart, item: SingleAssignment | undefined, section: ExportAssignment['section'], index: number, interventionNumber: number, room: ExportAssignment['room']) => {
     if (!item?.assignedTo && !item?.assistant) return;
-    result.push({ id: `${week.id}-${section}-${index}`, name: getBrotherName(item.assignedTo, brothers), assistant: getBrotherName(item.assistant, brothers), date: getMeetingDate(week, meetingDay), room, part: part.part, duration: part.duration, congregationId: week.congregationId, weekId: week.id, section, index, meetingDay, interventionNumber: String(interventionNumber) });
+    result.push({ id: `${week.id}-${section}-${index}`, name: getBrotherName(item.assignedTo, brothers), assistant: getBrotherName(item.assistant, brothers), date: getMeetingDate(week, meetingDay), room, part: part.part, duration: part.duration, congregationId: congregationId, weekId: week.id, section, index, meetingDay, interventionNumber: String(interventionNumber) });
   };
   readingParts.forEach((part, index) => add(part, assignment.treasures?.[readingIndexes[index]], 'treasures', readingIndexes[index], index + 1, 'Sala principal'));
   readingParts.forEach((part, index) => add(part, assignment.treasuresAux?.[readingIndexes[index]], 'treasuresAux', readingIndexes[index], index + 1, 'Sala auxiliar núm. 1'));

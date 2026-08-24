@@ -7,11 +7,24 @@ export interface Congregation {
   zipCode: string;
   meetingDay?: number;
   hasAuxiliaryRoom?: boolean;
+  assigneeRecentDays?: number;
+  assistantRecentDays?: number;
+  lastWeekHelperDays?: number;
+  allowMinorsAsAssistants?: boolean;
+  allowSameWeekRepetition?: boolean;
 }
 
 export async function updateCongregationSettingsClient(
   id: string,
-  settings: { meetingDay?: number; hasAuxiliaryRoom?: boolean }
+  settings: {
+    meetingDay?: number;
+    hasAuxiliaryRoom?: boolean;
+    assigneeRecentDays?: number;
+    assistantRecentDays?: number;
+    lastWeekHelperDays?: number;
+    allowMinorsAsAssistants?: boolean;
+    allowSameWeekRepetition?: boolean;
+  }
 ): Promise<void> {
   const res = await fetch('/api/congregation/settings', {
     method: 'PATCH',

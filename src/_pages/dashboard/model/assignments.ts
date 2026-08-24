@@ -158,6 +158,7 @@ function createAssignment(
   section: IndividualAssignment['section'],
   meetingDay: number,
   brothers: Brother[],
+  congregationId?: string,
 ): IndividualAssignment | null {
   if (!assignment?.assignedTo && !assignment?.assistant) return null;
   return {
@@ -172,7 +173,7 @@ function createAssignment(
     duration: part.duration,
     weekTitle: week.title,
     weekId: week.id,
-    congregationId: week.congregationId,
+    congregationId: congregationId || week.congregationId,
     section,
     index: storageIndex,
     imageUrl: assignment.imageUrl,
@@ -189,6 +190,7 @@ export function getIndividualAssignments(
   assignment: MeetingAssignment | null,
   meetingDay = 5,
   brothers: Brother[] = [],
+  congregationId?: string,
 ): IndividualAssignment[] {
   const readingParts = (week.treasures || []).filter((part) => part.type === 'lectura_biblia');
   const fieldParts = week.fieldMinistry || [];
@@ -196,10 +198,10 @@ export function getIndividualAssignments(
     .map((part, index) => part.type === 'lectura_biblia' ? index : -1)
     .filter((index) => index >= 0);
   const cards = [
-    ...readingParts.map((part, index) => createAssignment(part, assignment?.treasures?.[readingIndexes[index]], readingIndexes[index], index + 1, 'Sala principal', week, 'treasures', meetingDay, brothers)),
-    ...readingParts.map((part, index) => createAssignment(part, assignment?.treasuresAux?.[readingIndexes[index]], readingIndexes[index], index + 1, 'Sala auxiliar núm. 1', week, 'treasuresAux', meetingDay, brothers)),
-    ...fieldParts.map((part, index) => createAssignment(part, assignment?.fieldMinistry?.[index], index, index + 2, 'Sala principal', week, 'fieldMinistry', meetingDay, brothers)),
-    ...fieldParts.map((part, index) => createAssignment(part, assignment?.fieldMinistryAux?.[index], index, index + 2, 'Sala auxiliar núm. 1', week, 'fieldMinistryAux', meetingDay, brothers)),
+    ...readingParts.map((part, index) => createAssignment(part, assignment?.treasures?.[readingIndexes[index]], readingIndexes[index], index + 1, 'Sala principal', week, 'treasures', meetingDay, brothers, congregationId)),
+    ...readingParts.map((part, index) => createAssignment(part, assignment?.treasuresAux?.[readingIndexes[index]], readingIndexes[index], index + 1, 'Sala auxiliar núm. 1', week, 'treasuresAux', meetingDay, brothers, congregationId)),
+    ...fieldParts.map((part, index) => createAssignment(part, assignment?.fieldMinistry?.[index], index, index + 2, 'Sala principal', week, 'fieldMinistry', meetingDay, brothers, congregationId)),
+    ...fieldParts.map((part, index) => createAssignment(part, assignment?.fieldMinistryAux?.[index], index, index + 2, 'Sala auxiliar núm. 1', week, 'fieldMinistryAux', meetingDay, brothers, congregationId)),
   ];
   return cards.filter((card): card is IndividualAssignment => card !== null);
 }

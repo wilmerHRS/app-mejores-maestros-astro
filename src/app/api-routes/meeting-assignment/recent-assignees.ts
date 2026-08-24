@@ -1,10 +1,5 @@
 import type { APIRoute } from "astro";
-import { getWeeksByCongregation, getMeetingAssignment, verifyFirebaseSessionCookie } from "@/shared/api/index.server";
-
-// Configuración de límites de días para asignaciones recientes
-const ASSIGNEE_RECENT_DAYS = 30; // Excluir si fue asignado principal hace menos de 30 días
-const ASSISTANT_RECENT_DAYS = 15; // Excluir si fue ayudante hace menos de 15 días
-const LAST_WEEK_HELPER_DAYS = 14; // Excluir si fue ayudante/asignado principal en las últimas 2 semanas (menos de 14 días)
+import { getWeeksByCongregation, getMeetingAssignment, verifyFirebaseSessionCookie, getCongregationById } from "@/shared/api/index.server";
 
 export const recentAssigneesHandler: APIRoute = async ({ cookies, url }) => {
   try {
@@ -37,8 +32,13 @@ export const recentAssigneesHandler: APIRoute = async ({ cookies, url }) => {
       });
     }
 
+    const congregation = await getCongregationById(congregationId);
+    const assigneeRecentDays = congregation?.assigneeRecentDays ?? 30;
+    const assistantRecentDays = congregation?.assistantRecentDays ?? 15;
+    const lastWeekHelperDays = congregation?.lastWeekHelperDays ?? 14;
+
     // Filter weeks within the maximum window of the configuration
-    const maxDaysWindow = Math.max(ASSIGNEE_RECENT_DAYS, ASSISTANT_RECENT_DAYS, LAST_WEEK_HELPER_DAYS);
+    const maxDaysWindow = Math.max(assigneeRecentDays, assistantRecentDays, lastWeekHelperDays);
     const targetTime = new Date(targetWeek.startDate).getTime();
     const matchingWeeks = allWeeks.filter((w) => {
       if (w.id === targetWeekId) return false;
@@ -62,20 +62,20 @@ export const recentAssigneesHandler: APIRoute = async ({ cookies, url }) => {
           if (assignment) {
             const processPart = (sa: any) => {
               if (sa?.assignedTo) {
-                if (diffDays <= ASSIGNEE_RECENT_DAYS) {
+                if (diffDays <= assigneeRecentDays) {
                   recentAssigneeIds.add(sa.assignedTo);
                 }
-                // Si le tocó la semana pasada asignación principal (0 < diffDays <= LAST_WEEK_HELPER_DAYS)
-                if (diffDays > 0 && diffDays <= LAST_WEEK_HELPER_DAYS) {
+                // Si le tocó la semana pasada asignación principal (0 < diffDays <= lastWeekHelperDays)
+                if (diffDays > 0 && diffDays <= lastWeekHelperDays) {
                   lastWeekAssigneeIds.add(sa.assignedTo);
                 }
               }
               if (sa?.assistant) {
-                if (diffDays <= ASSISTANT_RECENT_DAYS) {
+                if (diffDays <= assistantRecentDays) {
                   recentHelperIds.add(sa.assistant);
                 }
-                // Si le tocó la semana pasada de ayudante (0 < diffDays <= LAST_WEEK_HELPER_DAYS)
-                if (diffDays > 0 && diffDays <= LAST_WEEK_HELPER_DAYS) {
+                // Si le tocó la semana pasada de ayudante (0 < diffDays <= lastWeekHelperDays)
+                if (diffDays > 0 && diffDays <= lastWeekHelperDays) {
                   lastWeekHelperIds.add(sa.assistant);
                 }
               }

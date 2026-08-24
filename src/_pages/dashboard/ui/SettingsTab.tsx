@@ -14,6 +14,11 @@ const meetingDays = [
 export function SettingsTab({ congregation }: { congregation: Congregation | null }) {
   const [meetingDay, setMeetingDay] = useState(congregation?.meetingDay ?? 5);
   const [hasAuxiliaryRoom, setHasAuxiliaryRoom] = useState(congregation?.hasAuxiliaryRoom ?? false);
+  const [assigneeRecentDays, setAssigneeRecentDays] = useState(congregation?.assigneeRecentDays ?? 30);
+  const [assistantRecentDays, setAssistantRecentDays] = useState(congregation?.assistantRecentDays ?? 15);
+  const [lastWeekHelperDays, setLastWeekHelperDays] = useState(congregation?.lastWeekHelperDays ?? 14);
+  const [allowMinorsAsAssistants, setAllowMinorsAsAssistants] = useState(congregation?.allowMinorsAsAssistants ?? false);
+  const [allowSameWeekRepetition, setAllowSameWeekRepetition] = useState(congregation?.allowSameWeekRepetition ?? false);
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -24,9 +29,16 @@ export function SettingsTab({ congregation }: { congregation: Congregation | nul
     setMessage(null);
     setError(null);
     try {
-      await updateCongregationSettingsClient(congregation.id, { meetingDay, hasAuxiliaryRoom });
+      await updateCongregationSettingsClient(congregation.id, {
+        meetingDay,
+        hasAuxiliaryRoom,
+        assigneeRecentDays,
+        assistantRecentDays,
+        lastWeekHelperDays,
+        allowMinorsAsAssistants,
+        allowSameWeekRepetition
+      });
       setMessage('Configuración guardada correctamente.');
-      setTimeout(() => window.location.reload(), 500);
     } catch (saveError: any) {
       setError(saveError.message || 'No se pudo guardar la configuración.');
     } finally {
@@ -129,6 +141,125 @@ export function SettingsTab({ congregation }: { congregation: Congregation | nul
                 </div>
               </div>
             </div>
+
+            {/* Section 3: Student Assignment Limits */}
+            <div className="p-6 border-t border-slate-100 bg-white">
+              <h4 className="text-base font-bold text-slate-800 mb-4">Límites para Asignaciones Estudiantiles</h4>
+              <p className="mt-1 text-xs font-semibold leading-relaxed text-slate-500 mb-6">
+                Define el número de días para filtrar y evitar asignar a hermanos que tuvieron una parte recientemente en las sugerencias automáticas.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <label className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block mb-1.5">
+                    Asignado Principal (Días)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={assigneeRecentDays}
+                    onChange={(event) => setAssigneeRecentDays(Number(event.target.value))}
+                    className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-bold text-slate-700 outline-none focus:border-[#4a6da7] focus:ring-1 focus:ring-[#4a6da7] transition-all"
+                  />
+                  <span className="text-[10px] font-medium text-slate-400 mt-1 block">
+                    Por defecto: 30 días
+                  </span>
+                </div>
+                <div>
+                  <label className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block mb-1.5">
+                    Ayudante (Días)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={assistantRecentDays}
+                    onChange={(event) => setAssistantRecentDays(Number(event.target.value))}
+                    className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-bold text-slate-700 outline-none focus:border-[#4a6da7] focus:ring-1 focus:ring-[#4a6da7] transition-all"
+                  />
+                  <span className="text-[10px] font-medium text-slate-400 mt-1 block">
+                    Por defecto: 15 días
+                  </span>
+                </div>
+                <div>
+                  <label className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block mb-1.5">
+                    Descanso / Entre Asignaciones (Días)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={lastWeekHelperDays}
+                    onChange={(event) => setLastWeekHelperDays(Number(event.target.value))}
+                    className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-bold text-slate-700 outline-none focus:border-[#4a6da7] focus:ring-1 focus:ring-[#4a6da7] transition-all"
+                  />
+                  <span className="text-[10px] font-medium text-slate-400 mt-1 block">
+                    Por defecto: 14 días (2 semanas)
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Section 4: Repetition and Age Permissions */}
+            <div className="p-6 border-t border-slate-100 bg-slate-50/10">
+              <h4 className="text-base font-bold text-slate-800 mb-4">Permisos de Repetición y Edad</h4>
+              <p className="mt-1 text-xs font-semibold leading-relaxed text-slate-500 mb-6">
+                Configura si los menores pueden ser ayudantes y si se pueden repetir hermanos en la misma semana para partes que no sean de estudiantes.
+              </p>
+              
+              <div className="space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div>
+                    <h5 className="text-sm font-bold text-slate-700">Permitir menores como ayudantes</h5>
+                    <p className="text-[11px] font-semibold text-slate-400">Si está inactivo, los menores de edad no serán sugeridos como ayudantes.</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={allowMinorsAsAssistants}
+                      onClick={() => setAllowMinorsAsAssistants(!allowMinorsAsAssistants)}
+                      className={`${
+                        allowMinorsAsAssistants ? 'bg-[#4a6da7]' : 'bg-slate-200'
+                      } relative inline-flex h-6.5 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#4a6da7]/30 focus:ring-offset-1`}
+                    >
+                      <span className="sr-only">Permitir menores como ayudantes</span>
+                      <span
+                        aria-hidden="true"
+                        className={`${
+                          allowMinorsAsAssistants ? 'translate-x-5.5' : 'translate-x-0'
+                        } pointer-events-none inline-block h-5.5 w-5.5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out`}
+                      />
+                    </button>
+                    <span className="text-xs font-bold text-slate-600 w-12">{allowMinorsAsAssistants ? 'Permitido' : 'Excluido'}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h5 className="text-sm font-bold text-slate-700">Permitir repetir hermanos en la misma semana</h5>
+                    <p className="text-[11px] font-semibold text-slate-400">Permite asignar el mismo hermano a varias partes no estudiantiles (Análisis, Oración, Vida Cristiana, etc.) en la misma reunión.</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={allowSameWeekRepetition}
+                      onClick={() => setAllowSameWeekRepetition(!allowSameWeekRepetition)}
+                      className={`${
+                        allowSameWeekRepetition ? 'bg-[#4a6da7]' : 'bg-slate-200'
+                      } relative inline-flex h-6.5 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#4a6da7]/30 focus:ring-offset-1`}
+                    >
+                      <span className="sr-only">Permitir repetir hermanos en la misma semana</span>
+                      <span
+                        aria-hidden="true"
+                        className={`${
+                          allowSameWeekRepetition ? 'translate-x-5.5' : 'translate-x-0'
+                        } pointer-events-none inline-block h-5.5 w-5.5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out`}
+                      />
+                    </button>
+                    <span className="text-xs font-bold text-slate-600 w-12">{allowSameWeekRepetition ? 'Permitido' : 'No'}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Messages Alert */}
@@ -152,6 +283,7 @@ export function SettingsTab({ congregation }: { congregation: Congregation | nul
           {/* Footer Submit Button */}
           <div className="flex justify-end pt-2">
             <button
+              type="button"
               onClick={saveSettings}
               disabled={isSaving}
               className="rounded-xl bg-[#4a6da7] px-6 py-3 text-xs font-extrabold text-white shadow-md shadow-[#4a6da7]/10 cursor-pointer hover:bg-[#3d5a8c] transition-all flex items-center gap-2 disabled:opacity-50"

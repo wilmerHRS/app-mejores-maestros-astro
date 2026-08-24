@@ -31,9 +31,14 @@ export async function getCongregations(): Promise<Congregation[]> {
       address: fields.address?.stringValue || '',
       department: fields.department?.stringValue || '',
       district: fields.district?.stringValue || '',
-       zipCode: fields.zipCode?.stringValue || '',
-       meetingDay: fields.meetingDay?.integerValue !== undefined ? Number(fields.meetingDay.integerValue) : 5,
-        hasAuxiliaryRoom: fields.hasAuxiliaryRoom?.booleanValue || false
+      zipCode: fields.zipCode?.stringValue || '',
+      meetingDay: fields.meetingDay?.integerValue !== undefined ? Number(fields.meetingDay.integerValue) : 5,
+      hasAuxiliaryRoom: fields.hasAuxiliaryRoom?.booleanValue || false,
+      assigneeRecentDays: fields.assigneeRecentDays?.integerValue !== undefined ? Number(fields.assigneeRecentDays.integerValue) : 30,
+      assistantRecentDays: fields.assistantRecentDays?.integerValue !== undefined ? Number(fields.assistantRecentDays.integerValue) : 15,
+      lastWeekHelperDays: fields.lastWeekHelperDays?.integerValue !== undefined ? Number(fields.lastWeekHelperDays.integerValue) : 14,
+      allowMinorsAsAssistants: fields.allowMinorsAsAssistants?.booleanValue || false,
+      allowSameWeekRepetition: fields.allowSameWeekRepetition?.booleanValue || false
     };
   });
 }
@@ -50,9 +55,14 @@ export async function createCongregation(data: Omit<Congregation, 'id'>): Promis
       address: { stringValue: data.address },
       department: { stringValue: data.department },
       district: { stringValue: data.district },
-       zipCode: { stringValue: data.zipCode },
-       meetingDay: { integerValue: String(data.meetingDay ?? 5) },
-       hasAuxiliaryRoom: { booleanValue: data.hasAuxiliaryRoom !== undefined ? data.hasAuxiliaryRoom : true },
+      zipCode: { stringValue: data.zipCode },
+      meetingDay: { integerValue: String(data.meetingDay ?? 5) },
+      hasAuxiliaryRoom: { booleanValue: data.hasAuxiliaryRoom !== undefined ? data.hasAuxiliaryRoom : true },
+      assigneeRecentDays: { integerValue: String(data.assigneeRecentDays ?? 30) },
+      assistantRecentDays: { integerValue: String(data.assistantRecentDays ?? 15) },
+      lastWeekHelperDays: { integerValue: String(data.lastWeekHelperDays ?? 14) },
+      allowMinorsAsAssistants: { booleanValue: data.allowMinorsAsAssistants || false },
+      allowSameWeekRepetition: { booleanValue: data.allowSameWeekRepetition || false },
       createdAt: { timestampValue: new Date().toISOString() },
       updatedAt: { timestampValue: new Date().toISOString() }
     }
@@ -109,7 +119,12 @@ export async function getCongregationById(id: string): Promise<Congregation | nu
     district: fields.district?.stringValue || '',
     zipCode: fields.zipCode?.stringValue || '',
     meetingDay: fields.meetingDay?.integerValue !== undefined ? Number(fields.meetingDay.integerValue) : 5,
-    hasAuxiliaryRoom: fields.hasAuxiliaryRoom?.booleanValue || false
+    hasAuxiliaryRoom: fields.hasAuxiliaryRoom?.booleanValue || false,
+    assigneeRecentDays: fields.assigneeRecentDays?.integerValue !== undefined ? Number(fields.assigneeRecentDays.integerValue) : 30,
+    assistantRecentDays: fields.assistantRecentDays?.integerValue !== undefined ? Number(fields.assistantRecentDays.integerValue) : 15,
+    lastWeekHelperDays: fields.lastWeekHelperDays?.integerValue !== undefined ? Number(fields.lastWeekHelperDays.integerValue) : 14,
+    allowMinorsAsAssistants: fields.allowMinorsAsAssistants?.booleanValue || false,
+    allowSameWeekRepetition: fields.allowSameWeekRepetition?.booleanValue || false
   };
 }
 
@@ -131,6 +146,11 @@ export async function updateCongregation(id: string, data: Partial<Omit<Congrega
   const updatedZipCode = data.zipCode !== undefined ? data.zipCode : current.zipCode;
   const updatedMeetingDay = data.meetingDay !== undefined ? data.meetingDay : (current.meetingDay ?? 5);
   const updatedHasAuxiliaryRoom = data.hasAuxiliaryRoom !== undefined ? data.hasAuxiliaryRoom : (current.hasAuxiliaryRoom || false);
+  const updatedAssigneeRecentDays = data.assigneeRecentDays !== undefined ? data.assigneeRecentDays : (current.assigneeRecentDays ?? 30);
+  const updatedAssistantRecentDays = data.assistantRecentDays !== undefined ? data.assistantRecentDays : (current.assistantRecentDays ?? 15);
+  const updatedLastWeekHelperDays = data.lastWeekHelperDays !== undefined ? data.lastWeekHelperDays : (current.lastWeekHelperDays ?? 14);
+  const updatedAllowMinorsAsAssistants = data.allowMinorsAsAssistants !== undefined ? data.allowMinorsAsAssistants : (current.allowMinorsAsAssistants || false);
+  const updatedAllowSameWeekRepetition = data.allowSameWeekRepetition !== undefined ? data.allowSameWeekRepetition : (current.allowSameWeekRepetition || false);
 
   const body = {
     fields: {
@@ -138,9 +158,14 @@ export async function updateCongregation(id: string, data: Partial<Omit<Congrega
       address: { stringValue: updatedAddress },
       department: { stringValue: updatedDepartment },
       district: { stringValue: updatedDistrict },
-       zipCode: { stringValue: updatedZipCode },
-       meetingDay: { integerValue: String(updatedMeetingDay) },
-       hasAuxiliaryRoom: { booleanValue: updatedHasAuxiliaryRoom },
+      zipCode: { stringValue: updatedZipCode },
+      meetingDay: { integerValue: String(updatedMeetingDay) },
+      hasAuxiliaryRoom: { booleanValue: updatedHasAuxiliaryRoom },
+      assigneeRecentDays: { integerValue: String(updatedAssigneeRecentDays) },
+      assistantRecentDays: { integerValue: String(updatedAssistantRecentDays) },
+      lastWeekHelperDays: { integerValue: String(updatedLastWeekHelperDays) },
+      allowMinorsAsAssistants: { booleanValue: updatedAllowMinorsAsAssistants },
+      allowSameWeekRepetition: { booleanValue: updatedAllowSameWeekRepetition },
       updatedAt: { timestampValue: new Date().toISOString() }
     }
   };
