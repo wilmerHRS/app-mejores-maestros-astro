@@ -1,10 +1,10 @@
 import puppeteer from '@cloudflare/puppeteer';
 import { env } from 'cloudflare:workers';
 import type { APIRoute } from 'astro';
-import { saveMeetingAssignment, verifyFirebaseSessionCookie } from '@/shared/api/index.server';
+import { getMeetingAssignment, saveMeetingAssignment, verifyFirebaseSessionCookie } from '@/shared/api/index.server';
 import type { ActivityGuideWeek, Brother, MeetingAssignment, MeetingPart, SingleAssignment } from '@/shared/api';
 import { createAssignmentHtml, type AssignmentImageData } from './render-image';
-import { getBrotherName, getMeetingDate } from './lib/export-helpers';
+import { getBrotherName, getMeetingDate, getExportData } from './lib/export-helpers';
 
 interface ExportAssignment extends AssignmentImageData {
   id: string;
@@ -73,17 +73,14 @@ async function ensureAssignmentImages(browser: any, assignments: ExportAssignmen
 }
 
 async function getExportAssignments(congregationId: string, weekIds: string[]): Promise<ExportAssignment[]> {
-  const [weeks, brothers, congregation] = await Promise.all([
-    getWeeksByCongregation(congregationId),
-    getBrothersByCongregation(congregationId),
-    getCongregationById(congregationId),
-  ]);
-  const meetingDay = congregation?.meetingDay ?? 5;
-  const selectedWeeks = weeks.filter((week) => weekIds.includes(week.id)).sort((first, second) => first.startDate.localeCompare(second.startDate));
+  const { weeks, assignments: assignmentsMap, brothers, meetingDay } = await getExportData(
+    congregationId,
+    weekIds
+  );
   const assignments: ExportAssignment[] = [];
 
-  for (const week of selectedWeeks) {
-    const meetingAssignment = await getMeetingAssignment(week.id, congregationId);
+  for (const week of weeks) {
+    const meetingAssignment = assignmentsMap.get(week.id);
     if (!meetingAssignment) continue;
     assignments.push(...buildWeekAssignments(week, meetingAssignment, brothers, meetingDay));
   }
