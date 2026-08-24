@@ -35,6 +35,7 @@ export async function getExportData(
   brothers: Brother[];
   congregationName: string;
   meetingDay: number;
+  hasAuxiliaryRoom: boolean;
 }> {
   const [weeks, brothers, congregation] = await Promise.all([
     Promise.all(weekIds.map((id) => getActivityGuideWeek(id))),
@@ -44,6 +45,7 @@ export async function getExportData(
 
   const congregationName = fallbackCongregationName || congregation?.name || 'Congregación';
   const meetingDay = congregation?.meetingDay ?? 5;
+  const hasAuxiliaryRoom = congregation?.hasAuxiliaryRoom !== false;
   
   const selectedWeeks = [...weeks].sort((a, b) => a.startDate.localeCompare(b.startDate));
 
@@ -60,6 +62,7 @@ export async function getExportData(
     assignments,
     brothers,
     congregationName,
-    meetingDay
+    meetingDay,
+    hasAuxiliaryRoom
   };
 }

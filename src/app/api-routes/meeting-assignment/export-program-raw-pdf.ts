@@ -51,7 +51,8 @@ interface CalculatedPart {
 function calculateWeekParts(
   week: ActivityGuideWeek,
   assignment: MeetingAssignment | null,
-  brothers: Brother[]
+  brothers: Brother[],
+  hasAuxiliaryRoom: boolean
 ): CalculatedPart[] {
   const parts: CalculatedPart[] = [];
   let currentTime = 1140; // 19:00 = 1140 min
@@ -134,7 +135,7 @@ function calculateWeekParts(
     partName: 'SEAMOS MEJORES MAESTROS',
     durationStr: '',
     type: 'section_header',
-    col3: 'Sala auxiliar',
+    col3: hasAuxiliaryRoom ? 'Sala auxiliar' : '',
     col4: 'Auditorio principal',
     isHeader: true,
     section: 'maestros'
@@ -159,8 +160,8 @@ function calculateWeekParts(
       partName: getPartNameText(part.part, partNum, part.duration),
       durationStr: part.duration,
       type: part.type || '',
-      col3: auxText,
-      col3Bg: auxText ? 'bg-cell-aux-student' : '',
+      col3: hasAuxiliaryRoom ? auxText : '',
+      col3Bg: hasAuxiliaryRoom && auxText ? 'bg-cell-aux-student' : '',
       col4: mainText,
       section: 'maestros'
     });
@@ -260,14 +261,15 @@ function renderRawPartRow(part: CalculatedPart): string {
       timeBgClass = 'bg-icon-maestros';
       rowClass = 'bg-header-maestros';
       iconUrl = MEJORES_MAESTROS_BASE64;
+      const hasAux = !!part.col3;
       return `
         <div class="row">
           <div class="header-icon-box ${timeBgClass}">
             <img src="${iconUrl}" alt="icon" style="width: 24px; height: 24px; display: block; object-fit: contain;" />
           </div>
-          <div class="section-header-banner cols-3 ${rowClass}">
+          <div class="section-header-banner ${hasAux ? 'cols-3' : 'cols-2'} ${rowClass}">
             <div class="grid-cell-1"><span>${part.partName}</span></div>
-            <div class="grid-cell-2"><span>Sala auxiliar</span></div>
+            ${hasAux ? '<div class="grid-cell-2"><span>Sala auxiliar</span></div>' : ''}
             <div class="grid-cell-3"><span>Auditorio principal</span></div>
           </div>
         </div>
@@ -347,7 +349,7 @@ export const exportMeetingProgramRawPdfHandler: APIRoute = async ({ request, coo
       return Response.json({ error: 'congregationId y weekIds son requeridos' }, { status: 400 });
     }
 
-    const { weeks, assignments, brothers, congregationName, meetingDay } = await getExportData(
+    const { weeks, assignments, brothers, congregationName, meetingDay, hasAuxiliaryRoom } = await getExportData(
       body.congregationId,
       body.weekIds,
       body.congregationName
@@ -359,10 +361,10 @@ export const exportMeetingProgramRawPdfHandler: APIRoute = async ({ request, coo
       const week2 = weeks[i + 1];
 
       const w1Assign = assignments.get(week1.id) || null;
-      const w1Parts = calculateWeekParts(week1, w1Assign, brothers);
+      const w1Parts = calculateWeekParts(week1, w1Assign, brothers, hasAuxiliaryRoom);
 
       const w2Assign = week2 ? (assignments.get(week2.id) || null) : null;
-      const w2Parts = week2 ? calculateWeekParts(week2, w2Assign, brothers) : [];
+      const w2Parts = week2 ? calculateWeekParts(week2, w2Assign, brothers, hasAuxiliaryRoom) : [];
 
       // Group week 1 parts into blocks
       const w1Block1: CalculatedPart[] = [];
@@ -544,8 +546,8 @@ export const exportMeetingProgramRawPdfHandler: APIRoute = async ({ request, coo
                 grid-template-columns: 1fr 1fr 1fr;
               }
               .content-box.cols-2 {
-                display: flex;
-                justify-content: space-between;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
               }
               .grid-cell-1 {
                 padding: 5px 8px;
@@ -610,6 +612,27 @@ export const exportMeetingProgramRawPdfHandler: APIRoute = async ({ request, coo
               }
               .section-header-banner.cols-3 .grid-cell-2,
               .section-header-banner.cols-3 .grid-cell-3 {
+                padding: 6px 7px;
+                font-size: 12px !important;
+                font-weight: bold !important;
+                text-transform: none !important;
+                color: #000 !important;
+                justify-content: flex-end !important;
+                text-align: right !important;
+              }
+              .section-header-banner.cols-2 {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                padding: 0 !important;
+              }
+              .section-header-banner.cols-2 .grid-cell-1 {
+                padding: 6px 7px;
+                font-size: 13px;
+                font-weight: bold;
+                text-transform: uppercase;
+                color: inherit;
+              }
+              .section-header-banner.cols-2 .grid-cell-3 {
                 padding: 6px 7px;
                 font-size: 12px !important;
                 font-weight: bold !important;
