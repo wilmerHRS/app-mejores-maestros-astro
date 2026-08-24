@@ -20,11 +20,15 @@ function getPartNameText(partText: string, partNumber: number, duration: string)
 function getAssigneeText(
   assign: SingleAssignment | undefined,
   requiresAssistant: boolean,
-  brothers: Brother[]
+  brothers: Brother[],
+  isAnalisis?: boolean
 ): string {
   if (!assign?.assignedTo) return '';
   const stud = getBrotherName(assign.assignedTo, brothers);
   const assist = requiresAssistant && assign.assistant ? getBrotherName(assign.assistant, brothers) : '';
+  if (isAnalisis) {
+    return assist ? `${stud} / ${assist}` : stud;
+  }
   return assist ? `<strong>${stud}</strong> / ${assist}` : `<strong>${stud}</strong>`;
 }
 
@@ -145,8 +149,9 @@ function calculateWeekParts(
     const dur = parseDuration(part.duration, 3);
     const requiresAssistant = partRequiresAssistant(part.type);
 
-    const auxText = getAssigneeText(auxAssign, requiresAssistant, brothers);
-    const mainText = getAssigneeText(mainAssign, requiresAssistant, brothers);
+    const isAnalisis = part.type === 'analisis';
+    const auxText = getAssigneeText(auxAssign, requiresAssistant, brothers, isAnalisis);
+    const mainText = getAssigneeText(mainAssign, requiresAssistant, brothers, isAnalisis);
     const partNum = treasures.length + index + 1;
 
     parts.push({
@@ -575,9 +580,9 @@ export const exportMeetingProgramRawPdfHandler: APIRoute = async ({ request, coo
               .bg-time-cristiana { background-color: #ea8b7b !important; }
 
               .bg-content-standard { background-color: #e9f1f7 !important; }
-              .bg-content-treasures { background-color: #f0f7f9 !important; }
-              .bg-content-maestros { background-color: #fdfaf4 !important; }
-              .bg-content-cristiana { background-color: #fdf5f4 !important; }
+              .bg-content-treasures { background-color: #e1f0f4 !important; }
+              .bg-content-maestros { background-color: #fdf3e2 !important; }
+              .bg-content-cristiana { background-color: #f9e4e0 !important; }
 
               /* Section banners */
               .section-header-banner {

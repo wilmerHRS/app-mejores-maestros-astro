@@ -72,11 +72,15 @@ function getPartNameText(partText: string, partNumber: number, duration: string)
 function getAssigneeText(
   assign: SingleAssignment | undefined,
   requiresAssistant: boolean,
-  brothers: Brother[]
+  brothers: Brother[],
+  isAnalisis?: boolean
 ): string {
   if (!assign?.assignedTo) return '';
   const stud = getBrotherName(assign.assignedTo, brothers);
   const assist = requiresAssistant && assign.assistant ? getBrotherName(assign.assistant, brothers) : '';
+  if (isAnalisis) {
+    return assist ? `${stud} / ${assist}` : stud;
+  }
   return assist ? `<strong>${stud}</strong> / ${assist}` : `<strong>${stud}</strong>`;
 }
 
@@ -197,8 +201,9 @@ function calculateWeekParts(
     const dur = parseDuration(part.duration, 3);
     const requiresAssistant = partRequiresAssistant(part.type || '');
 
-    const auxText = getAssigneeText(auxAssign, requiresAssistant, brothers);
-    const mainText = getAssigneeText(mainAssign, requiresAssistant, brothers);
+    const isAnalisis = part.type === 'analisis';
+    const auxText = getAssigneeText(auxAssign, requiresAssistant, brothers, isAnalisis);
+    const mainText = getAssigneeText(mainAssign, requiresAssistant, brothers, isAnalisis);
     const partNum = treasures.length + index + 1;
 
     parts.push({
@@ -551,7 +556,7 @@ function createProgramPdfHtml(
             border-radius: 2px;
           }
           .bg-icon-treasures { background-color: #4b7f94; color: white; }
-          .bg-icon-maestros { background-color: #b08833; color: white; }
+          .bg-icon-maestros { background-color: #c78909; color: white; }
           .bg-icon-cristiana { background-color: #b84c3c; color: white; }
           
           .section-icon {
@@ -604,11 +609,11 @@ function renderPartRow(part: CalculatedPart): string {
     if (part.section === 'maestros') {
       return `
         <tr class="section-header-row ${rowClass}">
-          <td colspan="2" style="font-size: 11px; border-bottom: 2px solid #b08833; padding: 5px 8px;">
+          <td colspan="2" style="font-size: 11px; border-bottom: 2px solid #c78909; padding: 5px 8px;">
             <span class="icon-box ${iconClass}">${iconSvg}</span>${part.partName}
           </td>
-          <td class="sub-header-cell" style="border-bottom: 2px solid #b08833; padding: 5px 8px;">${part.col3}</td>
-          <td class="sub-header-cell text-right" style="border-bottom: 2px solid #b08833; padding: 5px 8px;">${part.col4}</td>
+          <td class="sub-header-cell" style="border-bottom: 2px solid #c78909; padding: 5px 8px;">${part.col3}</td>
+          <td class="sub-header-cell text-right" style="border-bottom: 2px solid #c78909; padding: 5px 8px;">${part.col4}</td>
         </tr>
       `;
     }
