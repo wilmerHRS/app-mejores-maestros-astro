@@ -59,6 +59,16 @@ export function Sidebar({ activeTab }: SidebarProps) {
       )
     },
     {
+      id: 'assignments-servants',
+      label: 'Asignación Siervos y Ancianos',
+      path: '/dashboard/assignments-servants',
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-5 h-5 flex-shrink-0">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.75h-.152c-3.196 0-6.1-1.249-8.25-3.286zm0 13.036h.008v.008H12v-.008z" />
+        </svg>
+      )
+    },
+    {
       id: 'activity-guides',
       label: 'Guías de Actividades',
       path: '/dashboard/activity-guides',
@@ -102,8 +112,10 @@ export function Sidebar({ activeTab }: SidebarProps) {
                 key={item.id}
                 href={item.path}
                 title={isCollapsed ? item.label : undefined}
-                className={`flex items-center gap-3 py-3 rounded-xl transition-all duration-200 cursor-pointer whitespace-nowrap outline-none w-full text-left no-underline ${
+                className={`flex items-center gap-3 py-3 rounded-xl transition-all duration-200 cursor-pointer outline-none w-full text-left no-underline ${
                   isCollapsed ? 'justify-center px-0' : 'px-4'
+                } ${
+                  item.label.length > 20 ? 'whitespace-normal' : 'whitespace-nowrap'
                 } ${
                   isActive
                     ? 'bg-[#4a6da7]/10 text-[#4a6da7] shadow-inner font-bold'
@@ -113,7 +125,11 @@ export function Sidebar({ activeTab }: SidebarProps) {
                 <span className={`transition-colors ${isActive ? 'text-[#4a6da7]' : 'text-slate-400'}`}>
                   {item.icon}
                 </span>
-                {!isCollapsed && <span className="text-sm">{item.label}</span>}
+                {!isCollapsed && (
+                  <span className={item.label.length > 20 ? 'text-[12px] leading-tight tracking-tight' : 'text-sm'}>
+                    {item.label}
+                  </span>
+                )}
               </a>
             );
           })}

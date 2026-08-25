@@ -4,5 +4,6 @@ export { LifeMinistryTab } from "./ui/LifeMinistryTab";
 export { GroupsTab } from "./ui/GroupsTab";
 export { ActivityGuidesTab } from "./ui/ActivityGuidesTab";
 export { AssignmentsTab } from "./ui/AssignmentsTab";
+export { AssignmentsServantsTab } from "./ui/AssignmentsServantsTab";
 export { ActivityGuideWeekPage } from "./ui/ActivityGuideWeekPage";
 export { SettingsTab } from "./ui/SettingsTab";

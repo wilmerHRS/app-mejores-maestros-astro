@@ -43,7 +43,7 @@ export interface IndividualAssignment {
   weekTitle: string;
   weekId: string;
   congregationId: string;
-  section: 'treasures' | 'treasuresAux' | 'fieldMinistry' | 'fieldMinistryAux';
+  section: string;
   index: number;
   imageUrl?: string;
   meetingDay: number;
@@ -206,4 +206,113 @@ export function getIndividualAssignments(
     ...fieldParts.map(({ part, index }) => createAssignment(part, assignment?.fieldMinistryAux?.[index], index, index + 2, 'Sala auxiliar núm. 1', week, 'fieldMinistryAux', meetingDay, brothers, congregationId)),
   ];
   return cards.filter((card): card is IndividualAssignment => card !== null);
+}
+
+export function getServantsAssignments(
+  week: ActivityGuideWeek,
+  assignment: MeetingAssignment | null,
+  meetingDay = 5,
+  brothers: Brother[] = [],
+  congregationId?: string,
+): IndividualAssignment[] {
+  if (!assignment) return [];
+  const result: IndividualAssignment[] = [];
+  const dateStr = getMeetingDate(week, meetingDay);
+  const isCurrent = week.startDate <= getTodayIsoDate() && week.endDate >= getTodayIsoDate();
+  const congId = congregationId || week.congregationId;
+
+  const createServantAssign = (
+    idSuffix: string,
+    brotherId: string | undefined,
+    assistantId: string | undefined,
+    partName: string,
+    duration: string,
+    section: string,
+    index: number,
+    type: string | undefined,
+    room: IndividualAssignment['room'] = 'Sala principal'
+  ) => {
+    if (!brotherId) return;
+    result.push({
+      id: `${week.id}-${idSuffix}`,
+      name: brotherId,
+      assistant: assistantId || '',
+      date: dateStr,
+      interventionNumber: '',
+      room,
+      part: partName,
+      type,
+      duration,
+      weekTitle: week.title,
+      weekId: week.id,
+      congregationId: congId,
+      section,
+      index,
+      meetingDay,
+      phone: brothers.find((b) => b.id === brotherId)?.phone,
+      isCurrentWeek: isCurrent
+    });
+  };
+
+  // 1. President
+  if (assignment.president?.assignedTo) {
+    createServantAssign('president', assignment.president.assignedTo, undefined, 'Presidente de la Reunión', '1.5 h', 'president', 0, 'president');
+  }
+
+  // 2. Aux Counselor
+  if (assignment.auxCounselor?.assignedTo) {
+    createServantAssign('auxCounselor', assignment.auxCounselor.assignedTo, undefined, 'Consejero de la Sala Auxiliar', '1.5 h', 'auxCounselor', 0, 'auxCounselor', 'Sala auxiliar núm. 1');
+  }
+
+  // 3. First Prayer
+  if (assignment.prayerFirst?.assignedTo) {
+    createServantAssign('prayerFirst', assignment.prayerFirst.assignedTo, undefined, 'Primera Oración', '5 min', 'prayerFirst', 0, 'prayerFirst');
+  }
+
+  // 4. Last Prayer
+  if (assignment.prayerLast?.assignedTo) {
+    createServantAssign('prayerLast', assignment.prayerLast.assignedTo, undefined, 'Última Oración', '5 min', 'prayerLast', 0, 'prayerLast');
+  }
+
+  // 5. Treasures parts that are NOT lectura_biblia
+  const treasuresParts = week.treasures || [];
+  treasuresParts.forEach((part, index) => {
+    if (part.type !== 'lectura_biblia') {
+      const assign = assignment.treasures?.[index];
+      if (assign?.assignedTo) {
+        createServantAssign(`treasures-${index}`, assign.assignedTo, assign.assistant, part.part, part.duration, 'treasures', index, part.type);
+      }
+    }
+  });
+
+  // 6. Field Ministry parts that ARE analisis
+  const fieldParts = week.fieldMinistry || [];
+  fieldParts.forEach((part, index) => {
+    if (part.type === 'analisis') {
+      const assign = assignment.fieldMinistry?.[index];
+      if (assign?.assignedTo) {
+        createServantAssign(`fieldMinistry-${index}`, assign.assignedTo, assign.assistant, part.part, part.duration, 'fieldMinistry', index, part.type);
+      }
+    }
+  });
+
+  // 7. Christian Life parts (including split Study Conductor and Lector)
+  const lifeParts = week.christianLife || [];
+  lifeParts.forEach((part, index) => {
+    const assign = assignment.christianLife?.[index];
+    if (assign?.assignedTo) {
+      if (part.type === 'estudio_biblico_congregacion') {
+        // Conductor Card
+        createServantAssign(`christianLife-cond-${index}`, assign.assignedTo, undefined, 'Estudio bíblico de la congregación (Conductor)', part.duration, 'christianLife', index, 'estudio_biblico_congregacion');
+        // Lector Card
+        if (assign.assistant) {
+          createServantAssign(`christianLife-lect-${index}`, assign.assistant, undefined, 'Estudio bíblico de la congregación (Lector)', part.duration, 'christianLife', index, 'estudio_biblico_congregacion');
+        }
+      } else {
+        createServantAssign(`christianLife-${index}`, assign.assignedTo, assign.assistant, part.part, part.duration, 'christianLife', index, part.type);
+      }
+    }
+  });
+
+  return result;
 }

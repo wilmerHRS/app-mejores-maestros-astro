@@ -3,6 +3,11 @@ import type { Brother, SingleAssignment } from '@/shared/api';
 export type AssignmentSection = 'treasures' | 'treasuresAux' | 'fieldMinistry' | 'fieldMinistryAux' | 'christianLife' | 'president' | 'auxCounselor' | 'prayerFirst' | 'prayerLast';
 
 export function getPartTypeLabel(type?: string, section?: string): string {
+  if (section === 'president') return 'Presidente';
+  if (section === 'auxCounselor') return 'Sala Auxiliar';
+  if (section === 'prayerFirst') return 'Primera Oración';
+  if (section === 'prayerLast') return 'Última Oración';
+
   if (!type) return 'Parte';
 
   if (section === 'treasures' || section === 'treasuresAux') {

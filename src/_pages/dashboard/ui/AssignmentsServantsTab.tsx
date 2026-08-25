@@ -1,0 +1,60 @@
+import { useEffect, useMemo, useState } from 'react';
+import type { Brother } from '@/shared/api';
+import { fetchAssignmentsPageData } from '../api/fetch-assignments';
+import { getBrotherName, getServantsAssignments, type AssignmentGuideData, type AssignmentWeekData } from '../model/assignments';
+import { AssignmentServantCard } from './assignments/AssignmentServantCard';
+
+export function AssignmentsServantsTab({ congregationId, meetingDay = 5 }: { congregationId: string; meetingDay?: number }) {
+  const [guides, setGuides] = useState<AssignmentGuideData[]>([]);
+  const [brothers, setBrothers] = useState<Brother[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [guideFilter, setGuideFilter] = useState('all');
+  const [weekFilter, setWeekFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    fetchAssignmentsPageData(congregationId).then(({ guides: loadedGuides, brothers: loadedBrothers }) => { setGuides(loadedGuides); setBrothers(loadedBrothers); }).catch((error: unknown) => setErrorMessage(error instanceof Error ? error.message : 'No se pudieron cargar las asignaciones.')).finally(() => setIsLoading(false));
+  }, [congregationId]);
+
+  const visibleWeeks = useMemo(() => guides.flatMap(({ guide, weeks }) => weeks.map((data) => ({ ...data, guideTitle: guide.title, guideId: guide.id }))), [guides]);
+  const availableWeeks = useMemo(() => visibleWeeks.filter(({ guideId }) => guideFilter === 'all' || guideId === guideFilter), [visibleWeeks, guideFilter]);
+  const filteredWeeks = availableWeeks.filter(({ week }) => weekFilter === 'all' || week.id === weekFilter);
+
+  const assignments = filteredWeeks.flatMap(({ week, assignment }) => getServantsAssignments(week, assignment, meetingDay, brothers, congregationId).map((item) => ({ ...item, name: getBrotherName(item.name, brothers), assistant: getBrotherName(item.assistant, brothers) })));
+  const normalizedSearch = searchTerm.trim().toLocaleLowerCase();
+  const filteredAssignments = assignments.filter((assignment) => !normalizedSearch || assignment.name.toLocaleLowerCase().includes(normalizedSearch) || assignment.assistant.toLocaleLowerCase().includes(normalizedSearch));
+
+  if (isLoading) return <LoadingState />;
+  if (errorMessage) return <ErrorState message={errorMessage} />;
+
+  return <div className="space-y-7">
+    <PageHeader assignmentCount={filteredAssignments.length} />
+    <Filters guides={guides} weeks={availableWeeks} guideFilter={guideFilter} weekFilter={weekFilter} searchTerm={searchTerm} onSearchChange={setSearchTerm} onGuideChange={(value) => { setGuideFilter(value); setWeekFilter('all'); }} onWeekChange={setWeekFilter} />
+    {!filteredAssignments.length ? <EmptyState /> : <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">{filteredAssignments.map((printable) => <AssignmentServantCard key={printable.id} assignment={printable} />)}</div>}
+  </div>;
+}
+
+function LoadingState() { return <div className="flex items-center justify-center gap-3 py-16 text-sm font-semibold text-slate-500"><span className="h-6 w-6 animate-spin rounded-full border-2 border-[#4a6da7]/30 border-t-[#4a6da7]" />Cargando asignaciones...</div>; }
+function ErrorState({ message }: { message: string }) { return <div className="rounded-xl border border-red-100 bg-red-50 p-4 text-sm font-semibold text-red-600">{message}</div>; }
+function EmptyState() { return <div className="rounded-2xl border border-slate-200/60 bg-white/80 p-12 text-center font-semibold text-slate-500">No hay asignaciones para los filtros seleccionados.</div>; }
+
+function PageHeader({ assignmentCount }: { assignmentCount: number }) {
+  return (
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <h3 className="text-xl font-bold text-slate-900">Asignación Siervos y Ancianos</h3>
+        <p className="mt-1 text-sm font-medium text-slate-500">
+          Consulta y envía recordatorios para las asignaciones de la reunión (Presidente, oraciones, discursos, etc.).
+        </p>
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="rounded-xl bg-blue-50 px-3 py-2 text-[10px] font-extrabold uppercase tracking-widest text-[#4a6da7]">
+          {assignmentCount} asignaciones
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function Filters({ guides, weeks, guideFilter, weekFilter, searchTerm, onSearchChange, onGuideChange, onWeekChange }: { guides: AssignmentGuideData[]; weeks: Array<AssignmentWeekData & { guideTitle: string; guideId: string }>; guideFilter: string; weekFilter: string; searchTerm: string; onSearchChange: (value: string) => void; onGuideChange: (value: string) => void; onWeekChange: (value: string) => void }) { return <div className="grid grid-cols-1 gap-3 rounded-2xl border border-slate-200/70 bg-white/80 p-4 sm:grid-cols-2 lg:grid-cols-3"><label className="order-first text-xs font-extrabold text-slate-500 sm:col-span-2 lg:order-none lg:col-span-1">Buscar por nombre o apellido<div className="relative mt-1"><input value={searchTerm} onChange={(event) => onSearchChange(event.target.value)} placeholder="Ej. Juan Pérez" className="block w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 pr-9 text-xs font-semibold text-slate-700 outline-none placeholder:text-slate-400 focus:border-[#4a6da7]" />{searchTerm && <button type="button" onClick={() => onSearchChange('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 cursor-pointer" aria-label="Limpiar búsqueda">×</button>}</div></label><label className="text-xs font-extrabold text-slate-500">Guía<select value={guideFilter} onChange={(event) => onGuideChange(event.target.value)} className="mt-1 block w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-semibold text-slate-700 outline-none focus:border-[#4a6da7]"><option value="all">Todas las guías</option>{guides.map(({ guide }) => <option key={guide.id} value={guide.id}>{guide.title}</option>)}</select></label><label className="text-xs font-extrabold text-slate-500">Semana<select value={weekFilter} onChange={(event) => onWeekChange(event.target.value)} className="mt-1 block w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-semibold text-slate-700 outline-none focus:border-[#4a6da7]"><option value="all">Todas las semanas</option>{weeks.map(({ week, guideTitle }) => <option key={week.id} value={week.id}>{week.startDate.replaceAll('-', '/')} · {guideTitle}</option>)}</select></label></div>; }
