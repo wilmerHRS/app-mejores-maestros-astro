@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Brother, SingleAssignment, MeetingPart, MeetingAssignment } from '@/shared/api';
+import type { Brother, SingleAssignment, MeetingPart, MeetingAssignment, ActivityGuideWeek } from '@/shared/api';
 import { getPartTypeLabel, partRequiresAssistant, type AssignmentSection as SectionType } from '../../model/life-ministry';
 import { AssignmentRowReadOnly } from './AssignmentRowReadOnly';
 import { AssignmentRowEditor } from './AssignmentRowEditor';
@@ -27,6 +27,7 @@ interface AssignmentSectionProps {
   lastWeekHelperIds?: string[];
   lastWeekAssigneeIds?: string[];
   activeAssignment?: MeetingAssignment | null;
+  activeWeek?: ActivityGuideWeek | null;
   hasAuxiliaryRoom?: boolean;
   allowMinorsAsAssistants?: boolean;
   allowSameWeekRepetition?: boolean;
@@ -84,6 +85,7 @@ export function AssignmentSection({
   lastWeekHelperIds,
   lastWeekAssigneeIds,
   activeAssignment,
+  activeWeek,
   hasAuxiliaryRoom = true,
   allowMinorsAsAssistants = false,
   allowSameWeekRepetition = false
@@ -159,6 +161,7 @@ export function AssignmentSection({
                     lastWeekHelperIds={lastWeekHelperIds}
                     lastWeekAssigneeIds={lastWeekAssigneeIds}
                     activeAssignment={activeAssignment}
+                    activeWeek={activeWeek}
                     allowMinorsAsAssistants={allowMinorsAsAssistants}
                     allowSameWeekRepetition={allowSameWeekRepetition}
                   />

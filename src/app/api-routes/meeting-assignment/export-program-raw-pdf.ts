@@ -148,7 +148,7 @@ function calculateWeekParts(
     const mainAssign = assignment?.fieldMinistry?.[index];
     const auxAssign = assignment?.fieldMinistryAux?.[index];
     const dur = parseDuration(part.duration, 3);
-    const requiresAssistant = partRequiresAssistant(part.type);
+    const requiresAssistant = partRequiresAssistant(part.type || '');
 
     const isAnalisis = part.type === 'analisis';
     const auxText = getAssigneeText(auxAssign, requiresAssistant, brothers, isAnalisis);
@@ -546,8 +546,12 @@ export const exportMeetingProgramRawPdfHandler: APIRoute = async ({ request, coo
                 grid-template-columns: 1fr 1fr 1fr;
               }
               .content-box.cols-2 {
+                display: flex;
+                justify-content: space-between;
+              }
+              .bg-content-maestros.cols-2 {
                 display: grid;
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: 2fr 1fr;
               }
               .grid-cell-1 {
                 padding: 5px 8px;
@@ -603,28 +607,12 @@ export const exportMeetingProgramRawPdfHandler: APIRoute = async ({ request, coo
                 grid-template-columns: 1fr 1fr 1fr;
                 padding: 0 !important;
               }
-              .section-header-banner.cols-3 .grid-cell-1 {
-                padding: 6px 7px;
-                font-size: 13px;
-                font-weight: bold;
-                text-transform: uppercase;
-                color: inherit;
-              }
-              .section-header-banner.cols-3 .grid-cell-2,
-              .section-header-banner.cols-3 .grid-cell-3 {
-                padding: 6px 7px;
-                font-size: 12px !important;
-                font-weight: bold !important;
-                text-transform: none !important;
-                color: #000 !important;
-                justify-content: flex-end !important;
-                text-align: right !important;
-              }
               .section-header-banner.cols-2 {
                 display: grid;
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: 2fr 1fr;
                 padding: 0 !important;
               }
+              .section-header-banner.cols-3 .grid-cell-1,
               .section-header-banner.cols-2 .grid-cell-1 {
                 padding: 6px 7px;
                 font-size: 13px;
@@ -632,6 +620,8 @@ export const exportMeetingProgramRawPdfHandler: APIRoute = async ({ request, coo
                 text-transform: uppercase;
                 color: inherit;
               }
+              .section-header-banner.cols-3 .grid-cell-2,
+              .section-header-banner.cols-3 .grid-cell-3,
               .section-header-banner.cols-2 .grid-cell-3 {
                 padding: 6px 7px;
                 font-size: 12px !important;
@@ -641,6 +631,7 @@ export const exportMeetingProgramRawPdfHandler: APIRoute = async ({ request, coo
                 justify-content: flex-end !important;
                 text-align: right !important;
               }
+
               .header-icon-box {
                 width: 36px;
                 display: flex;

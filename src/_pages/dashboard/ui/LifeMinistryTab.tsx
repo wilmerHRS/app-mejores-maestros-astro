@@ -13,6 +13,7 @@ import { ProgramSingleAssignmentCard } from './life-ministry/ProgramSingleAssign
 
 interface LifeMinistryTabProps {
   congregationId: string;
+  congregationName?: string;
   currentUserUid?: string;
   initialGuideId?: string;
   initialWeekId?: string;
@@ -23,6 +24,7 @@ interface LifeMinistryTabProps {
 
 export function LifeMinistryTab({
   congregationId,
+  congregationName,
   initialGuideId,
   initialWeekId,
   hasAuxiliaryRoom: hasAuxiliaryRoomProp,
@@ -249,6 +251,7 @@ export function LifeMinistryTab({
                         lastWeekHelperIds={lastWeekHelperIds}
                         lastWeekAssigneeIds={lastWeekAssigneeIds}
                         activeAssignment={activeAssignment}
+                        activeWeek={activeWeek}
                         hasAuxiliaryRoom={hasAuxiliaryRoom}
                         allowMinorsAsAssistants={allowMinorsAsAssistants}
                         allowSameWeekRepetition={allowSameWeekRepetition}
@@ -276,6 +279,7 @@ export function LifeMinistryTab({
                         lastWeekHelperIds={lastWeekHelperIds}
                         lastWeekAssigneeIds={lastWeekAssigneeIds}
                         activeAssignment={activeAssignment}
+                        activeWeek={activeWeek}
                         hasAuxiliaryRoom={hasAuxiliaryRoom}
                         allowMinorsAsAssistants={allowMinorsAsAssistants}
                         allowSameWeekRepetition={allowSameWeekRepetition}
@@ -314,6 +318,7 @@ export function LifeMinistryTab({
                         lastWeekHelperIds={lastWeekHelperIds}
                         lastWeekAssigneeIds={lastWeekAssigneeIds}
                         activeAssignment={activeAssignment}
+                        activeWeek={activeWeek}
                         allowMinorsAsAssistants={allowMinorsAsAssistants}
                         allowSameWeekRepetition={allowSameWeekRepetition}
                       />
@@ -372,6 +377,7 @@ export function LifeMinistryTab({
           guides={guides}
           weeks={weeks}
           congregationId={congregationId}
+          congregationName={congregationName}
           brothers={brothers}
           onClose={() => setIsExportModalOpen(false)}
         />

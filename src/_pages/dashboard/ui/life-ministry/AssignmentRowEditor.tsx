@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Brother, SingleAssignment, MeetingAssignment } from '@/shared/api';
+import type { Brother, SingleAssignment, MeetingAssignment, ActivityGuideWeek } from '@/shared/api';
 import { getAssistantRoleLabel, type AssignmentSection } from '../../model/life-ministry';
 
 interface AssignmentRowEditorProps {
@@ -20,6 +20,7 @@ interface AssignmentRowEditorProps {
   lastWeekHelperIds?: string[];
   lastWeekAssigneeIds?: string[];
   activeAssignment?: MeetingAssignment | null;
+  activeWeek?: ActivityGuideWeek | null;
   allowMinorsAsAssistants?: boolean;
   allowSameWeekRepetition?: boolean;
 }
@@ -37,6 +38,7 @@ export function AssignmentRowEditor({
   lastWeekHelperIds,
   lastWeekAssigneeIds,
   activeAssignment,
+  activeWeek,
   allowMinorsAsAssistants = false,
   allowSameWeekRepetition = false
 }: AssignmentRowEditorProps) {
@@ -47,21 +49,23 @@ export function AssignmentRowEditor({
   const allAssistantIds: string[] = [];
 
   const isAssignedToStudentPartThisWeek = (brotherId: string): boolean => {
-    if (!activeAssignment) return false;
+    if (!activeAssignment || !activeWeek) return false;
     
     // Check Bible reading (partType === 'lectura_biblia') in treasures / treasuresAux
+    const treasuresParts = activeWeek.treasures || [];
     const hasBibleReading = (activeAssignment.treasures || []).some(
-      t => t.assignedTo === brotherId && t.type === 'lectura_biblia'
+      (t, idx) => t.assignedTo === brotherId && treasuresParts[idx]?.type === 'lectura_biblia'
     ) || (activeAssignment.treasuresAux || []).some(
-      t => t.assignedTo === brotherId && t.type === 'lectura_biblia'
+      (t, idx) => t.assignedTo === brotherId && treasuresParts[idx]?.type === 'lectura_biblia'
     );
     if (hasBibleReading) return true;
 
     // Check school sections (fieldMinistry / fieldMinistryAux) that are NOT Análisis con el auditorio
+    const fmParts = activeWeek.fieldMinistry || [];
     const hasSchoolPart = (activeAssignment.fieldMinistry || []).some(
-      fm => fm.assignedTo === brotherId && fm.type !== 'analisis'
+      (fm, idx) => fm.assignedTo === brotherId && fmParts[idx]?.type !== 'analisis'
     ) || (activeAssignment.fieldMinistryAux || []).some(
-      fm => fm.assignedTo === brotherId && fm.type !== 'analisis'
+      (fm, idx) => fm.assignedTo === brotherId && fmParts[idx]?.type !== 'analisis'
     );
     if (hasSchoolPart) return true;
 

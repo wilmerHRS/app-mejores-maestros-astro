@@ -43,12 +43,12 @@ export function AssignmentsTab({ congregationId, meetingDay = 5 }: { congregatio
   const normalizedSearch = searchTerm.trim().toLocaleLowerCase();
   const filteredAssignments = assignments.filter((assignment) => !normalizedSearch || assignment.name.toLocaleLowerCase().includes(normalizedSearch) || assignment.assistant.toLocaleLowerCase().includes(normalizedSearch));
 
-  const exportPdf = async (selectedWeekIds: string[]) => {
+  const exportPdf = async (selectedWeekIds: string[], layout: 'landscape-8' | 'portrait-4') => {
     setIsExportModalOpen(false);
     setExportingAssignmentCount(selectedWeekIds.length);
     setIsExportingPdf(true);
     try {
-      const response = await fetch('/api/meeting-assignment/export-pdf', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ congregationId, weekIds: selectedWeekIds }) });
+      const response = await fetch('/api/meeting-assignment/export-pdf', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ congregationId, weekIds: selectedWeekIds, layout }) });
       if (!response.ok) {
         const result = await response.json().catch(() => ({})) as { error?: string };
         throw new Error(result.error || 'No se pudo generar el PDF');
@@ -75,7 +75,7 @@ export function AssignmentsTab({ congregationId, meetingDay = 5 }: { congregatio
     <Filters guides={guides} weeks={availableWeeks} guideFilter={guideFilter} weekFilter={weekFilter} searchTerm={searchTerm} onSearchChange={setSearchTerm} onGuideChange={(value) => { setGuideFilter(value); setWeekFilter('all'); }} onWeekChange={setWeekFilter} />
     {!filteredAssignments.length ? <EmptyState /> : <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">{filteredAssignments.map((printable) => <AssignmentCard key={printable.id} assignment={printable} whatsappTestMode={whatsappTestMode} onDownload={() => downloadAssignmentSheet(printable)} onSendWhatsApp={async () => { await sendMeetingAssignmentWhatsAppClient(printable); }} onShareWhatsApp={() => shareAssignmentOnWhatsApp(printable)} onShareReminder={() => shareAssignmentReminderOnWhatsApp(printable)} />)}</div>}
     {isWeeksExportOpen && legacyExportGuide && <ExportPdfModal guide={legacyExportGuide} guides={exportGuides} weeks={legacyExportWeeks} congregationId={congregationId} brothers={brothers} onClose={() => setIsWeeksExportOpen(false)} />}
-    {isExportModalOpen && <AssignmentExportModal weeks={visibleWeeks as AssignmentWeekOption[]} onClose={() => setIsExportModalOpen(false)} onExport={(selectedWeeks) => { void exportPdf(selectedWeeks.map(({ week }) => week.id)); }} />}
+    {isExportModalOpen && <AssignmentExportModal weeks={visibleWeeks as AssignmentWeekOption[]} onClose={() => setIsExportModalOpen(false)} onExport={(selectedWeeks, layout) => { void exportPdf(selectedWeeks.map(({ week }) => week.id), layout); }} />}
     {isExportingPdf && <ProcessingOverlay assignmentCount={exportingAssignmentCount} />}
   </div>;
 }

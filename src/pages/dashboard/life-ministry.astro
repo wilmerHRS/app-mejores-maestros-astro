@@ -9,6 +9,7 @@ const { profile, congregation, userEmail, currentWeek } = await getDashboardData
   <LifeMinistryTab
     client:load
     congregationId={profile.congregationId}
+    congregationName={congregation?.name}
     currentUserUid={profile.uid}
     initialGuideId={currentWeek?.guideId}
     initialWeekId={currentWeek?.id}
