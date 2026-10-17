@@ -104,7 +104,12 @@ export async function getMeetingAssignment(weekId: string, congregationId: strin
     president: mapFirestoreSingleAssignment(fields.president),
     auxCounselor: mapFirestoreSingleAssignment(fields.auxCounselor),
     prayerFirst: mapFirestoreSingleAssignment(fields.prayerFirst),
-    prayerLast: mapFirestoreSingleAssignment(fields.prayerLast)
+    prayerLast: mapFirestoreSingleAssignment(fields.prayerLast),
+    noMeeting: fields.noMeeting?.booleanValue ?? false,
+    noMeetingReason: fields.noMeetingReason?.stringValue || 'Asamblea regional',
+    noMeetingOtherReason: fields.noMeetingOtherReason?.stringValue || '',
+    noMeetingTitle: fields.noMeetingTitle?.stringValue || '',
+    noMeetingImageUrl: fields.noMeetingImageUrl?.stringValue || ''
   };
 }
 
@@ -128,13 +133,18 @@ export async function saveMeetingAssignment(data: MeetingAssignment): Promise<vo
       auxCounselor: toFirestoreSingleAssignment(data.auxCounselor),
       prayerFirst: toFirestoreSingleAssignment(data.prayerFirst),
       prayerLast: toFirestoreSingleAssignment(data.prayerLast),
+      noMeeting: { booleanValue: !!data.noMeeting },
+      noMeetingReason: { stringValue: data.noMeetingReason || 'Asamblea regional' },
+      noMeetingOtherReason: { stringValue: data.noMeetingOtherReason || '' },
+      noMeetingTitle: { stringValue: data.noMeetingTitle || '' },
+      noMeetingImageUrl: { stringValue: data.noMeetingImageUrl || '' },
       updatedAt: { timestampValue: new Date().toISOString() }
     }
   };
 
   // We use PATCH to upsert the document.
   // The updateMask specifies which fields to overwrite. If the document doesn't exist, it creates it.
-  const updateMaskQuery = "updateMask.fieldPaths=weekId&updateMask.fieldPaths=congregationId&updateMask.fieldPaths=treasures&updateMask.fieldPaths=treasuresAux&updateMask.fieldPaths=fieldMinistry&updateMask.fieldPaths=fieldMinistryAux&updateMask.fieldPaths=christianLife&updateMask.fieldPaths=president&updateMask.fieldPaths=auxCounselor&updateMask.fieldPaths=prayerFirst&updateMask.fieldPaths=prayerLast&updateMask.fieldPaths=updatedAt";
+  const updateMaskQuery = "updateMask.fieldPaths=weekId&updateMask.fieldPaths=congregationId&updateMask.fieldPaths=treasures&updateMask.fieldPaths=treasuresAux&updateMask.fieldPaths=fieldMinistry&updateMask.fieldPaths=fieldMinistryAux&updateMask.fieldPaths=christianLife&updateMask.fieldPaths=president&updateMask.fieldPaths=auxCounselor&updateMask.fieldPaths=prayerFirst&updateMask.fieldPaths=prayerLast&updateMask.fieldPaths=noMeeting&updateMask.fieldPaths=noMeetingReason&updateMask.fieldPaths=noMeetingOtherReason&updateMask.fieldPaths=noMeetingTitle&updateMask.fieldPaths=noMeetingImageUrl&updateMask.fieldPaths=updatedAt";
   const patchUrl = `${url}?${updateMaskQuery}`;
 
   const res = await fetch(patchUrl, {

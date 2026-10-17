@@ -4,9 +4,11 @@ import { formatDateRange } from '@/shared/lib';
 
 interface WeekBannerHeroProps {
   week: ActivityGuideWeek;
+  noMeeting?: boolean;
+  noMeetingReason?: string;
 }
 
-export function WeekBannerHero({ week }: WeekBannerHeroProps) {
+export function WeekBannerHero({ week, noMeeting, noMeetingReason }: WeekBannerHeroProps) {
   return (
     <div className="bg-gradient-to-r from-[#4a6da7] to-[#354f7a] rounded-2xl p-8 text-white shadow-md relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6">
       {/* Cover Image on the right */}
@@ -32,9 +34,15 @@ export function WeekBannerHero({ week }: WeekBannerHeroProps) {
 
       {/* Text content */}
       <div className="relative z-10 space-y-3 flex-1">
-        <span className="text-[10px] uppercase font-extrabold tracking-widest bg-white/20 px-2.5 py-0.5 rounded-full select-none">
-          Reunión de entre semana
-        </span>
+        {noMeeting ? (
+          <span className="text-[10px] uppercase font-extrabold tracking-widest bg-amber-400 text-amber-950 px-2.5 py-0.5 rounded-full select-none shadow-xs">
+            Sin reunión • {noMeetingReason || 'Asamblea'}
+          </span>
+        ) : (
+          <span className="text-[10px] uppercase font-extrabold tracking-widest bg-white/20 px-2.5 py-0.5 rounded-full select-none">
+            Reunión de entre semana
+          </span>
+        )}
         <h3 className="text-3xl font-black tracking-tight">{week.title}</h3>
         
         <div className="space-y-2 text-xs font-bold text-blue-100 mt-1">

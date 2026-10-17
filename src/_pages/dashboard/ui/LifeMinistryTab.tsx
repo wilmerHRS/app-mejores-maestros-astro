@@ -10,6 +10,9 @@ import { ExportPdfModal } from './life-ministry/ExportPdfModal';
 import { ProgramSongRow } from './ProgramSongRow';
 import { ProgramDurationRow } from './ProgramDurationRow';
 import { ProgramSingleAssignmentCard } from './life-ministry/ProgramSingleAssignmentCard';
+import { NoMeetingCard } from './life-ministry/NoMeetingCard';
+import { NoMeetingEditor } from './life-ministry/NoMeetingEditor';
+import { getNoMeetingReasonText } from '@/shared/api';
 
 interface LifeMinistryTabProps {
   congregationId: string;
@@ -56,7 +59,8 @@ export function LifeMinistryTab({
     startEditing,
     cancelEditing,
     saveAssignments,
-    updateAssignmentField
+    updateAssignmentField,
+    updateNoMeeting
   } = useLifeMinistryData({ congregationId, initialGuideId, initialWeekId });
 
   const [isExportModalOpen, setIsExportModalOpen] = React.useState(false);
@@ -137,7 +141,11 @@ export function LifeMinistryTab({
               {weeks.length > 0 && activeWeek && (
                 <div className="space-y-6 w-full">
                   {/* Week Info Banner (Cabecera premium) */}
-                  <WeekBannerHero week={activeWeek} />
+                  <WeekBannerHero
+                    week={activeWeek}
+                    noMeeting={activeAssignment?.noMeeting}
+                    noMeetingReason={getNoMeetingReasonText(activeAssignment)}
+                  />
 
                   {/* Actions buttons directly under header banner */}
                   <div className="flex justify-end w-full">
@@ -145,45 +153,49 @@ export function LifeMinistryTab({
                       isEditingAssignments={isEditingAssignments}
                       isSaving={isSaving}
                       onStartEdit={startEditing}
-                      onSave={async () => {
-                        await saveAssignments();
-                        cancelEditing();
-                      }}
+                      onSave={saveAssignments}
                       onCancel={cancelEditing}
                       onExportPdf={() => setIsExportModalOpen(true)}
                     />
                   </div>
 
-                  {/* Program sections */}
-                  <div className="space-y-6 w-full">
-                    {/* Inicio de la reunión */}
-                    <div className="bg-white/95 border border-slate-200/80 rounded-2xl p-6 shadow-sm w-full space-y-4">
-                      {/* President */}
-                      <ProgramSingleAssignmentCard
-                        isEditing={isEditingAssignments}
-                        section="president"
-                        title="Presidente"
-                        description="Presidente de la reunión"
-                        assignment={activeAssignment?.president}
-                        brothers={brothers}
-                        onUpdateField={updateAssignmentField}
-                        recentAssigneeIds={recentAssigneeIds}
-                        recentHelperIds={recentHelperIds}
-                        lastWeekHelperIds={lastWeekHelperIds}
-                        lastWeekAssigneeIds={lastWeekAssigneeIds}
-                        activeAssignment={activeAssignment}
-                        allowMinorsAsAssistants={allowMinorsAsAssistants}
-                        allowSameWeekRepetition={allowSameWeekRepetition}
-                      />
+                  {/* Editor for No Meeting (Assembly / Special Event) */}
+                  {isEditingAssignments && (
+                    <NoMeetingEditor
+                      assignment={activeAssignment}
+                      congregationId={congregationId}
+                      weekId={activeWeek.id}
+                      onUpdate={updateNoMeeting}
+                    />
+                  )}
 
-                      {/* Aux Counselor */}
-                      {hasAuxiliaryRoom && (
+                  {/* View Mode: If No Meeting is set and not editing */}
+                  {!isEditingAssignments && activeAssignment?.noMeeting ? (
+                    <NoMeetingCard
+                      assignment={activeAssignment}
+                      onEdit={startEditing}
+                    />
+                  ) : activeAssignment?.noMeeting && isEditingAssignments ? (
+                    <div className="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-6 text-center text-amber-900 space-y-1.5 shadow-xs">
+                      <p className="text-xs font-black">
+                        ⚡ Esta semana está marcada sin reunión congregacional.
+                      </p>
+                      <p className="text-[11px] text-amber-700 font-medium max-w-lg mx-auto">
+                        Las partes de asignaciones habituales se mantienen guardadas pero están ocultas. Al exportar el programa en PDF saldrá el motivo, título e imagen configurados arriba.
+                      </p>
+                    </div>
+                  ) : (
+                    /* Regular Program sections */
+                    <div className="space-y-6 w-full">
+                      {/* Inicio de la reunión */}
+                      <div className="bg-white/95 border border-slate-200/80 rounded-2xl p-6 shadow-sm w-full space-y-4">
+                        {/* President */}
                         <ProgramSingleAssignmentCard
                           isEditing={isEditingAssignments}
-                          section="auxCounselor"
-                          title="Consejero de la sala auxiliar"
-                          description="Consejero de la sala auxiliar de la reunión"
-                          assignment={activeAssignment?.auxCounselor}
+                          section="president"
+                          title="Presidente"
+                          description="Presidente de la reunión"
+                          assignment={activeAssignment?.president}
                           brothers={brothers}
                           onUpdateField={updateAssignmentField}
                           recentAssigneeIds={recentAssigneeIds}
@@ -194,176 +206,196 @@ export function LifeMinistryTab({
                           allowMinorsAsAssistants={allowMinorsAsAssistants}
                           allowSameWeekRepetition={allowSameWeekRepetition}
                         />
+
+                        {/* Aux Counselor */}
+                        {hasAuxiliaryRoom && (
+                          <ProgramSingleAssignmentCard
+                            isEditing={isEditingAssignments}
+                            section="auxCounselor"
+                            title="Consejero de la sala auxiliar"
+                            description="Consejero de la sala auxiliar de la reunión"
+                            assignment={activeAssignment?.auxCounselor}
+                            brothers={brothers}
+                            onUpdateField={updateAssignmentField}
+                            recentAssigneeIds={recentAssigneeIds}
+                            recentHelperIds={recentHelperIds}
+                            lastWeekHelperIds={lastWeekHelperIds}
+                            lastWeekAssigneeIds={lastWeekAssigneeIds}
+                            activeAssignment={activeAssignment}
+                            allowMinorsAsAssistants={allowMinorsAsAssistants}
+                            allowSameWeekRepetition={allowSameWeekRepetition}
+                          />
+                        )}
+
+                        {/* Song First */}
+                        <ProgramSongRow
+                          isEditing={false}
+                          subtitle="Número o título de la canción inicial"
+                          value={activeWeek.songFirst || ""}
+                          onChange={() => {}}
+                          flat={true}
+                        />
+
+                        {/* Initial Prayer */}
+                        <ProgramSingleAssignmentCard
+                          isEditing={isEditingAssignments}
+                          section="prayerFirst"
+                          title="Oración"
+                          description="Oración inicial de la reunión"
+                          assignment={activeAssignment?.prayerFirst}
+                          brothers={brothers}
+                          onUpdateField={updateAssignmentField}
+                          recentAssigneeIds={recentAssigneeIds}
+                          recentHelperIds={recentHelperIds}
+                          lastWeekHelperIds={lastWeekHelperIds}
+                          lastWeekAssigneeIds={lastWeekAssigneeIds}
+                          activeAssignment={activeAssignment}
+                          allowMinorsAsAssistants={allowMinorsAsAssistants}
+                          allowSameWeekRepetition={allowSameWeekRepetition}
+                        />
+
+                        {/* Intro Duration */}
+                        <ProgramDurationRow
+                          isEditing={false}
+                          title="Palabras de introducción"
+                          subtitle="Duración de la introducción"
+                          value={activeWeek.introDuration || ""}
+                          onChange={() => {}}
+                          flat={true}
+                        />
+                      </div>
+
+                      {/* Section 1: Treasures */}
+                      {activeWeek.treasures && activeWeek.treasures.length > 0 && (
+                        <AssignmentSection
+                          section="treasures"
+                          title="Tesoros de la Biblia"
+                          colorClass="bg-[#3c7f8b]"
+                          parts={activeWeek.treasures}
+                          assignments={activeAssignment?.treasures}
+                          auxAssignments={activeAssignment?.treasuresAux}
+                          isEditing={isEditingAssignments}
+                          brothers={brothers}
+                          onUpdateField={updateAssignmentField}
+                          recentAssigneeIds={recentAssigneeIds}
+                          recentHelperIds={recentHelperIds}
+                          lastWeekHelperIds={lastWeekHelperIds}
+                          lastWeekAssigneeIds={lastWeekAssigneeIds}
+                          activeAssignment={activeAssignment}
+                          activeWeek={activeWeek}
+                          hasAuxiliaryRoom={hasAuxiliaryRoom}
+                          allowMinorsAsAssistants={allowMinorsAsAssistants}
+                          allowSameWeekRepetition={allowSameWeekRepetition}
+                        />
                       )}
 
-                      {/* Song First */}
+                      {/* Section 2: Field Ministry */}
+                      {activeWeek.fieldMinistry && activeWeek.fieldMinistry.length > 0 && (
+                        <AssignmentSection
+                          section={activeHall === 'main' ? 'fieldMinistry' : 'fieldMinistryAux'}
+                          title="Seamos Mejores Maestros"
+                          colorClass="bg-[#be8900]"
+                          parts={activeWeek.fieldMinistry}
+                          assignments={
+                            activeHall === 'main'
+                              ? activeAssignment?.fieldMinistry
+                              : activeAssignment?.fieldMinistryAux
+                          }
+                          isEditing={isEditingAssignments}
+                          brothers={brothers}
+                          onUpdateField={updateAssignmentField}
+                          activeHall={activeHall}
+                          recentAssigneeIds={recentAssigneeIds}
+                          recentHelperIds={recentHelperIds}
+                          lastWeekHelperIds={lastWeekHelperIds}
+                          lastWeekAssigneeIds={lastWeekAssigneeIds}
+                          activeAssignment={activeAssignment}
+                          activeWeek={activeWeek}
+                          hasAuxiliaryRoom={hasAuxiliaryRoom}
+                          allowMinorsAsAssistants={allowMinorsAsAssistants}
+                          allowSameWeekRepetition={allowSameWeekRepetition}
+                          headerRight={
+                            hasAuxiliaryRoom ? (
+                              <HallTabSelector
+                                activeHall={activeHall}
+                                onChangeHall={setActiveHall}
+                              />
+                            ) : undefined
+                          }
+                        />
+                      )}
+
+                      {/* Song Second */}
                       <ProgramSongRow
                         isEditing={false}
-                        subtitle="Número o título de la canción inicial"
-                        value={activeWeek.songFirst || ""}
+                        subtitle="Número o título de la canción intermedia"
+                        value={activeWeek.songSecond || ""}
                         onChange={() => {}}
-                        flat={true}
                       />
 
-                      {/* Initial Prayer */}
-                      <ProgramSingleAssignmentCard
-                        isEditing={isEditingAssignments}
-                        section="prayerFirst"
-                        title="Oración"
-                        description="Oración inicial de la reunión"
-                        assignment={activeAssignment?.prayerFirst}
-                        brothers={brothers}
-                        onUpdateField={updateAssignmentField}
-                        recentAssigneeIds={recentAssigneeIds}
-                        recentHelperIds={recentHelperIds}
-                        lastWeekHelperIds={lastWeekHelperIds}
-                        lastWeekAssigneeIds={lastWeekAssigneeIds}
-                        activeAssignment={activeAssignment}
-                        allowMinorsAsAssistants={allowMinorsAsAssistants}
-                        allowSameWeekRepetition={allowSameWeekRepetition}
-                      />
+                      {/* Section 3: Christian Life */}
+                      {activeWeek.christianLife && activeWeek.christianLife.length > 0 && (
+                        <AssignmentSection
+                          section="christianLife"
+                          title="Nuestra Vida Cristiana"
+                          colorClass="bg-[#bf2f13]"
+                          parts={activeWeek.christianLife}
+                          assignments={activeAssignment?.christianLife}
+                          isEditing={isEditingAssignments}
+                          brothers={brothers}
+                          onUpdateField={updateAssignmentField}
+                          recentAssigneeIds={recentAssigneeIds}
+                          recentHelperIds={recentHelperIds}
+                          lastWeekHelperIds={lastWeekHelperIds}
+                          lastWeekAssigneeIds={lastWeekAssigneeIds}
+                          activeAssignment={activeAssignment}
+                          activeWeek={activeWeek}
+                          allowMinorsAsAssistants={allowMinorsAsAssistants}
+                          allowSameWeekRepetition={allowSameWeekRepetition}
+                        />
+                      )}
 
-                      {/* Intro Duration */}
-                      <ProgramDurationRow
-                        isEditing={false}
-                        title="Palabras de introducción"
-                        subtitle="Duración de la introducción"
-                        value={activeWeek.introDuration || ""}
-                        onChange={() => {}}
-                        flat={true}
-                      />
+                      {/* Conclusión de la reunión */}
+                      <div className="bg-white/95 border border-slate-200/80 rounded-2xl p-6 shadow-sm w-full space-y-4">
+                        {/* Concl Duration */}
+                        <ProgramDurationRow
+                          isEditing={false}
+                          title="Palabras de conclusión"
+                          subtitle="Duración de la conclusión"
+                          value={activeWeek.conclDuration || ""}
+                          onChange={() => {}}
+                          flat={true}
+                        />
+
+                        {/* Song Third */}
+                        <ProgramSongRow
+                          isEditing={false}
+                          subtitle="Número o título de la canción final"
+                          value={activeWeek.songThird || ""}
+                          onChange={() => {}}
+                          flat={true}
+                        />
+
+                        {/* Final Prayer */}
+                        <ProgramSingleAssignmentCard
+                          isEditing={isEditingAssignments}
+                          section="prayerLast"
+                          title="Oración"
+                          description="Oración final de la reunión"
+                          assignment={activeAssignment?.prayerLast}
+                          brothers={brothers}
+                          onUpdateField={updateAssignmentField}
+                          recentAssigneeIds={recentAssigneeIds}
+                          recentHelperIds={recentHelperIds}
+                          lastWeekHelperIds={lastWeekHelperIds}
+                          lastWeekAssigneeIds={lastWeekAssigneeIds}
+                          activeAssignment={activeAssignment}
+                          allowMinorsAsAssistants={allowMinorsAsAssistants}
+                          allowSameWeekRepetition={allowSameWeekRepetition}
+                        />
+                      </div>
                     </div>
-
-                    {/* Section 1: Treasures */}
-                    {activeWeek.treasures && activeWeek.treasures.length > 0 && (
-                      <AssignmentSection
-                        section="treasures"
-                        title="Tesoros de la Biblia"
-                        colorClass="bg-[#3c7f8b]"
-                        parts={activeWeek.treasures}
-                        assignments={activeAssignment?.treasures}
-                        auxAssignments={activeAssignment?.treasuresAux}
-                        isEditing={isEditingAssignments}
-                        brothers={brothers}
-                        onUpdateField={updateAssignmentField}
-                        recentAssigneeIds={recentAssigneeIds}
-                        recentHelperIds={recentHelperIds}
-                        lastWeekHelperIds={lastWeekHelperIds}
-                        lastWeekAssigneeIds={lastWeekAssigneeIds}
-                        activeAssignment={activeAssignment}
-                        activeWeek={activeWeek}
-                        hasAuxiliaryRoom={hasAuxiliaryRoom}
-                        allowMinorsAsAssistants={allowMinorsAsAssistants}
-                        allowSameWeekRepetition={allowSameWeekRepetition}
-                      />
-                    )}
-
-                    {/* Section 2: Field Ministry */}
-                    {activeWeek.fieldMinistry && activeWeek.fieldMinistry.length > 0 && (
-                      <AssignmentSection
-                        section={activeHall === 'main' ? 'fieldMinistry' : 'fieldMinistryAux'}
-                        title="Seamos Mejores Maestros"
-                        colorClass="bg-[#be8900]"
-                        parts={activeWeek.fieldMinistry}
-                        assignments={
-                          activeHall === 'main'
-                            ? activeAssignment?.fieldMinistry
-                            : activeAssignment?.fieldMinistryAux
-                        }
-                        isEditing={isEditingAssignments}
-                        brothers={brothers}
-                        onUpdateField={updateAssignmentField}
-                        activeHall={activeHall}
-                        recentAssigneeIds={recentAssigneeIds}
-                        recentHelperIds={recentHelperIds}
-                        lastWeekHelperIds={lastWeekHelperIds}
-                        lastWeekAssigneeIds={lastWeekAssigneeIds}
-                        activeAssignment={activeAssignment}
-                        activeWeek={activeWeek}
-                        hasAuxiliaryRoom={hasAuxiliaryRoom}
-                        allowMinorsAsAssistants={allowMinorsAsAssistants}
-                        allowSameWeekRepetition={allowSameWeekRepetition}
-                        headerRight={
-                          hasAuxiliaryRoom ? (
-                            <HallTabSelector
-                              activeHall={activeHall}
-                              onChangeHall={setActiveHall}
-                            />
-                          ) : undefined
-                        }
-                      />
-                    )}
-
-                    {/* Song Second */}
-                    <ProgramSongRow
-                      isEditing={false}
-                      subtitle="Número o título de la canción intermedia"
-                      value={activeWeek.songSecond || ""}
-                      onChange={() => {}}
-                    />
-
-                    {/* Section 3: Christian Life */}
-                    {activeWeek.christianLife && activeWeek.christianLife.length > 0 && (
-                      <AssignmentSection
-                        section="christianLife"
-                        title="Nuestra Vida Cristiana"
-                        colorClass="bg-[#bf2f13]"
-                        parts={activeWeek.christianLife}
-                        assignments={activeAssignment?.christianLife}
-                        isEditing={isEditingAssignments}
-                        brothers={brothers}
-                        onUpdateField={updateAssignmentField}
-                        recentAssigneeIds={recentAssigneeIds}
-                        recentHelperIds={recentHelperIds}
-                        lastWeekHelperIds={lastWeekHelperIds}
-                        lastWeekAssigneeIds={lastWeekAssigneeIds}
-                        activeAssignment={activeAssignment}
-                        activeWeek={activeWeek}
-                        allowMinorsAsAssistants={allowMinorsAsAssistants}
-                        allowSameWeekRepetition={allowSameWeekRepetition}
-                      />
-                    )}
-
-                    {/* Conclusión de la reunión */}
-                    <div className="bg-white/95 border border-slate-200/80 rounded-2xl p-6 shadow-sm w-full space-y-4">
-                      {/* Concl Duration */}
-                      <ProgramDurationRow
-                        isEditing={false}
-                        title="Palabras de conclusión"
-                        subtitle="Duración de la conclusión"
-                        value={activeWeek.conclDuration || ""}
-                        onChange={() => {}}
-                        flat={true}
-                      />
-
-                      {/* Song Third */}
-                      <ProgramSongRow
-                        isEditing={false}
-                        subtitle="Número o título de la canción final"
-                        value={activeWeek.songThird || ""}
-                        onChange={() => {}}
-                        flat={true}
-                      />
-
-                      {/* Final Prayer */}
-                      <ProgramSingleAssignmentCard
-                        isEditing={isEditingAssignments}
-                        section="prayerLast"
-                        title="Oración"
-                        description="Oración final de la reunión"
-                        assignment={activeAssignment?.prayerLast}
-                        brothers={brothers}
-                        onUpdateField={updateAssignmentField}
-                        recentAssigneeIds={recentAssigneeIds}
-                        recentHelperIds={recentHelperIds}
-                        lastWeekHelperIds={lastWeekHelperIds}
-                        lastWeekAssigneeIds={lastWeekAssigneeIds}
-                        activeAssignment={activeAssignment}
-                        allowMinorsAsAssistants={allowMinorsAsAssistants}
-                        allowSameWeekRepetition={allowSameWeekRepetition}
-                      />
-                    </div>
-                  </div>
+                  )}
                 </div>
               )}
             </div>

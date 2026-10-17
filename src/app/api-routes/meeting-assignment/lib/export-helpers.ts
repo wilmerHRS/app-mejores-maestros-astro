@@ -1,5 +1,5 @@
 import { getBrothersByCongregation, getCongregationById, getMeetingAssignment, getActivityGuideWeek } from '@/shared/api/index.server';
-import type { ActivityGuideWeek, Brother, MeetingAssignment, SingleAssignment } from '@/shared/api';
+import type { ActivityGuideWeek, Brother, MeetingAssignment } from '@/shared/api';
 
 export function getBrotherName(id: string | undefined, brothers: Brother[]): string {
   if (!id) return '';

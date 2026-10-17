@@ -58,7 +58,18 @@ async function deleteReplacedImages(previousAssignment: any, nextAssignment: any
     });
   }
 
-  await Promise.all([...imageKeys].map((key) => env.ASSIGNMENT_IMAGES.delete(key)));
+  if (previousAssignment.noMeetingImageUrl && previousAssignment.noMeetingImageUrl !== nextAssignment.noMeetingImageUrl) {
+    const key = extractR2Key(previousAssignment.noMeetingImageUrl);
+    if (key) imageKeys.add(key);
+  }
+
+  if (imageKeys.size > 0 && env?.ASSIGNMENT_IMAGES) {
+    try {
+      await Promise.all([...imageKeys].map((key) => env.ASSIGNMENT_IMAGES.delete(key)));
+    } catch (err) {
+      console.warn("No se pudieron eliminar imágenes anteriores de R2:", err);
+    }
+  }
 }
 
 function extractR2Key(imageUrl: string): string | null {

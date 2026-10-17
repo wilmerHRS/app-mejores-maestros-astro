@@ -49,13 +49,20 @@ export interface LifeMinistryData {
   setActiveHall: (hall: 'main' | 'aux') => void;
   startEditing: () => void;
   cancelEditing: () => void;
-  saveAssignments: () => Promise<void>;
+  saveAssignments: () => Promise<boolean>;
   updateAssignmentField: (
     section: AssignmentSection,
     index: number,
     field: keyof SingleAssignment,
     value: string
   ) => void;
+  updateNoMeeting: (fields: Partial<{
+    noMeeting: boolean;
+    noMeetingReason: string;
+    noMeetingOtherReason: string;
+    noMeetingTitle: string;
+    noMeetingImageUrl: string;
+  }>) => void;
 }
 
 function syncArrayToTemplate(
@@ -83,6 +90,11 @@ function buildEmptyAssignment(weekId: string, congregationId: string, week: Acti
     auxCounselor: emptyRow(),
     prayerFirst: emptyRow(),
     prayerLast: emptyRow(),
+    noMeeting: false,
+    noMeetingReason: 'Asamblea regional',
+    noMeetingOtherReason: '',
+    noMeetingTitle: '',
+    noMeetingImageUrl: '',
   };
 }
 
@@ -234,6 +246,11 @@ export function useLifeMinistryData({ congregationId, initialGuideId, initialWee
           auxCounselor: assignmentData.auxCounselor || { assignedTo: '', assistant: '', status: 'Pendiente' },
           prayerFirst: assignmentData.prayerFirst || { assignedTo: '', assistant: '', status: 'Pendiente' },
           prayerLast: assignmentData.prayerLast || { assignedTo: '', assistant: '', status: 'Pendiente' },
+          noMeeting: assignmentData.noMeeting ?? false,
+          noMeetingReason: assignmentData.noMeetingReason || 'Asamblea regional',
+          noMeetingOtherReason: assignmentData.noMeetingOtherReason || '',
+          noMeetingTitle: assignmentData.noMeetingTitle || '',
+          noMeetingImageUrl: assignmentData.noMeetingImageUrl || '',
         });
       } else {
         setActiveAssignment(buildEmptyAssignment(week.id, congregationId, week));
@@ -243,17 +260,23 @@ export function useLifeMinistryData({ congregationId, initialGuideId, initialWee
     }
   }
 
-  async function saveAssignments(): Promise<void> {
-    if (!activeAssignment) return;
+  async function saveAssignments(): Promise<boolean> {
+    if (!activeAssignment) return false;
     try {
       setIsSaving(true);
       setErrorMsg(null);
       setSuccessMsg(null);
-      await saveMeetingAssignmentClient(activeAssignment);
+      const saved = await saveMeetingAssignmentClient(activeAssignment);
+      if (saved) {
+        setActiveAssignment(prev => prev ? { ...prev, ...saved } : saved);
+      }
+      setIsEditingAssignments(false);
       setSuccessMsg('¡Asignaciones guardadas correctamente!');
       setTimeout(() => setSuccessMsg(null), 3000);
+      return true;
     } catch (err: any) {
       setErrorMsg('Error al guardar: ' + err.message);
+      return false;
     } finally {
       setIsSaving(false);
     }
@@ -349,5 +372,20 @@ export function useLifeMinistryData({ congregationId, initialGuideId, initialWee
     cancelEditing,
     saveAssignments,
     updateAssignmentField,
+    updateNoMeeting: (fields: Partial<{
+      noMeeting: boolean;
+      noMeetingReason: string;
+      noMeetingOtherReason: string;
+      noMeetingTitle: string;
+      noMeetingImageUrl: string;
+    }>) => {
+      setActiveAssignment(prev => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          ...fields
+        };
+      });
+    },
   };
 }

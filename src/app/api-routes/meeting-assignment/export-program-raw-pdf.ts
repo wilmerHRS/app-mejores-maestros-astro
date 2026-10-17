@@ -2,9 +2,18 @@ import puppeteer from '@cloudflare/puppeteer';
 import { env } from 'cloudflare:workers';
 import type { APIRoute } from 'astro';
 import { verifyFirebaseSessionCookie } from '@/shared/api/index.server';
-import type { ActivityGuideWeek, Brother, MeetingAssignment, SingleAssignment } from '@/shared/api';
+import { type ActivityGuideWeek, type Brother, type MeetingAssignment, type SingleAssignment, getNoMeetingReasonText } from '@/shared/api';
 import { TESOROS_BIBLIA_BASE64, MEJORES_MAESTROS_BASE64, VIDA_CRISTIANA_BASE64 } from './icon-assets';
 import { getBrotherName, getMeetingDate, parseDuration, formatTime, getExportData } from './lib/export-helpers';
+
+function escapeHtml(str: string): string {
+  return (str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 
 function getPartNameText(partText: string, partNumber: number, duration: string): string {
   const trimmed = partText.trim();
@@ -410,6 +419,20 @@ export const exportMeetingProgramRawPdfHandler: APIRoute = async ({ request, coo
         }
       }
 
+      const w1IsNoMeeting = !!w1Assign?.noMeeting;
+      const w1ReasonText = getNoMeetingReasonText(w1Assign);
+      const w1BannerText = w1IsNoMeeting
+        ? `${getMeetingDate(week1, meetingDay)} | ${w1ReasonText.toUpperCase()}`
+        : `${getMeetingDate(week1, meetingDay)} | ${week1.bibleReading}`;
+
+      const w2IsNoMeeting = !!w2Assign?.noMeeting;
+      const w2ReasonText = getNoMeetingReasonText(w2Assign);
+      const w2BannerText = week2
+        ? (w2IsNoMeeting
+            ? `${getMeetingDate(week2, meetingDay)} | ${w2ReasonText.toUpperCase()}`
+            : `${getMeetingDate(week2, meetingDay)} | ${week2.bibleReading}`)
+        : '';
+
       pagesHtml.push(`
         <div class="page">
           <div class="page-header">
@@ -418,24 +441,44 @@ export const exportMeetingProgramRawPdfHandler: APIRoute = async ({ request, coo
           </div>
           
           <div class="week">
-            <div class="week-header-banner">${getMeetingDate(week1, meetingDay)} | ${week1.bibleReading}</div>
-            
-            <div class="block">${w1Block1.map(renderRawPartRow).join('')}</div>
-            <div class="block">${w1Block2.map(renderRawPartRow).join('')}</div>
-            <div class="block">${w1Block3.map(renderRawPartRow).join('')}</div>
-            <div class="block">${w1Block4.map(renderRawPartRow).join('')}</div>
-            <div class="block">${w1Block5.map(renderRawPartRow).join('')}</div>
+            <div class="week-header-banner">${w1BannerText}</div>
+            ${w1IsNoMeeting ? `
+              <div class="no-meeting-panel">
+                <div class="no-meeting-title">${escapeHtml(w1Assign?.noMeetingTitle || w1ReasonText)}</div>
+                ${w1Assign?.noMeetingImageUrl ? `
+                  <div class="no-meeting-img-wrapper">
+                    <img src="${w1Assign.noMeetingImageUrl}" alt="${escapeHtml(w1Assign.noMeetingTitle || w1ReasonText)}" class="no-meeting-img" />
+                  </div>
+                ` : ''}
+              </div>
+            ` : `
+              <div class="block">${w1Block1.map(renderRawPartRow).join('')}</div>
+              <div class="block">${w1Block2.map(renderRawPartRow).join('')}</div>
+              <div class="block">${w1Block3.map(renderRawPartRow).join('')}</div>
+              <div class="block">${w1Block4.map(renderRawPartRow).join('')}</div>
+              <div class="block">${w1Block5.map(renderRawPartRow).join('')}</div>
+            `}
           </div>
 
           ${week2 ? `
             <div class="week">
-              <div class="week-header-banner">${getMeetingDate(week2, meetingDay)} | ${week2.bibleReading}</div>
-              
-              <div class="block">${w2Block1.map(renderRawPartRow).join('')}</div>
-              <div class="block">${w2Block2.map(renderRawPartRow).join('')}</div>
-              <div class="block">${w2Block3.map(renderRawPartRow).join('')}</div>
-              <div class="block">${w2Block4.map(renderRawPartRow).join('')}</div>
-              <div class="block">${w2Block5.map(renderRawPartRow).join('')}</div>
+              <div class="week-header-banner">${w2BannerText}</div>
+              ${w2IsNoMeeting ? `
+                <div class="no-meeting-panel">
+                  <div class="no-meeting-title">${escapeHtml(w2Assign?.noMeetingTitle || w2ReasonText)}</div>
+                  ${w2Assign?.noMeetingImageUrl ? `
+                    <div class="no-meeting-img-wrapper">
+                      <img src="${w2Assign.noMeetingImageUrl}" alt="${escapeHtml(w2Assign.noMeetingTitle || w2ReasonText)}" class="no-meeting-img" />
+                    </div>
+                  ` : ''}
+                </div>
+              ` : `
+                <div class="block">${w2Block1.map(renderRawPartRow).join('')}</div>
+                <div class="block">${w2Block2.map(renderRawPartRow).join('')}</div>
+                <div class="block">${w2Block3.map(renderRawPartRow).join('')}</div>
+                <div class="block">${w2Block4.map(renderRawPartRow).join('')}</div>
+                <div class="block">${w2Block5.map(renderRawPartRow).join('')}</div>
+              `}
             </div>
           ` : ''}
         </div>
@@ -510,6 +553,50 @@ export const exportMeetingProgramRawPdfHandler: APIRoute = async ({ request, coo
                 text-transform: uppercase;
                 font-weight: bold;
                 flex-shrink: 0;
+              }
+              .no-meeting-panel {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                height: 108mm;
+                max-height: 108mm;
+                padding: 8mm 6mm;
+                background-color: #f8fafc;
+                border: 1px solid #cbd5e1;
+                border-top: none;
+                box-sizing: border-box;
+                text-align: center;
+                overflow: hidden;
+              }
+              .no-meeting-title {
+                font-size: 15px;
+                font-weight: 800;
+                color: #1e3a8a;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                margin-bottom: 6mm;
+                line-height: 1.35;
+                max-width: 90%;
+              }
+              .no-meeting-img-wrapper {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                flex: 1;
+                max-height: 82mm;
+                overflow: hidden;
+              }
+              .no-meeting-img {
+                max-height: 82mm;
+                max-width: 90%;
+                height: auto;
+                width: auto;
+                object-fit: contain;
+                border-radius: 6px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
               }
               .block {
                 display: flex;

@@ -103,7 +103,7 @@ async function getExportAssignments(congregationId: string, weekIds: string[]): 
 
   for (const week of weeks) {
     const meetingAssignment = assignmentsMap.get(week.id);
-    if (!meetingAssignment) continue;
+    if (!meetingAssignment || meetingAssignment.noMeeting) continue;
     assignments.push(...buildWeekAssignments(week, meetingAssignment, brothers, meetingDay, congregationId));
   }
   return assignments;

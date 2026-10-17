@@ -20,6 +20,19 @@ export interface MeetingAssignment {
   auxCounselor?: SingleAssignment;
   prayerFirst?: SingleAssignment;
   prayerLast?: SingleAssignment;
+  noMeeting?: boolean;
+  noMeetingReason?: 'Asamblea regional' | 'Asamblea de circuito' | 'Otro' | string;
+  noMeetingOtherReason?: string;
+  noMeetingTitle?: string;
+  noMeetingImageUrl?: string;
+}
+
+export function getNoMeetingReasonText(assignment: { noMeeting?: boolean; noMeetingReason?: string; noMeetingOtherReason?: string } | null | undefined): string {
+  if (!assignment?.noMeeting) return '';
+  if (assignment.noMeetingReason === 'Otro') {
+    return (assignment.noMeetingOtherReason || 'Otro').trim();
+  }
+  return (assignment.noMeetingReason || 'Asamblea regional').trim();
 }
 
 export async function fetchMeetingAssignmentClient(weekId: string, congregationId: string): Promise<MeetingAssignment | null> {
@@ -55,4 +68,22 @@ export async function sendMeetingAssignmentWhatsAppClient(data: Record<string, u
   const result = await res.json() as { messageSid?: string; testMode?: boolean; error?: string };
   if (!res.ok) throw new Error(result.error || 'No se pudo enviar el mensaje por WhatsApp');
   return { messageSid: result.messageSid!, testMode: !!result.testMode };
+}
+
+export async function uploadEventImageClient(file: File, congregationId: string, weekId: string): Promise<string> {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('congregationId', congregationId);
+  formData.append('weekId', weekId);
+
+  const res = await fetch('/api/meeting-assignment/upload-event-image', {
+    method: 'POST',
+    body: formData
+  });
+
+  const data = await res.json() as { success?: boolean; url?: string; error?: string };
+  if (!res.ok || !data.url) {
+    throw new Error(data.error || 'Error al subir la imagen');
+  }
+  return data.url;
 }
