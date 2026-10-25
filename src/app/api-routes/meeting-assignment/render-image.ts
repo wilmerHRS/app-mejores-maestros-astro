@@ -44,8 +44,10 @@ export const renderMeetingAssignmentImageHandler: APIRoute = async ({ request, c
 
     try {
       const page = await browser.newPage();
+      page.setDefaultTimeout(60000);
+      page.setDefaultNavigationTimeout(60000);
       await page.setViewport({ width: 720, height: 960, deviceScaleFactor: 1 });
-      await page.setContent(createAssignmentHtml(assignment), { waitUntil: 'networkidle0' });
+      await page.setContent(createAssignmentHtml(assignment), { waitUntil: 'load', timeout: 60000 });
       const image = await page.screenshot({ type: 'png' });
       await env.ASSIGNMENT_IMAGES.put(objectKey, image, { httpMetadata: { contentType: 'image/png', cacheControl: 'public, max-age=31536000, immutable' } });
       await saveImageUrl(meetingAssignment, assignment, publicUrl);
@@ -65,7 +67,7 @@ async function saveImageUrl(meetingAssignment: MeetingAssignment, request: Assig
   await saveMeetingAssignment(meetingAssignment);
 }
 
-export function createAssignmentHtml(assignment: AssignmentImageData): string {
+export function createAssignmentCardHtml(assignment: AssignmentImageData): string {
   const intervention = `${assignment.part} (${assignment.duration}.)`;
   const field = (label: string, value: string, withLine = true) => {
     const isIntervention = label.startsWith('Intervención');
@@ -75,7 +77,11 @@ export function createAssignmentHtml(assignment: AssignmentImageData): string {
   };
   const room = (label: string, checked: boolean) => `<div>${checked ? '☑' : '☐'} ${label}</div>`;
 
-  return `<!doctype html><html><body style="margin:0"><main style="width:720px;height:960px;padding:30px 42px;box-sizing:border-box;background:#fff;color:#000;font-family:Arial,Helvetica,sans-serif;display:flex;flex-direction:column;justify-content:center"><header style="text-align:center;font-size:34px;font-weight:700;line-height:1.25;margin-bottom:38px">ASIGNACIÓN PARA LA REUNIÓN<br>VIDA Y MINISTERIO CRISTIANOS</header><section style="padding:0 8px;font-size:30px;line-height:1.2">${field('Nombre:', assignment.name || '')}${field('Ayudante:', assignment.assistant || '')}${field('Fecha:', assignment.date)}${field('Intervención núm.:', intervention)}</section><h2 style="margin:44px 8px 18px;font-size:30px">Se presentará en:</h2><div style="margin-left:46px;font-size:27px;line-height:1.5">${room('Sala principal', assignment.room === 'Sala principal')}${room('Sala auxiliar núm. 1', assignment.room === 'Sala auxiliar núm. 1')}${room('Sala auxiliar núm. 2', false)}</div><p style="margin:55px 8px 0;width:620px;font-size:21px;line-height:1.45;text-align:justify"><strong>Nota al estudiante:</strong> En la <em>Guía de actividades</em> encontrará la información que necesita para su intervención. Repase también las indicaciones que se describen en las Instrucciones para la reunión <em>Vida y Ministerio Cristianos</em> (S-38).</p><footer style="margin:36px 8px 0;font-size:18px">S-89-S&nbsp;&nbsp;11/23</footer></main></body></html>`;
+  return `<main style="width:720px;height:960px;padding:30px 42px;box-sizing:border-box;background:#fff;color:#000;font-family:Arial,Helvetica,sans-serif;display:flex;flex-direction:column;justify-content:center"><header style="text-align:center;font-size:34px;font-weight:700;line-height:1.25;margin-bottom:38px">ASIGNACIÓN PARA LA REUNIÓN<br>VIDA Y MINISTERIO CRISTIANOS</header><section style="padding:0 8px;font-size:30px;line-height:1.2">${field('Nombre:', assignment.name || '')}${field('Ayudante:', assignment.assistant || '')}${field('Fecha:', assignment.date)}${field('Intervención núm.:', intervention)}</section><h2 style="margin:44px 8px 18px;font-size:30px">Se presentará en:</h2><div style="margin-left:46px;font-size:27px;line-height:1.5">${room('Sala principal', assignment.room === 'Sala principal')}${room('Sala auxiliar núm. 1', assignment.room === 'Sala auxiliar núm. 1')}${room('Sala auxiliar núm. 2', false)}</div><p style="margin:55px 8px 0;width:620px;font-size:21px;line-height:1.45;text-align:justify"><strong>Nota al estudiante:</strong> En la <em>Guía de actividades</em> encontrará la información que necesita para su intervención. Repase también las indicaciones que se describen en las Instrucciones para la reunión <em>Vida y Ministerio Cristianos</em> (S-38).</p><footer style="margin:36px 8px 0;font-size:18px">S-89-S&nbsp;&nbsp;11/23</footer></main>`;
+}
+
+export function createAssignmentHtml(assignment: AssignmentImageData): string {
+  return `<!doctype html><html><body style="margin:0">${createAssignmentCardHtml(assignment)}</body></html>`;
 }
 
 function escapeHtml(value: string): string {

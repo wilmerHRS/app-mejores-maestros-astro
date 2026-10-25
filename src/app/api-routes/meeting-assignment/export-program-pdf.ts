@@ -38,8 +38,19 @@ export const exportMeetingProgramPdfHandler: APIRoute = async ({ request, cookie
     const browser = await puppeteer.launch(env.BROWSER);
     try {
       const pdfPage = await browser.newPage();
+      pdfPage.setDefaultTimeout(60000);
+      pdfPage.setDefaultNavigationTimeout(60000);
+
       const htmlContent = createProgramPdfHtml(weeks, assignments, brothers, congregationName, meetingDay);
-      await pdfPage.setContent(htmlContent, { waitUntil: 'networkidle0' });
+      await pdfPage.setContent(htmlContent, { waitUntil: 'load', timeout: 60000 });
+      try {
+        await Promise.race([
+          pdfPage.evaluateHandle('document.fonts.ready'),
+          new Promise((resolve) => setTimeout(resolve, 3000)),
+        ]);
+      } catch {
+        // Fallback to system fonts if fonts.ready fails or times out
+      }
       
       const pdf = await pdfPage.pdf({
         format: 'A4',
@@ -419,8 +430,6 @@ function createProgramPdfHtml(
     <html>
       <head>
         <meta charset="utf-8" />
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
         <style>
           @page {
